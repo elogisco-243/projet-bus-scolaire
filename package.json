@@ -1,20 +1,15 @@
 {
-  "name": "project",
+  "name": "projet-bus-scolaire",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Serveur de simulation transport scolaire",
+  "main": "simulateur.js",
   "scripts": {
     "start": "node simulateur.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-}
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "express": "^5.3.0",
-    "socket.io": "^4.8.4",
-    "socket.io-client": "^4.8.4"
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   }
 }
