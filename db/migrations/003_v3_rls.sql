@@ -194,9 +194,18 @@ CREATE POLICY v3_students_read ON public.students FOR SELECT TO bus_v3_reader US
 
 ALTER TABLE public.verified_parent_student_links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.verified_parent_student_links FORCE ROW LEVEL SECURITY;
-CREATE POLICY v3_links_read ON public.verified_parent_student_links FOR SELECT TO bus_v3_reader
-  USING (revoked_at IS NULL AND (bus_v3_rls.parent_linked(student_id) OR
-    bus_v3_rls.school_admin_for_student(student_id)));
+CREATE POLICY v3_links_read
+ON public.verified_parent_student_links
+FOR SELECT TO bus_v3_reader
+USING (
+  revoked_at IS NULL AND (
+    (
+      parent_user_id = bus_v3_rls.actor_id()
+      AND bus_v3_rls.parent_linked(student_id)
+    )
+    OR bus_v3_rls.school_admin_for_student(student_id)
+  )
+);
 
 ALTER TABLE public.vehicles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.vehicles FORCE ROW LEVEL SECURITY;
