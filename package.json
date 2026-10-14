@@ -1,15 +1,5 @@
 {
-  "name": "projet-bus-scolaire",
-  "version": "1.0.0",
-  "description": "Serveur de simulation transport scolaire",
-  "main": "simulateur.js",
-  "scripts": {
-    "start": "node simulateur.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "socket.io-client": "^4.7.5"
-  }
+  "name":"projet-bus-scolaire","version":"2.0.0","private":true,"main":"src/server.js","engines":{"node":">=22"},
+  "scripts":{"start":"node --env-file-if-exists=.env src/server.js","simulate":"node --env-file-if-exists=.env scripts/simulate.js","test":"node --test","check":"node --check src/server.js && node --check src/tracker.js && node --check scripts/simulate.js"},
+  "dependencies":{"express":"^4.21.2","socket.io":"^4.8.1","socket.io-client":"^4.8.1"}
 }
