@@ -110,6 +110,47 @@ AS $$
   );
 $$;
 
+CREATE FUNCTION bus_v3_rls.parent_linked(target_student uuid)
+RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = pg_catalog, public, bus_v3_rls
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.verified_parent_student_links l
+    JOIN public.students s
+      ON s.id = l.student_id AND s.active
+    JOIN public.users u
+      ON u.id = l.parent_user_id AND u.active
+    WHERE l.student_id = target_student
+      AND l.parent_user_id = bus_v3_rls.actor_id()
+      AND l.revoked_at IS NULL
+      AND bus_v3_rls.is_member(
+        s.school_id, ARRAY['parent']::text[]
+      )
+  );
+$$;
+
+CREATE FUNCTION bus_v3_rls.school_admin_for_student(
+  target_student uuid
+)
+RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = pg_catalog, public, bus_v3_rls
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.students s
+    JOIN public.organizations o
+      ON o.id = s.school_id AND o.active
+    WHERE s.id = target_student
+      AND s.active
+      AND bus_v3_rls.is_member(
+        s.school_id, ARRAY['school_admin']::text[]
+      )
+  );
+$$;
+
 -- Les fonctions du schéma bus_v3_rls n'exposent ni la clé ni les signatures.
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA bus_v3_rls FROM PUBLIC;
 GRANT USAGE ON SCHEMA bus_v3_rls TO bus_v3_reader;
