@@ -1,0 +1,55 @@
+name: Bus V3 - SYNC-02 Isolated Tests
+
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync02-crew-events
+  pull_request:
+    branches:
+      - feature/bus-v3-foundations
+
+permissions:
+  contents: read
+
+jobs:
+  sync02-regressions:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: sync02_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sync02_disposable"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ci-only-password
+      PGDATABASE: sync02_disposable
+    steps:
+      - uses: actions/checkout@v5
+      - name: Node SYNC-02 contract and authorization tests
+        run: node --test test/v3-sync02-events.test.js
+      - name: PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+      - name: Base PostgreSQL schema (temporary CI DB)
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/migrations/001_v3_core.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/002_v3_integrity.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/003_v3_rls.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/004_v3_sync02_crew_events.sql
+      - name: SQL regression suites (data rolls back)
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/tests/001_v3_integrity_regression.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/002_v3_rls_regression.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/003_v3_sync02_regression.sql
