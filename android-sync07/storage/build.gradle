@@ -2,7 +2,7 @@ plugins { id 'com.android.library' }
 android {
     namespace 'org.eneo360.a2sscola.sync07'
     compileSdk 35
-    defaultConfig { minSdk 23 }
+    defaultConfig { minSdk 23; testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner' }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -12,4 +12,7 @@ dependencies {
     implementation 'net.zetetic:sqlcipher-android:4.17.0'
     implementation 'androidx.sqlite:sqlite:2.6.2'
     testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 }
