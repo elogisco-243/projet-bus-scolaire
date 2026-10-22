@@ -84,6 +84,16 @@ BEGIN
   END IF;
   IF NOT v_allowed THEN RAISE EXCEPTION 'WRITE_DENIED' USING ERRCODE='42501'; END IF;
 
+  -- Serialize competing retries for the same trip+student BEFORE looking up
+  -- the idempotency key. This guarantees a concurrent identical retry sees
+  -- the first committed event and returns already_recorded, not a conflict.
+  PERFORM 1 FROM public.trip_students ts
+    JOIN public.students s ON s.id=ts.student_id
+      AND s.school_id=v_trip.school_id AND s.active
+    WHERE ts.trip_id=p_trip_id AND ts.student_id=p_student_id
+    FOR UPDATE OF ts;
+  IF NOT FOUND THEN RAISE EXCEPTION 'WRITE_DENIED' USING ERRCODE='42501'; END IF;
+
   -- The unique event ID is examined AFTER active authorization, so replay is
   -- safe when a previously confirmed stop has already changed.
   SELECT * INTO v_existing FROM public.trip_student_events WHERE event_id=p_event_id;
@@ -103,12 +113,6 @@ BEGIN
      OR p_action IS NULL THEN
     RAISE EXCEPTION 'EVENT_CONFLICT' USING ERRCODE='23514';
   END IF;
-  PERFORM 1 FROM public.trip_students ts
-    JOIN public.students s ON s.id=ts.student_id AND s.school_id=v_trip.school_id
-      AND s.active
-    WHERE ts.trip_id=p_trip_id AND ts.student_id=p_student_id;
-  IF NOT FOUND THEN RAISE EXCEPTION 'WRITE_DENIED' USING ERRCODE='42501'; END IF;
-
   SELECT * INTO v_context FROM public.trip_pointage_context c
   WHERE c.trip_id=p_trip_id FOR SHARE;
   IF NOT FOUND OR v_context.parked_confirmed_at > clock_timestamp()
