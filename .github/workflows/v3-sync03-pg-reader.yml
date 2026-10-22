@@ -55,3 +55,9 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f db/tests/001_v3_integrity_regression.sql
           psql -v ON_ERROR_STOP=1 -f db/tests/002_v3_rls_regression.sql
           psql -v ON_ERROR_STOP=1 -f db/tests/003_v3_sync02_regression.sql
+      - name: Seed disposable PostgreSQL for restricted-role HTTP E2E
+        run: psql -v ON_ERROR_STOP=1 -f db/tests/004_v3_sync03_e2e_seed.sql
+      - name: Install node-postgres only in disposable CI environment
+        run: npm install --prefix staging --ignore-scripts --no-audit --no-fund
+      - name: Real PostgreSQL restricted-role signed JWT HTTP E2E
+        run: node --test test/v3-sync03-pg-e2e.test.js
