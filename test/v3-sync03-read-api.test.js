@@ -67,6 +67,10 @@ async function serve(fn,overrides={}) {
  };
  try {await fn(req);}finally{await new Promise(r=>server.close(r));}
 }
+test('JWT directly verifies signed fixture and seeded actor',()=>{
+  assert.deepEqual(verifier(token('parent')),{subject:'parent'});
+  assert.match(actors.parent.userId,/^[0-9a-f-]{36}$/);
+});
 test('JWT signed RS256 authenticates /me; fake headers do not elevate role',async()=>{
  await serve(async req=>{
   const x=await req('/api/v3/sync/me','parent',{headers:{'x-role':'school_admin','x-user-id':X}});
@@ -122,7 +126,7 @@ test('revoked attendant assignment denies snapshot',async()=>{
  await serve(async req=>{
   const ctx={attendantAssignments:[{userId:H,tripId:ST,active:false,revokedAt:'2026-10-21'}]};
   assert.equal((await req('/api/v3/sync/trips/'+ST+'/snapshot','attendant')).status,404);
- },ctx);
+ },{attendantAssignments:[{userId:H,tripId:ST,active:false,revokedAt:'2026-10-21'}]});
 });
 test('unassigned trip and malformed UUID are uniformly refused',async()=>{
  await serve(async req=>{
