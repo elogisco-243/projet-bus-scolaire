@@ -44,7 +44,29 @@ public final class ScolaQueuePlugin extends Plugin {
                 call.reject("NATIVE_WEBVIEW_UNAVAILABLE");
                 return false;
             }
-            String page = getBridge().getWebView().getUrl();
+            // Capacitor dispatches plugin methods off the WebView UI thread.
+            // Android WebView.getUrl() is a UI-thread-only operation.
+            // Never relax origin validation: obtain the URL on the UI thread.
+            String page;
+            if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+                page = getBridge().getWebView().getUrl();
+            } else {
+                java.util.concurrent.atomic.AtomicReference<String> urlRef =
+                        new java.util.concurrent.atomic.AtomicReference<>();
+                java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(1);
+                getActivity().runOnUiThread(() -> {
+                    try {
+                        urlRef.set(getBridge().getWebView().getUrl());
+                    } finally {
+                        done.countDown();
+                    }
+                });
+                if (!done.await(3, java.util.concurrent.TimeUnit.SECONDS)) {
+                    call.reject("NATIVE_WEBVIEW_CHECK_TIMEOUT");
+                    return false;
+                }
+                page = urlRef.get();
+            }
             if (page == null) {
                 call.reject("UNTRUSTED_WEBVIEW_ORIGIN");
                 return false;
@@ -58,8 +80,13 @@ public final class ScolaQueuePlugin extends Plugin {
                 return false;
             }
             return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            call.reject("NATIVE_WEBVIEW_CHECK_INTERRUPTED");
+            return false;
         } catch (Exception e) {
-            call.reject("NATIVE_QUEUE_DISABLED");
+            // Fail closed. Distinct diagnostic code (no exception details to JS).
+            call.reject("NATIVE_AUTH_UNAVAILABLE");
             return false;
         }
     }
