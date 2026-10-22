@@ -1,0 +1,9 @@
+{
+  "appId": "cd.eneo360.busscolaire.v3.sync09.test",
+  "appName": "A2S Scola SYNC09 TEST",
+  "webDir": "public",
+  "server": {
+    "hostname": "localhost",
+    "androidScheme": "https"
+  }
+}

@@ -1,0 +1,31 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'cd.eneo360.busscolaire.v3.sync09test'
+    compileSdk 36
+    defaultConfig {
+        // DIFFERENT from the installed cd.eneo360.busscolaire.v3 UI-145.
+        applicationId 'cd.eneo360.busscolaire.v3.sync09.test'
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName '0.0.1-debug-only'
+    }
+    buildTypes {
+        debug { manifestPlaceholders = [nativeQueueEnabled: 'true'] }
+        release {
+            // Defense in depth: no opt-in in any release variant.
+            manifestPlaceholders = [nativeQueueEnabled: 'false']
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+dependencies {
+    implementation project(':storage')
+    implementation project(':capacitorbridge')
+    implementation 'com.capacitorjs:core:8.5.3'
+}

@@ -34,7 +34,12 @@ jobs:
           grep -q 'compileSdk 36' android-sync07/capacitorbridge/build.gradle
           grep -q 'minSdk 24' android-sync07/capacitorbridge/build.gradle
       - name: Compile Capacitor 8.5.3, native SQLCipher and Android instrumented tests
-        run: gradle --no-daemon -p android-sync07 :storage:assembleDebug :capacitorbridge:assembleDebug :storage:assembleDebugAndroidTest
+        run: gradle --no-daemon -p android-sync07 :storage:assembleDebug :capacitorbridge:assembleDebug :storage:assembleDebugAndroidTest :testhost:assembleDebug
+      - name: Assert smoke host separate from UI-145
+        run: |
+          grep -q "applicationId 'cd.eneo360.busscolaire.v3.sync09.test'" android-sync07/testhost/build.gradle
+          grep -q "registerPlugin(ScolaQueuePlugin.class)" android-sync07/testhost/src/main/java/cd/eneo360/busscolaire/v3/MainActivity.java
+          grep -q 'before super.onCreate' android-sync07/testhost/src/main/java/cd/eneo360/busscolaire/v3/MainActivity.java
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
