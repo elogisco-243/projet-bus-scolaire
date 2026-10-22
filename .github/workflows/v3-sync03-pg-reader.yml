@@ -60,4 +60,4 @@ jobs:
       - name: Install node-postgres only in disposable CI environment
         run: npm install --prefix staging --ignore-scripts --no-audit --no-fund
       - name: Real PostgreSQL restricted-role signed JWT HTTP E2E
-        run: node --test test/v3-sync03-pg-e2e.test.js
+        run: node --test ci/sync03-pg-e2e.js
