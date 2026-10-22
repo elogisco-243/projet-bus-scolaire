@@ -14,4 +14,6 @@ dependencies {
     // Capacitor classpath for compile-time verification only.
     // Host project provides its OWN matched @capacitor/android runtime.
     compileOnly 'com.capacitorjs:core:8.5.3'
+    // getActivity()/BridgeActivity type extends AppCompatActivity.
+    compileOnly 'androidx.appcompat:appcompat:1.7.1'
 }

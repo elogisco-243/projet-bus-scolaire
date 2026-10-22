@@ -5,9 +5,6 @@
         android:usesCleartextTraffic="false"
         android:label="A2S Scola SYNC09 TEST"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="org.eneo360.a2sscola.sync08.NATIVE_QUEUE_TEST_ENABLED"
-            android:value="${nativeQueueEnabled}" />
         <activity
             android:name="cd.eneo360.busscolaire.v3.MainActivity"
             android:exported="true">

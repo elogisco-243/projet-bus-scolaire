@@ -10,12 +10,11 @@ android {
         targetSdk 36
         versionCode 1
         versionName '0.0.1-debug-only'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
-        debug { manifestPlaceholders = [nativeQueueEnabled: 'true'] }
         release {
             // Defense in depth: no opt-in in any release variant.
-            manifestPlaceholders = [nativeQueueEnabled: 'false']
             minifyEnabled false
         }
     }
@@ -30,4 +29,7 @@ dependencies {
     implementation 'com.capacitorjs:core:8.5.3'
     // BridgeActivity extends AppCompatActivity; Maven core POM marks this runtime.
     implementation 'androidx.appcompat:appcompat:1.7.1'
+    androidTestImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 }
