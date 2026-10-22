@@ -22,6 +22,30 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public final class NativeBridgeInstrumentationTest {
+    @Test public void debuggingOptInIsTypedBooleanAndDebugOnly() throws Exception {
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                try {
+                    android.content.pm.ApplicationInfo info =
+                        activity.getPackageManager().getApplicationInfo(
+                            activity.getPackageName(),
+                            android.content.pm.PackageManager.GET_META_DATA
+                        );
+                    assertTrue("test APK must be debuggable",
+                        (info.flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+                    assertNotNull("debug manifest metadata required", info.metaData);
+                    Object actual = info.metaData.get(
+                        "org.eneo360.a2sscola.sync08.NATIVE_QUEUE_TEST_ENABLED"
+                    );
+                    assertEquals("opt-in must be typed Boolean (not text)",
+                        Boolean.TRUE, actual);
+                } catch (Exception e) {
+                    throw new AssertionError("Cannot read native test manifest", e);
+                }
+            });
+        }
+    }
+
     @Test public void javascriptReallyCallsSecureNativePlugin() throws Exception {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             String last = null;

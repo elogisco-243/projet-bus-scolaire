@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- TEST ONLY; absent in main and release manifests. Must parse as Boolean. -->
+    <meta-data android:name="org.eneo360.a2sscola.sync08.NATIVE_QUEUE_TEST_ENABLED"
+               android:value="true" />
+  </application>
+</manifest>

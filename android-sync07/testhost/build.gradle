@@ -13,10 +13,8 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
-        debug { manifestPlaceholders = [nativeQueueEnabled: 'true'] }
         release {
             // Defense in depth: no opt-in in any release variant.
-            manifestPlaceholders = [nativeQueueEnabled: 'false']
             minifyEnabled false
         }
     }
