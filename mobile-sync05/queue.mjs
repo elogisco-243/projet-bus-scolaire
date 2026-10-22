@@ -25,15 +25,20 @@ export function createSync05QueueRunner({load,persist,transport,enabled=false}={
           if(!['recorded','already_recorded'].includes(ack?.result)||
              !Number.isSafeInteger(ack?.sequenceNo)||ack.sequenceNo<1)
             throw new Sync05Error('INVALID_SERVER_ACK');
-          current=current.map(e=>e.id===item.id&&e.status==='pending'?
+          // Only change in-memory state AFTER durable persistence succeeds.
+          // If persistence fails after the server ACK, the stable pending ID
+          // is retried and safely becomes already_recorded on the server.
+          const confirmed=current.map(e=>e.id===item.id&&e.status==='pending'?
             {...e,status:'synced',serverResult:ack.result,serverSequenceNo:ack.sequenceNo}:e);
-          await persist(current);
+          await persist(confirmed);
+          current=confirmed;
           stats.confirmed++;
         }catch(err){
           if(err?.kind==='permanent'){
-            current=current.map(e=>e.id===item.id&&e.status==='pending'?
+            const rejected=current.map(e=>e.id===item.id&&e.status==='pending'?
               {...e,status:'rejected',reason:err.code||'SERVER_REJECTED_EVENT'}:e);
-            await persist(current);stats.rejected++;
+            await persist(rejected);
+            current=rejected;stats.rejected++;
             continue;
           }
           stats.halted=err?.code||'NETWORK_UNAVAILABLE';

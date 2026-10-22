@@ -172,3 +172,27 @@ test('400/no matching events remains pending when transport is unavailable',asyn
  const c=createSync05Transport({baseUrl:'https://test.invalid/',getAccessToken:async()=>null,fetchImpl:async()=>{}});
  await assert.rejects(()=>c.sendPointage(event()),e=>e.code==='AUTH_REQUIRED');
 });
+
+test('lost local ACK persistence preserves pending UUID for safe replay',async()=>{
+ const f=fakeServer();let state=[event()],writes=0;
+ const store={
+  load:async()=>structuredClone(state),
+  persist:async next=>{
+    writes++;
+    if(next[0].status==='synced'&&writes===2)throw Error('disk full');
+    state=structuredClone(next);
+  }
+ };
+ const run=createSync05QueueRunner({
+  load:store.load,persist:store.persist,transport:makeTransport(f),enabled:true
+ });
+ const first=await run.run();
+ assert.equal(first.stats.halted,'NETWORK_UNAVAILABLE');
+ assert.equal(state[0].status,'pending');
+ assert.equal(f.ledger.size,1);
+ const second=await run.run();
+ assert.equal(second.stats.confirmed,1);
+ assert.equal(state[0].status,'synced');
+ assert.equal(state[0].serverResult,'already_recorded');
+ assert.equal(f.ledger.size,1);
+});
