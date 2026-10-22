@@ -1,0 +1,37 @@
+name: Bus V3 - SYNC-08 Capacitor Native Debug Plugin
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync08-capacitor-test-plugin
+  pull_request:
+    branches:
+      - feature/bus-v3-sync07-android-storage
+permissions:
+  contents: read
+jobs:
+  capacitor-native-compile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Android API 35 using runner SDK commandline-tools
+        run: |
+          SDKMGR=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)
+          test -x "$SDKMGR"
+          "$SDKMGR" --install "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14'
+      - name: Compile real SQLCipher Android code, Capacitor plugin and instrumentation tests
+        run: gradle --no-daemon -p android-sync07 :storage:assembleDebug :capacitorbridge:assembleDebug :storage:assembleDebugAndroidTest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check staging-only JS adapter and queue simulations
+        run: |
+          node --check mobile-sync08/registration.mjs
+          node --test mobile-sync08/tests/sync08-registration.test.mjs
+          node --test mobile-sync07/tests/sync07-bridge.test.mjs mobile-sync06/tests/sync06-durable.test.mjs mobile-sync05/tests/sync05-contract.test.mjs
