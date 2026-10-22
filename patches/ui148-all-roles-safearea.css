@@ -1,0 +1,103 @@
+/* A2S-SCOLA-UI148-SYNC15-ALL-ROLES - TEST COPY ONLY.
+   Applies to every mobile profile (parent, driver, attendant, admin-mobile),
+   including subpages and onboarding, without changing web desktop layout.
+   Preserves UI147 custom team geometry and uses scroll fallback for short screens. */
+@media (max-width: 600px) {
+  :root {
+    --scola-status-safe: max(32px, env(safe-area-inset-top, 0px));
+    --scola-bottom-safe: max(8px, env(safe-area-inset-bottom, 0px));
+  }
+  html { scroll-padding-top: var(--scola-status-safe); }
+  /* Keep login and administrator web-mode below system status icons too. */
+  .scola-login {
+    padding-top: max(38px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  }
+  .shell:has(> .web-layout):not(:has(> .mobile-frame)) {
+    padding-top: var(--scola-status-safe);
+  }
+  /* Team screen was already fixed in UI147; do not override that sizing. */
+  .shell:has(> .mobile-frame):not(:has(> .driver-mobile .crew-settings)) {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 0;
+    padding: var(--scola-status-safe) 8px 0;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .shell:has(> .mobile-frame):not(:has(> .driver-mobile .crew-settings)) > .top {
+    flex: 0 0 auto;
+    position: relative;
+    inset: auto;
+    z-index: 101;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  .shell:has(> .mobile-frame):not(:has(> .driver-mobile .crew-settings)) > .account-menu {
+    flex: 0 0 auto;
+    margin: 0;
+    min-width: 0;
+  }
+  .shell:has(> .mobile-frame):not(:has(> .driver-mobile .crew-settings)) > .mobile-frame {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(85px + var(--scola-bottom-safe));
+  }
+  /* All roles, including admin-mobile, keep the navigation within the viewport. */
+  .shell:has(> .mobile-frame) > .mobile-frame .mobile-bottom {
+    position: fixed;
+    bottom: var(--scola-bottom-safe);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(410px, calc(100vw - 16px));
+    margin: 0;
+    z-index: 120;
+    box-sizing: border-box;
+    grid-template-columns: repeat(var(--scola-nav-count, 3), minmax(0, 1fr));
+  }
+  .shell:has(> .driver-mobile) > .driver-mobile .mobile-bottom {
+    --scola-nav-count: 4;
+  }
+  .shell:has(> .mobile-frame) > .mobile-frame .mobile-bottom button {
+    min-width: 0;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+  /* Only the driver Plus screen; Journal last, no duplicate audio settings. */
+  .driver-mobile:has(.driver-options) .driver-more-card {
+    min-height: 62px;
+    margin: 0;
+    padding: 11px 13px;
+  }
+  .driver-mobile .driver-trip-summary button.driver-voice-indicator {
+    padding: 0;
+    border: 1px solid rgba(255,255,255,.25);
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .driver-mobile .driver-trip-summary button.driver-voice-indicator:focus-visible {
+    outline: 3px solid #f5bd20;
+    outline-offset: 2px;
+  }
+  .driver-mobile .driver-trip-summary button.driver-voice-indicator:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+}
+@media (max-width: 350px) {
+  .shell:has(> .mobile-frame) > .mobile-frame .mobile-bottom button {
+    font-size: 10px;
+    padding-inline: 2px;
+  }
+}
