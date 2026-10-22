@@ -1,0 +1,68 @@
+name: Bus V3 - SYNC-04 Isolated Pointage Writer
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync04-secure-writer
+  pull_request:
+    branches:
+      - feature/bus-v3-sync03-pg-reader
+permissions:
+  contents: read
+jobs:
+  pointage-writer:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: sync04_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sync04_disposable"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ci-only-password
+      PGDATABASE: sync04_disposable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Node syntax and mocked contract tests
+        run: |
+          node --check src/v3/sync04-write-api.js
+          node --check src/v3/sync04-pg-writer.js
+          node --test test/v3-sync04-write-api.test.js test/v3-sync02-events.test.js
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+      - name: Migrate isolated PostgreSQL 16 001-004
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/migrations/001_v3_core.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/002_v3_integrity.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/003_v3_rls.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/004_v3_sync02_crew_events.sql
+      - name: Prior SQL RLS and pointage regressions
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/tests/001_v3_integrity_regression.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/002_v3_rls_regression.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/003_v3_sync02_regression.sql
+      - name: Apply unmounted writer migration
+        run: psql -v ON_ERROR_STOP=1 -f db/migrations/005_v3_sync04_writer.sql
+      - name: Seed isolated synthetic students
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/tests/004_v3_sync03_e2e_seed.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/005_v3_sync04_e2e_seed.sql
+      - name: Install node-postgres in ephemeral CI
+        run: npm install --prefix staging --ignore-scripts --no-audit --no-fund
+      - name: Real PostgreSQL restricted-role pointage E2E
+        run: node --test ci/sync04-pg-e2e.js
