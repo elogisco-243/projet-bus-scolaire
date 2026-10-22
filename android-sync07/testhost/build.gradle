@@ -28,4 +28,6 @@ dependencies {
     implementation project(':storage')
     implementation project(':capacitorbridge')
     implementation 'com.capacitorjs:core:8.5.3'
+    // BridgeActivity extends AppCompatActivity; Maven core POM marks this runtime.
+    implementation 'androidx.appcompat:appcompat:1.7.1'
 }
