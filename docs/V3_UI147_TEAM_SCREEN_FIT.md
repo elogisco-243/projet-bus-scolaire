@@ -22,3 +22,19 @@ Le script PowerShell refuse d'écrire si le marqueur de copie D: est absent, si 
 ## Vérification à venir
 
 Après Check/Apply volontaire sur D:, propager uniquement `theme.css` à l'actif Android de la copie, recompiler, revérifier ID, hash et signature, puis installer uniquement dans l'AVD de test et obtenir une capture sur la même taille d'écran. Sans données réelles et sans démarrage de tournée.
+
+
+## 22 octobre 2026 — Variante CSS COMPAT préparée
+
+L'utilisateur a tenté `-Mode Check` du paquet UI-147/SYNC-14. Le script a correctement refusé toute écriture :
+```
+Version CSS locale (SHA256): B5E929477F98F2FD2654595DEC24FAEBBDBB1A46E9EF7291A6CB8CF7CA7D2008
+CSS UI-147 deja present: False
+SHA256 attendu: 02E944691EDEF1F066C4AFC67446810ED13A665B5F18A450C7E28E8938A3D90D
+VERSION_CSS_NON_RECONNUE - AUCUNE MODIFICATION (NE PAS FORCER)
+```
+Le SHA attendu correspond bien au `theme.css` de `A2S-Scola-Sources-SYNC-01.zip` (octets présents dans le paquet ancien) ; la copie D: de l'utilisateur contient une autre version déjà personnalisée. Relancer l'extraction vers le même `D:\A2S-Scola-SYNC14-Scripts` produit indépendamment `DOSSIER SYNC-14 DEJA EXISTANT`.
+
+Un ZIP de correction nommé `A2SScola-SYNC14-CSS-COMPAT.zip` a été créé dans la conversation. Il contient le CSS de patch inchangé (SHA256 `DC56512D6347C76EDD3706BB6DA58B7347F4B424741545D53A9D95E83F0F2D99`) et un script PowerShell dont la liste explicite d'empreintes acceptées comprend également **uniquement** le SHA256 précis rapporté sur D: (B5E929...). Le script exige toujours le marqueur SYNC-10, la source UI-146, les ancres CSS UI-145, les sélecteurs équipe attendus, le SHA256 du CSS de patch, une sauvegarde et un rollback. Il n'autorise **aucun autre SHA** et n'a pas de mode `Force`. Le dossier de décompression est nouveau : `D:\A2S-Scola-SYNC14-COMPAT`, afin d'éviter le conflit existant.
+
+**État : correctif de compatibilité créé, non encore exécuté sur Windows utilisateur. Pas d'APK reconstruit, aucune installation.** Ne déclarer UI-147 appliqué qu'après sortie utilisateur de Check puis Apply. Ne pas toucher à UI-145 original, au V2 main ou à Render ; aucun compte réel ni dossier de sources ne doit être publié.
