@@ -23,7 +23,7 @@ const audience='scola-v3';
 function jwt(sub,actorId=ACTOR,expires=now+90) {
  const head=Buffer.from(JSON.stringify({alg:'RS256',typ:'at+jwt'})).toString('base64url');
  const payload={iss:issuer,aud:audience,sub,iat:now-5,exp:expires};
- if(actorId!==undefined)payload.actor_id=actorId;
+ if(actorId!==null)payload.actor_id=actorId;
  const body=Buffer.from(JSON.stringify(payload)).toString('base64url');
  return head+'.'+body+'.'+sign('RSA-SHA256',Buffer.from(head+'.'+body),keys.privateKey).toString('base64url');
 }
@@ -61,13 +61,13 @@ function mockDb({role='bus_v3_reader',subject='sub:parent',revoked=false,deny=fa
 }
 test('JWT issuer-signed actor_id claim accepted; unsigned browser headers cannot produce identity',()=>{
  assert.deepEqual(verifyToken(jwt('sub:parent')),{subject:'sub:parent',actorId:ACTOR});
- assert.deepEqual(verifyToken(jwt('sub:parent',undefined)),{subject:'sub:parent'});
+ assert.deepEqual(verifyToken(jwt('sub:parent',null)),{subject:'sub:parent'});
  assert.throws(()=>verifyToken(jwt('sub:parent','not-uuid')),InvalidTokenError);
 });
 test('RLS reader refuses tokens lacking server-controlled actor_id',async()=>{
  const d=mockDb();
  const read=createSync03PgReader({pool:d.pool,signingSecretHex:SECRET});
- assert.equal(await read.loadActor('sub:parent',verifyToken(jwt('sub:parent',undefined))),null);
+ assert.equal(await read.loadActor('sub:parent',verifyToken(jwt('sub:parent',null))),null);
  assert.equal(d.calls.length,0);
 });
 test('identity is bound to signed UUID AND DB identity_subject',async()=>{
