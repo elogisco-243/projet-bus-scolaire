@@ -98,6 +98,7 @@ function createSync03ReadApi({verifyToken,loadActor,loadTripSnapshot}) {
          verified.subject.length>255)
         return respond(res,401,{error:'UNAUTHORIZED'});
       const actor=await loadActor(verified.subject);
+      console.log('TRACE_ACTOR_VALID',actor?.userId, id(actor?.userId), Array.isArray(actor?.memberships));
       if(!id(actor?.userId)||!Array.isArray(actor.memberships))
         return respond(res,401,{error:'UNAUTHORIZED'});
       if(path==='/api/v3/sync/me'){
