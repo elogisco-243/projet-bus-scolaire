@@ -53,8 +53,8 @@ function token(sub,expires=now+300) {
 }
 async function serve(fn,overrides={}) {
  const server=http.createServer(createSync03ReadApi({
-  verifyToken:verifier,
-  loadActor:async sub=>actors[sub]||null,
+  verifyToken:async t=>{ console.log('TRACE_VERIFY_CALLED',t.length); return verifier(t); },
+  loadActor:async sub=>{ console.log('TRACE_ACTOR_RESOLVED',sub); return actors[sub]||null; },
   loadTripSnapshot:async (_actor,id)=>id===ST?{...baseCtx,...overrides}:null
  }));
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
