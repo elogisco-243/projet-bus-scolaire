@@ -70,7 +70,18 @@ function createJwtVerifier({ issuer, audience, publicKeyPem, keyId, now = Date.n
           payload.nbf > nowSeconds + clockSkewSeconds))) {
       throw new InvalidTokenError();
     }
-    return { subject: payload.sub };
+    // Optional, issuer-controlled mapping to the internal users.id UUID.
+    // It is cryptographically signed as part of the JWT; never accept this
+    // value from an HTTP header, request body or caller-provided role.
+    const actorId = payload.actor_id;
+    if (actorId !== undefined &&
+        (typeof actorId !== 'string' ||
+         !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actorId))) {
+      throw new InvalidTokenError();
+    }
+    return actorId === undefined
+      ? { subject: payload.sub }
+      : { subject: payload.sub, actorId: actorId.toLowerCase() };
   };
 }
 
