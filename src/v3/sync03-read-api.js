@@ -5,7 +5,7 @@
 // by a short-lived verified JWT and RLS-enabled read-only PostgreSQL transactions.
 // The mobile never supplies roles, parent links, actor IDs or tenancy decisions.
 const { canViewTrip, hasMembership } = require('./authorization');
-const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ROLE_ALLOWLIST=new Set(['school_admin','operator_admin','dispatcher','driver','attendant','parent']);
 const STATUS=new Set(['assigned','aboard','alighted']);
 const ACTIONS=new Set(['board','alight']);
@@ -98,7 +98,6 @@ function createSync03ReadApi({verifyToken,loadActor,loadTripSnapshot}) {
          verified.subject.length>255)
         return respond(res,401,{error:'UNAUTHORIZED'});
       const actor=await loadActor(verified.subject);
-      console.log('TRACE_ACTOR_VALID',actor?.userId, id(actor?.userId), Array.isArray(actor?.memberships));
       if(!id(actor?.userId)||!Array.isArray(actor.memberships))
         return respond(res,401,{error:'UNAUTHORIZED'});
       if(path==='/api/v3/sync/me'){

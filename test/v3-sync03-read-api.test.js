@@ -53,8 +53,8 @@ function token(sub,expires=now+300) {
 }
 async function serve(fn,overrides={}) {
  const server=http.createServer(createSync03ReadApi({
-  verifyToken:async t=>{ console.log('TRACE_VERIFY_CALLED',t.length); return verifier(t); },
-  loadActor:async sub=>{ console.log('TRACE_ACTOR_RESOLVED',sub); return actors[sub]||null; },
+  verifyToken:verifier,
+  loadActor:async sub=>actors[sub]||null,
   loadTripSnapshot:async (_actor,id)=>id===ST?{...baseCtx,...overrides}:null
  }));
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -124,7 +124,6 @@ test('assigned attendant may view, other operator attendant may not',async()=>{
 });
 test('revoked attendant assignment denies snapshot',async()=>{
  await serve(async req=>{
-  const ctx={attendantAssignments:[{userId:H,tripId:ST,active:false,revokedAt:'2026-10-21'}]};
   assert.equal((await req('/api/v3/sync/trips/'+ST+'/snapshot','attendant')).status,404);
  },{attendantAssignments:[{userId:H,tripId:ST,active:false,revokedAt:'2026-10-21'}]});
 });
