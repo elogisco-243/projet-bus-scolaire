@@ -1,0 +1,17 @@
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'org.eneo360.a2sscola.sync08'
+    compileSdk 35
+    defaultConfig { minSdk 23 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies {
+    implementation project(':storage')
+    // Capacitor classpath for compile-time verification only.
+    // Host project provides its OWN matched @capacitor/android runtime.
+    compileOnly 'com.capacitorjs:core:7.4.3'
+}
