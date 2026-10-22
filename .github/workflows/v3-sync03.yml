@@ -1,0 +1,24 @@
+name: Bus V3 - SYNC-03 Isolated Read API
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync03-read-gateway
+  pull_request:
+    branches:
+      - feature/bus-v3-sync02-crew-events
+permissions:
+  contents: read
+jobs:
+  read-gateway-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check SYNC-03 syntax
+        run: node --check src/v3/sync03-read-api.js
+      - name: JWT signed and scoped snapshot HTTP tests
+        run: node --test test/v3-sync03-read-api.test.js
+      - name: Existing V3 JWT, authorization and API regressions
+        run: node --test test/v3-jwt.test.js test/v3-auth-integration.test.js test/v3-api.test.js test/v3-sync02-events.test.js
