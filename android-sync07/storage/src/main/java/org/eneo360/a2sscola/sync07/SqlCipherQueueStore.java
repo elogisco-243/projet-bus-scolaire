@@ -47,12 +47,20 @@ public final class SqlCipherQueueStore implements Closeable {
         if (!base.isDirectory() && !base.mkdirs()) throw new IllegalStateException("SECURE_DIR_UNAVAILABLE");
         File dbFile = new File(base, "queue.sqlcipher");
         this.lockFile = new File(base, "queue.lease");
-        byte[] password = new KeystoreSqlCipherKey(app, base).obtain(dbFile);
-        try {
-            System.loadLibrary("sqlcipher");
-            this.db = SQLiteDatabase.openOrCreateDatabase(dbFile, password, null, null, null);
-        } finally {
-            Arrays.fill(password, (byte) 0);
+        // Serialize first-run KeyStore wrapping AND initial encrypted DB open.
+        // Without this OS lock, two processes could each create a different
+        // SQLCipher passphrase before the wrapped-key file becomes visible.
+        try (RandomAccessFile initHandle = new RandomAccessFile(
+                    new File(base, "key-init.lease"), "rw");
+             FileChannel initChannel = initHandle.getChannel();
+             FileLock ignored = initChannel.lock()) {
+            byte[] password = new KeystoreSqlCipherKey(app, base).obtain(dbFile);
+            try {
+                System.loadLibrary("sqlcipher");
+                this.db = SQLiteDatabase.openOrCreateDatabase(dbFile, password, null, null, null);
+            } finally {
+                Arrays.fill(password, (byte) 0);
+            }
         }
         try {
             // No graceful fallback to an unencrypted SQLite database.
