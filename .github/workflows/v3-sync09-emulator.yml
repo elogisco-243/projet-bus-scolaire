@@ -1,0 +1,50 @@
+name: Bus V3 - SYNC-09 Android 36 Emulator Smoke
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync09-capacitor8-compat
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-staging-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Enable Android emulator KVM acceleration
+        run: |
+          test -c /dev/kvm
+          sudo chmod 666 /dev/kvm
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+      - name: Verify SQLCipher on Android 36 and install separate smoke host
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          cores: 2
+          ram-size: 2048M
+          disk-size: 4096M
+          emulator-boot-timeout: 600
+          disable-animations: true
+          script: |
+            gradle --no-daemon -p android-sync07 :storage:connectedDebugAndroidTest :testhost:assembleDebug
+            adb install android-sync07/testhost/build/outputs/apk/debug/testhost-debug.apk
+            adb shell pm path cd.eneo360.busscolaire.v3.sync09.test
+            adb shell am start -W -n cd.eneo360.busscolaire.v3.sync09.test/cd.eneo360.busscolaire.v3.MainActivity
+            adb shell pm path cd.eneo360.busscolaire.v3.sync09.test | grep '^package:'
+      - name: Preserve instrumentation results on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync09-android36-staging-instrumented
+          path: android-sync07/storage/build/outputs/androidTest-results/
+          if-no-files-found: ignore

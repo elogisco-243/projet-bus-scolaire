@@ -3,3 +3,6 @@ dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_P
 rootProject.name = 'A2SScolaSync07Native'
 include ':storage'
 include ':capacitorbridge'
+
+// Dedicated TEST host, separate Android applicationId from installed UI-145.
+include ':testhost'
