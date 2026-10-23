@@ -21,3 +21,42 @@ html,body,#app{height:100%;min-height:0;width:100%;overflow:hidden}
  .content:has(.counts)>.card{margin:0}
 }
 @media(max-width:359px){.head{padding-inline:10px}.content{padding:8px}.card{padding:10px}.bottom button{font-size:10px}.buttons{gap:4px}.buttons button{padding-inline:5px}}
+
+/* UI-151: historical Driver Tour Dashboard theme. Demo testhost only. */
+:root{--scola-purple:#291052;--scola-violet:#5725aa;--scola-lavender:#eee6ff;--scola-ink:#29134e;--scola-green:#00d58d}
+body{background:#f7f5fc;color:var(--scola-ink)}
+.app{background:#faf9fe}
+.head{background:linear-gradient(115deg,#210b49 0%,#331265 65%,#260d50 100%);box-shadow:0 3px 14px #25114e22;padding-block:calc(env(safe-area-inset-top) + 14px) 13px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand-name{font-weight:800;font-size:clamp(18px,2.5vw,26px);letter-spacing:-.02em}
+.brand-sub{font-size:12px;color:#e0d4f3}
+.brand-mark{display:grid;place-items:center;background:#6a36c1;border-radius:12px;min-width:42px;min-height:42px;font-size:23px}
+.brand-left{display:flex;align-items:center;gap:11px}
+.head .eyebrow{margin-top:5px}
+.head h1{font-size:clamp(17px,2vw,23px);margin:4px 0 6px}
+.pill{background:#eee6ff;color:#44247a}
+.card{border-color:#e4ddf1;box-shadow:0 4px 15px #2910520a}
+.card h2{color:#211047}
+.card.tour-hero{background:linear-gradient(130deg,#2e125d,#210b49);color:white;border-color:#3d206b}
+.card.tour-hero h2,.card.tour-hero strong{color:white}
+.card.tour-hero .line{border-bottom:1px solid #ffffff22;padding:5px 0}
+.card.tour-hero .hint{color:#e1d5f1}
+.primary{background:linear-gradient(130deg,#7434d2,#4f239d);color:white;font-weight:700}
+.warn{background:#ffdb76;color:#3c290d;font-weight:700}
+.light{background:#efe8ff;color:#402279;font-weight:650}
+.danger{background:#ffe0e3;color:#a21e39;font-weight:700}
+button:focus-visible{outline:3px solid #f9c84b;outline-offset:2px}
+button{min-height:44px}
+.counts div{background:#f0eaff}
+.counts strong{color:#321165}
+.notice{background:#fff2d3;color:#624417}
+.bottom{border-top:1px solid #e9e1f2;box-shadow:0 -5px 16px #22094a10}
+.bottom button{color:#5e5670;font-weight:600}
+.bottom button.active{background:#ede4ff;color:#6124be}
+.bottom span{font-size:21px}
+@media(min-width:900px) and (orientation:landscape){
+ .content:has(.counts){grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr);grid-template-rows:auto 1fr}
+ .content:has(.counts)>.notice{grid-column:1/-1}
+ .content:has(.counts)>.tour-hero{grid-column:1;grid-row:2}
+ .content:has(.counts)>.effectifs{grid-column:2;grid-row:2}
+}
