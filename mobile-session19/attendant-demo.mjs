@@ -36,6 +36,8 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null}={})
   ensure(s,action,student);
   if(action==='board')student.boarded=true;
   else student.alighted=true;
+  // A pointage after a final check invalidates that check.
+  s.events=s.events.filter(e=>e.type!=='empty_bus_confirmed');
   return write(s,action,studentId);
  }
  if(action==='report_incident'){
