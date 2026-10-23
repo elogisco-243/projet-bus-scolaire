@@ -18,3 +18,5 @@ test('SYNC19: operation event impossible in demo controller',()=>{let s=active()
 test('SYNC19: wrong student refused',()=>assert.throws(()=>apply(active(),'board',{studentId:'OTHER'}),/STUDENT_NOT_ON_TRIP/));
 test('SYNC19: no driver power',()=>assert.throws(()=>apply(active(),'assign_vehicle'),/ACTION_DENIED/));
 test('SYNC19: state updates do not mutate prior snapshot',()=>{let first=active();let second=apply(first,'board',{studentId:'E-01'});assert.equal(first.trip.onboardCount,0);assert.equal(second.trip.onboardCount,1)});
+
+test('SYNC19: changed pointage requires new final empty check',()=>{let s=active();s=apply(s,'confirm_empty');s=apply(s,'board',{studentId:'E-01'});s=apply(s,'alight',{studentId:'E-01'});assert.throws(()=>apply(s,'finish_demo_trip'),/EMPTY_BUS_CONFIRMATION_REQUIRED/)});
