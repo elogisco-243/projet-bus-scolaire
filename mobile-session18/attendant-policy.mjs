@@ -1,7 +1,7 @@
 /** SYNC-18: policy gate for attendant actions. Not a substitute for server authorization. */
 const ATTENDANT='attendant';
-const ACTIONS=Object.freeze(['view_trip','confirm_presence','board','alight','report_incident','confirm_empty']);
-const MUTATIONS=new Set(['confirm_presence','board','alight','report_incident','confirm_empty']);
+const ACTIONS=Object.freeze(['view_trip','confirm_presence','board','alight','mark_absent','mark_stop','report_incident','confirm_empty']);
+const MUTATIONS=new Set(['confirm_presence','board','alight','mark_absent','mark_stop','report_incident','confirm_empty']);
 export function authorizeAttendant({session,trip,action,student=null,eventMode=null}={}){
  const deny=(code)=>Object.freeze({allowed:false,code});
  if(!session||session.ok!==true||session.role!==ATTENDANT)return deny('ROLE_DENIED');
@@ -14,7 +14,7 @@ export function authorizeAttendant({session,trip,action,student=null,eventMode=n
  if(eventMode!==null&&eventMode!==session.mode)return deny('CROSS_ENVIRONMENT');
  if(action==='view_trip')return Object.freeze({allowed:true,code:'OK'});
  if(trip.status!=='in_progress'&&(action!=='confirm_presence'||trip.status!=='planned'))return deny('TRIP_NOT_ACTIVE');
- if(action==='board'||action==='alight'){
+ if(action==='board'||action==='alight'||action==='mark_absent'){
   if(!student||student.tripId!==trip.id)return deny('STUDENT_NOT_ON_TRIP');
   if(student.mode!==session.mode)return deny('CROSS_ENVIRONMENT');
   if(session.mode==='operational'&&student.organizationId!==session.organizationId)return deny('OTHER_ORGANIZATION');
@@ -22,6 +22,8 @@ export function authorizeAttendant({session,trip,action,student=null,eventMode=n
   if(action==='board'&&student.boarded===true)return deny('DUPLICATE_BOARDING');
   if(action==='alight'&&student.boarded!==true)return deny('NOT_BOARDED');
   if(action==='alight'&&student.alighted===true)return deny('DUPLICATE_ALIGHTING');
+  if(action==='mark_absent'&&student.absent===true)return deny('ALREADY_ABSENT');
+  if(action==='mark_absent'&&student.boarded===true)return deny('ALREADY_BOARDED');
  }
  if(action==='confirm_empty'&&trip.onboardCount!==0)return deny('CHILDREN_REMAIN');
  return Object.freeze({allowed:true,code:'OK'});
