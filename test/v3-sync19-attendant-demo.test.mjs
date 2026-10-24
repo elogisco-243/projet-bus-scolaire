@@ -1,140 +1,133 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeAttendantDemo,runAttendantDemo,attendantSummary,INCIDENTS} from '../mobile-session19/attendant-demo.mjs';
+import {makeAttendantDemo,runAttendantDemo,attendantSummary,INCIDENTS,CRITICAL_INCIDENTS} from '../mobile-session19/attendant-demo.mjs';
 const apply=(s,action,args)=>runAttendantDemo(s,action,args);
 const prepared=()=>apply(apply(apply(makeAttendantDemo(),'confirm_presence'),'simulate_driver_secure'),'toggle_ready');
 const started=()=>apply(prepared(),'start_demo_trip');
-const stopped=()=>apply(started(),'simulate_driver_secure');
-const routeDone=(s)=>{
- for(let i=0;i<s.stops.length;i++){
-  s=apply(s,'reach_stop');
-  s=apply(s,'simulate_driver_secure');
- }
- return s;
-};
-const reconciled=()=>{
- let s=stopped();
- s=apply(s,'board',{studentId:'E-01'});
- s=apply(s,'alight',{studentId:'E-01'});
- s=apply(s,'mark_absent',{studentId:'E-02'});
- return s;
-};
-test('UI154: empty initial demo, two assigned pupils and three fake stops',()=>{
+const at1=()=>apply(started(),'simulate_arrival');
+const at2=()=>apply(apply(apply(at1(),'board',{studentId:'E-01'}),'simulate_driver_resume'),'simulate_arrival');
+const at3=()=>apply(apply(apply(at2(),'mark_absent',{studentId:'E-02',reason:'non_present'}),'simulate_driver_resume'),'simulate_arrival');
+const reconciled=()=>apply(at3(),'alight',{studentId:'E-01'});
+test('UI155: initial role, two students, three stops and unaccounted pupils',()=>{
  const s=makeAttendantDemo(),d=attendantSummary(s);
- assert.equal(d.onboard,0);assert.equal(d.unaccounted,2);
- assert.equal(d.stopsReached,0);assert.equal(d.stopsTotal,3);
- assert.equal(s.mode,'demo');
+ assert.equal(s.mode,'demo');assert.equal(s.session.role,'attendant');
+ assert.equal(d.assigned,2);assert.equal(d.unaccounted,2);
+ assert.equal(d.stopsTotal,3);assert.equal(d.stopsReached,0);
 });
-test('UI154: departure blocked until attendance, synthetic driver safety, and readiness switch',()=>{
+test('UI155: no start until presence + synthetic driver secure + readiness switch',()=>{
  assert.throws(()=>apply(makeAttendantDemo(),'start_demo_trip'),/DEPARTURE_NOT_AUTHORIZED/);
- const present=apply(makeAttendantDemo(),'confirm_presence');
- assert.throws(()=>apply(present,'toggle_ready'),/READY_PRECONDITIONS_NOT_MET/);
- const secured=apply(present,'simulate_driver_secure');
- assert.equal(attendantSummary(secured).canToggleReady,true);
- assert.throws(()=>apply(secured,'start_demo_trip'),/DEPARTURE_NOT_AUTHORIZED/);
- assert.equal(started().trip.status,'in_progress');
-});
-test('UI154: readiness switch can toggle, disabled during actual simulated drive',()=>{
- const p=prepared();
- assert.equal(attendantSummary(p).ready,true);
- assert.equal(attendantSummary(apply(p,'toggle_ready')).ready,false);
- const s=apply(p,'start_demo_trip');
- assert.equal(attendantSummary(s).ready,false);
- assert.equal(attendantSummary(s).driverSecured,false);
+ const s=apply(makeAttendantDemo(),'confirm_presence');
  assert.throws(()=>apply(s,'toggle_ready'),/READY_PRECONDITIONS_NOT_MET/);
+ const safe=apply(s,'simulate_driver_secure');
+ assert.throws(()=>apply(safe,'start_demo_trip'),/DEPARTURE_NOT_AUTHORIZED/);
+ assert.equal(attendantSummary(prepared()).canStart,true);
+ const startedTrip=started();
+ assert.equal(startedTrip.trip.status,'in_progress');
+ assert.equal(attendantSummary(startedTrip).driverSecured,false);
 });
-test('UI154: duplicate presence refused',()=>assert.throws(()=>apply(apply(makeAttendantDemo(),'confirm_presence'),'confirm_presence'),/ALREADY_CONFIRMED/));
-test('UI154: no pointage while bus not declared stationary, and proper count at stop',()=>{
- const moving=started();
- assert.throws(()=>apply(moving,'board',{studentId:'E-01'}),/VEHICLE_NOT_SECURED/);
- let s=apply(moving,'simulate_driver_secure');
- s=apply(s,'board',{studentId:'E-01'});
+test('UI155: switch can be turned off and cannot be changed while driving',()=>{
+ assert.equal(attendantSummary(apply(prepared(),'toggle_ready')).ready,false);
+ assert.throws(()=>apply(started(),'toggle_ready'),/READY_PRECONDITIONS_NOT_MET/);
+});
+test('UI155: no duplicate presence',()=>assert.throws(()=>apply(apply(makeAttendantDemo(),'confirm_presence'),'confirm_presence'),/ALREADY_CONFIRMED/));
+test('UI155: one synthetic arrival activates a single stop and enables pointage',()=>{
+ const s=at1(),d=attendantSummary(s);
+ assert.equal(d.activeStopId,'STOP-01');
+ assert.equal(d.pendingAtStop,1);
+ assert.equal(d.atStop,true);
+ assert.equal(d.driverSecured,true);
+ assert.throws(()=>apply(s,'simulate_arrival'),/STOP_CURRENTLY_ACTIVE/);
+});
+test('UI155: pointage cannot occur on moving vehicle or at wrong stop',()=>{
+ assert.throws(()=>apply(started(),'board',{studentId:'E-01'}),/VEHICLE_NOT_SECURED_AT_STOP/);
+ assert.throws(()=>apply(at1(),'board',{studentId:'E-02'}),/WRONG_PICKUP_STOP/);
+ assert.throws(()=>apply(at1(),'alight',{studentId:'E-01'}),/WRONG_DROPOFF_STOP/);
+});
+test('UI155: cannot resume while scheduled pupil has not been pointed',()=>{
+ assert.throws(()=>apply(at1(),'simulate_driver_resume'),/POINTAGE_PENDING_AT_STOP/);
+});
+test('UI155: one tap boards at assigned stop; duplicate blocked',()=>{
+ const s=apply(at1(),'board',{studentId:'E-01'});
  assert.equal(attendantSummary(s).onboard,1);
- s=apply(s,'alight',{studentId:'E-01'});
- assert.equal(attendantSummary(s).onboard,0);
-});
-test('UI154: cannot alight before boarding',()=>assert.throws(()=>apply(stopped(),'alight',{studentId:'E-02'}),/NOT_BOARDED/));
-test('UI154: duplicate boarding refused',()=>{
- const s=apply(stopped(),'board',{studentId:'E-01'});
+ assert.equal(attendantSummary(s).pendingAtStop,0);
  assert.throws(()=>apply(s,'board',{studentId:'E-01'}),/DUPLICATE_BOARDING/);
 });
-test('UI154: absent pupils cannot board, nor can a boarded pupil be marked absent',()=>{
- const absent=apply(stopped(),'mark_absent',{studentId:'E-02'});
- assert.throws(()=>apply(absent,'board',{studentId:'E-02'}),/REPORTED_ABSENT/);
- assert.throws(()=>apply(absent,'mark_absent',{studentId:'E-02'}),/ALREADY_ABSENT/);
- const onboard=apply(stopped(),'board',{studentId:'E-01'});
- assert.throws(()=>apply(onboard,'mark_absent',{studentId:'E-01'}),/ALREADY_BOARDED/);
+test('UI155: absence requires explicit fixed demo reason at assigned pickup',()=>{
+ assert.throws(()=>apply(at2(),'mark_absent',{studentId:'E-02'}),/ABSENCE_REASON_REQUIRED/);
+ const s=apply(at2(),'mark_absent',{studentId:'E-02',reason:'non_present'});
+ assert.equal(s.students[1].absenceReason,'non_present');
+ assert.throws(()=>apply(s,'board',{studentId:'E-02'}),/REPORTED_ABSENT/);
+ assert.throws(()=>apply(s,'mark_absent',{studentId:'E-02',reason:'non_present'}),/ALREADY_ABSENT/);
 });
-test('UI154: stop is sequential and fresh stationary signal is mandatory each time',()=>{
- let s=stopped();
- s=apply(s,'reach_stop');
- assert.equal(attendantSummary(s).nextStop,'Arrêt fictif A');
- assert.equal(attendantSummary(s).stopsReached,1);
- assert.throws(()=>apply(s,'reach_stop'),/VEHICLE_NOT_SECURED/);
- s=routeDoneFromPartial(s);
- assert.equal(attendantSummary(s).stopsReached,3);
- assert.throws(()=>apply(s,'reach_stop'),/ALL_STOPS_REACHED/);
+test('UI155: cannot mark boarded pupil absent',()=>{
+ const s=apply(at1(),'board',{studentId:'E-01'});
+ assert.throws(()=>apply(s,'mark_absent',{studentId:'E-01',reason:'non_present'}),/ALREADY_BOARDED/);
 });
-function routeDoneFromPartial(s){
- while(s.stops.some(x=>!x.reached)){
-  s=apply(s,'simulate_driver_secure');
-  s=apply(s,'reach_stop');
- }
- return apply(s,'simulate_driver_secure');
-}
-test('UI154: six alert categories match chauffeur reference',()=>{
+test('UI155: arrival advances route and pointage only at current stop',()=>{
+ const d=attendantSummary(at3());
+ assert.equal(d.stopsReached,3);assert.equal(d.stopsTotal,3);
+ assert.equal(d.activeStopId,'STOP-03');assert.equal(d.pendingAtStop,1);
+});
+test('UI155: third stop dropoff resolves expected pupil',()=>{
+ const s=reconciled(),d=attendantSummary(s);
+ assert.equal(d.onboard,0);assert.equal(d.unaccounted,0);assert.equal(d.pendingAtStop,0);
+ assert.throws(()=>apply(s,'alight',{studentId:'E-01'}),/DUPLICATE_ALIGHTING/);
+ assert.throws(()=>apply(s,'simulate_driver_resume'),/ALREADY_AT_TERMINUS/);
+});
+test('UI155: same six driver alert categories',()=>{
  assert.deepEqual(INCIDENTS.map(x=>x[0]),['Embouteillage','Retard','Panne','Accident','Urgence médicale','Enfant manquant']);
+ assert.deepEqual(CRITICAL_INCIDENTS,['accident','medical','missing_child']);
 });
-test('UI154: cannot alert until stationary; alerts never sent remotely',()=>{
- assert.throws(()=>apply(started(),'report_incident',{incident:'medical'}),/VEHICLE_NOT_SECURED/);
- const s=apply(stopped(),'report_incident',{incident:'medical'});
- assert.equal(s.events.at(-1).delivery,'LOCAL_SIMULATION_ONLY');
- assert.equal(s.alert,'medical');
+test('UI155: ordinary incident requires stop but critical accessible in motion',()=>{
+ assert.throws(()=>apply(started(),'report_incident',{incident:'delay'}),/VEHICLE_NOT_SECURED_AT_STOP/);
+ const s=apply(started(),'report_incident',{incident:'medical'});
+ assert.equal(s.alerts.length,1);assert.equal(s.alerts[0].critical,true);
+ assert.equal(s.alerts[0].delivery,'LOCAL_SIMULATION_ONLY');
 });
-test('UI154: cannot close while pupils remain aboard',()=>{
- const s=apply(stopped(),'board',{studentId:'E-01'});
- assert.throws(()=>apply(s,'finish_demo_trip'),/FINISH_BLOCKED/);
+test('UI155: critical incident accessible before departure but never sends externally',()=>{
+ const s=apply(makeAttendantDemo(),'report_incident',{incident:'missing_child'});
+ assert.equal(s.alerts[0].delivery,'LOCAL_SIMULATION_ONLY');
+ assert.equal(attendantSummary(s).pendingRealSync,0);
 });
-test('UI154: cannot close without itinerary or without resolving every pupil',()=>{
- let s=reconciled();
- assert.throws(()=>apply(s,'finish_demo_trip'),/ROUTE_NOT_COMPLETED/);
- s=routeDone(s);
+test('UI155: incident resolution restricted to secured active stop',()=>{
+ let s=apply(started(),'report_incident',{incident:'accident'});
+ assert.throws(()=>apply(s,'resolve_incident',{incidentId:s.alerts[0].id}),/VEHICLE_NOT_SECURED_AT_STOP/);
+ s=apply(s,'simulate_arrival');s=apply(s,'resolve_incident',{incidentId:s.alerts[0].id});
+ assert.equal(attendantSummary(s).openAlerts,0);
+});
+test('UI155: closure requires all pupils, no open incident and final bus inspection',()=>{
+ assert.throws(()=>apply(at1(),'finish_demo_trip'),/ROUTE_NOT_COMPLETED|STUDENTS_NOT_RECONCILED/);
+ const s=reconciled();
  assert.throws(()=>apply(s,'finish_demo_trip'),/EMPTY_BUS_CONFIRMATION_REQUIRED/);
- let unresolved=routeDone(stopped());
- unresolved=apply(unresolved,'confirm_empty');
- assert.throws(()=>apply(unresolved,'finish_demo_trip'),/STUDENTS_NOT_RECONCILED/);
+ const withAlert=apply(s,'report_incident',{incident:'delay'});
+ assert.throws(()=>apply(withAlert,'finish_demo_trip'),/OPEN_INCIDENTS/);
+ const after=apply(withAlert,'resolve_incident',{incidentId:withAlert.alerts[0].id});
+ const empty=apply(after,'confirm_empty');
+ assert.equal(attendantSummary(empty).canFinish,true);
+ const done=apply(empty,'finish_demo_trip');
+ assert.equal(done.trip.status,'completed');
 });
-test('UI154: full pointage, absence, route and empty check permit closure',()=>{
- let s=routeDone(reconciled());
+test('UI155: any pointage change invalidates prior empty-bus check',()=>{
+ let s=at3();
  s=apply(s,'confirm_empty');
- s=apply(s,'finish_demo_trip');
- assert.equal(s.trip.status,'completed');
- assert.equal(attendantSummary(s).unaccounted,0);
-});
-test('UI154: changed pointage invalidates earlier final empty confirmation',()=>{
- let s=stopped();
- s=apply(s,'confirm_empty');
- s=apply(s,'board',{studentId:'E-01'});
  s=apply(s,'alight',{studentId:'E-01'});
- s=apply(s,'mark_absent',{studentId:'E-02'});
- s=routeDone(s);
+ assert.equal(s.events.some(x=>x.type==='empty_bus_confirmed'),false);
  assert.throws(()=>apply(s,'finish_demo_trip'),/EMPTY_BUS_CONFIRMATION_REQUIRED/);
 });
-test('UI154: offline simulation never claims real sync',()=>{
- let s=apply(stopped(),'simulate_network_loss');
+test('UI155: cannot declare empty while pupils remain',()=>assert.throws(()=>apply(at3(),'confirm_empty'),/CHILDREN_REMAIN/));
+test('UI155: no real sync when network simulated offline',()=>{
+ let s=apply(at1(),'simulate_network_loss');
  s=apply(s,'report_incident',{incident:'delay'});
  assert.equal(s.network,'simulated-offline');
  assert.equal(attendantSummary(s).pendingRealSync,0);
 });
-test('UI154: denied operational-mode crossover and invalid student',()=>{
- const s=stopped();s.mode='operational';
- assert.throws(()=>apply(s,'report_incident',{incident:'delay'}),/DEMO_ONLY/);
- assert.throws(()=>apply(stopped(),'board',{studentId:'OTHER'}),/STUDENT_NOT_ON_TRIP/);
+test('UI155: strict DEMO / operational boundary and no driver privileges',()=>{
+ const s=at1();s.mode='operational';
+ assert.throws(()=>apply(s,'board',{studentId:'E-01'}),/DEMO_ONLY/);
+ assert.throws(()=>apply(at1(),'assign_vehicle'),/ACTION_DENIED/);
 });
-test('UI154: attendant cannot gain driver privilege, state is immutable snapshot',()=>{
- const s=stopped();
- assert.throws(()=>apply(s,'assign_vehicle'),/ACTION_DENIED/);
- const next=apply(s,'board',{studentId:'E-01'});
- assert.equal(s.trip.onboardCount,0);
- assert.equal(next.trip.onboardCount,1);
+test('UI155: immutable demo state snapshots',()=>{
+ const s=at1(),next=apply(s,'board',{studentId:'E-01'});
+ assert.equal(s.trip.onboardCount,0);assert.equal(next.trip.onboardCount,1);
+ assert.equal(s.students[0].boarded,false);
 });
