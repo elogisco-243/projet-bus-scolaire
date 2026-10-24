@@ -92,6 +92,7 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
  if(action==='simulate_driver_resume'){
   if(s.trip.status!=='in_progress'||!s.atStop)throw Error('NO_ACTIVE_STOP');
   if(pendingAtStop(s)!==0)throw Error('POINTAGE_PENDING_AT_STOP');
+  if(s.alerts.some(a=>a.status==='open'&&a.critical))throw Error('OPEN_CRITICAL_INCIDENT');
   if(!nextStop(s))throw Error('ALREADY_AT_TERMINUS');
   s.atStop=false;s.activeStopId=null;s.driverSecured=false;
   return write(s,'synthetic_driver_resumed');
@@ -103,6 +104,7 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
  }
  if(action==='start_demo_trip'){
   if(!s.presence||!s.driverSecured||!s.ready||s.trip.status!=='planned')throw Error('DEPARTURE_NOT_AUTHORIZED');
+  if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
   s.trip.status='in_progress';s.ready=false;s.driverSecured=false;
   return write(s,'synthetic_trip_started');
  }
@@ -147,7 +149,12 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
   return write(s,'incident_'+incident);
  }
  if(action==='resolve_incident'){
-  ensure(s,'report_incident');requireActiveStop(s);
+  // PRE-DEPARTURE: a critical event can be acknowledged as simulated only once
+  // synthetic Chauffeur safety has been recorded, not while driving.
+  ensure(s,s.trip.status==='planned'?'view_trip':'report_incident');
+  if(s.trip.status==='planned'){
+   if(!s.driverSecured)throw Error('VEHICLE_NOT_SECURED');
+  }else requireActiveStop(s);
   const a=s.alerts.find(x=>x.id===incidentId);
   if(!a||a.status!=='open')throw Error('INCIDENT_NOT_OPEN');
   a.status='resolved_demo';
