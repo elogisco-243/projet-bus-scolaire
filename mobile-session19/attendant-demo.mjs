@@ -1,51 +1,99 @@
-/** UI-154 — isolated DEMO-only attendant process. Never controls an operational bus. */
+/** UI-155: isolated, ephemeral attendant DEMO. No operational server or vehicle action. */
 import {authorizeAttendant} from '../mobile-session18/attendant-policy.mjs';
-const freeze=x=>Object.freeze(x);
+const freeze=Object.freeze;
+export const CRITICAL_INCIDENTS=freeze(['accident','medical','missing_child']);
+export const INCIDENTS=freeze([
+ ['Embouteillage','traffic'],['Retard','delay'],['Panne','breakdown'],
+ ['Accident','accident'],['Urgence médicale','medical'],['Enfant manquant','missing_child']
+]);
 const itinerary=()=>[
  {id:'STOP-01',name:'Dépôt',reached:false},
  {id:'STOP-02',name:'Arrêt fictif A',reached:false},
  {id:'STOP-03',name:'Arrêt fictif B',reached:false}
 ];
-export const INCIDENTS=Object.freeze([
- ['Embouteillage','traffic'],['Retard','delay'],['Panne','breakdown'],
- ['Accident','accident'],['Urgence médicale','medical'],['Enfant manquant','missing_child']
-]);
+const pupil=(id,pickupStopId,dropoffStopId)=>({
+ id,tripId:'TRIP-DEMO',mode:'demo',pickupStopId,dropoffStopId,
+ absent:false,absenceReason:null,boarded:false,alighted:false
+});
 export function makeAttendantDemo(){
  return {mode:'demo',role:'attendant',session:{ok:true,mode:'demo',role:'attendant',attendantId:'ATT-DEMO'},
  trip:{id:'TRIP-DEMO',mode:'demo',attendantId:'ATT-DEMO',status:'planned',onboardCount:0},
- students:[
-  {id:'E-01',tripId:'TRIP-DEMO',mode:'demo',absent:false,boarded:false,alighted:false},
-  {id:'E-02',tripId:'TRIP-DEMO',mode:'demo',absent:false,boarded:false,alighted:false}
- ],
- stops:itinerary(),network:'simulated-online',presence:false,
- driverSecured:false,ready:false,events:[],nextId:1,alert:null};
+ students:[pupil('E-01','STOP-01','STOP-03'),pupil('E-02','STOP-02','STOP-03')],
+ stops:itinerary(),network:'simulated-online',presence:false,driverSecured:false,
+ ready:false,atStop:false,activeStopId:null,alerts:[],events:[],nextId:1,alert:null};
 }
 const clone=s=>structuredClone(s);
-const count=s=>s.students.filter(x=>x.boarded&&!x.alighted).length;
-const unaccounted=s=>s.students.filter(x=>!x.absent&&!(x.boarded&&x.alighted)).length;
+const count=s=>s.students.filter(p=>p.boarded&&!p.alighted).length;
+const unaccounted=s=>s.students.filter(p=>!p.absent&&!(p.boarded&&p.alighted)).length;
+const pendingAtStop=s=>s.atStop?s.students.filter(p=>
+ (p.pickupStopId===s.activeStopId&&!p.absent&&!p.boarded)||
+ (p.dropoffStopId===s.activeStopId&&p.boarded&&!p.alighted)
+).length:0;
+const openAlerts=s=>s.alerts.filter(a=>a.status==='open').length;
 function write(s,type,studentId=null){
  s.trip.onboardCount=count(s);
- s.events.push({id:'DEMO-EVT-'+s.nextId++,type,studentId,mode:'demo',delivery:'LOCAL_SIMULATION_ONLY'});
+ s.events.push({id:'DEMO-EVT-'+s.nextId++,type,studentId,stopId:s.activeStopId,
+  mode:'demo',delivery:'LOCAL_SIMULATION_ONLY'});
  return s;
 }
 function ensure(s,action,student=null){
  if(s?.mode!=='demo'||s?.session?.mode!=='demo')throw Error('DEMO_ONLY');
- const result=authorizeAttendant({session:s.session,trip:s.trip,action,student,eventMode:'demo'});
- if(!result.allowed)throw Error(result.code);
+ const r=authorizeAttendant({session:s.session,trip:s.trip,action,student,eventMode:'demo'});
+ if(!r.allowed)throw Error(r.code);
 }
-const requireStop=s=>{if(!s.driverSecured)throw Error('VEHICLE_NOT_SECURED');};
-export function runAttendantDemo(state,action,{studentId=null,incident=null}={}){
+function requireActiveStop(s){
+ if(!s.atStop||!s.activeStopId||!s.driverSecured)throw Error('VEHICLE_NOT_SECURED_AT_STOP');
+}
+function nextStop(s){return s.stops.find(p=>!p.reached);}
+export function attendantClosingChecklist(s){
+ const last=s.stops.at(-1);
+ return freeze([
+  {id:'stops',label:'Tous les arrêts atteints',ok:s.stops.every(p=>p.reached)},
+  {id:'students',label:'Chaque élève est justifié',ok:unaccounted(s)===0},
+  {id:'onboard',label:'Aucun élève à bord',ok:count(s)===0},
+  {id:'alerts',label:'Incidents traités dans la simulation',ok:openAlerts(s)===0},
+  {id:'safety',label:'Bus arrêté au terminus',ok:!!last&&s.activeStopId===last.id&&s.atStop&&s.driverSecured},
+  {id:'empty',label:'Inspection finale du bus confirmée',ok:s.events.some(e=>e.type==='empty_bus_confirmed')}
+ ]);
+}
+export function attendantSummary(s){
+ const close=attendantClosingChecklist(s);
+ return freeze({
+  mode:'demo',status:s.trip.status,presence:s.presence,
+  assigned:s.students.length,onboard:count(s),alighted:s.students.filter(p=>p.alighted).length,
+  unaccounted:unaccounted(s),nextStop:nextStop(s)?.name||'Terminus atteint',
+  stopsReached:s.stops.filter(p=>p.reached).length,stopsTotal:s.stops.length,
+  activeStopId:s.activeStopId,activeStopName:s.stops.find(p=>p.id===s.activeStopId)?.name||'',
+  atStop:s.atStop,pendingAtStop:pendingAtStop(s),openAlerts:openAlerts(s),
+  ready:s.ready,driverSecured:s.driverSecured,
+  canToggleReady:s.trip.status==='planned'&&s.presence&&s.driverSecured,
+  canStart:s.trip.status==='planned'&&s.presence&&s.driverSecured&&s.ready,
+  canReportIncidents:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured,
+  canSimulateArrival:s.trip.status==='in_progress'&&!s.atStop&&!!nextStop(s),
+  canResume:s.trip.status==='in_progress'&&s.atStop&&pendingAtStop(s)===0&&!!nextStop(s),
+  canConfirmEmpty:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured&&count(s)===0,
+  canFinish:s.trip.status==='in_progress'&&close.every(x=>x.ok),
+  closure:close,pendingRealSync:0,events:s.events.length,network:s.network
+ });
+}
+export function runAttendantDemo(state,action,{studentId=null,incident=null,incidentId=null,reason=null}={}){
  const s=clone(state);
  if(!s||s.mode!=='demo'||s.session?.mode!=='demo')throw Error('DEMO_ONLY');
+ if(action==='confirm_presence'){
+  ensure(s,'confirm_presence');if(s.presence)throw Error('ALREADY_CONFIRMED');
+  s.presence=true;return write(s,'presence_confirmed');
+ }
  if(action==='simulate_driver_secure'){
   if(!['planned','in_progress'].includes(s.trip.status))throw Error('TRIP_NOT_ACTIVE');
-  // Synthetic driver event, not an attendant authorization or a real driver confirmation.
+  // DEMO-only synthetic Chauffeur event. Never a real attendant vehicle control.
   s.driverSecured=true;
   return write(s,'synthetic_driver_secured');
  }
  if(action==='simulate_driver_resume'){
-  if(s.trip.status!=='in_progress')throw Error('TRIP_NOT_ACTIVE');
-  s.driverSecured=false;
+  if(s.trip.status!=='in_progress'||!s.atStop)throw Error('NO_ACTIVE_STOP');
+  if(pendingAtStop(s)!==0)throw Error('POINTAGE_PENDING_AT_STOP');
+  if(!nextStop(s))throw Error('ALREADY_AT_TERMINUS');
+  s.atStop=false;s.activeStopId=null;s.driverSecured=false;
   return write(s,'synthetic_driver_resumed');
  }
  if(action==='toggle_ready'){
@@ -55,40 +103,61 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null}={})
  }
  if(action==='start_demo_trip'){
   if(!s.presence||!s.driverSecured||!s.ready||s.trip.status!=='planned')throw Error('DEPARTURE_NOT_AUTHORIZED');
-  // Synthetic trip; attendant receives no operational start/vehicle privileges.
   s.trip.status='in_progress';s.ready=false;s.driverSecured=false;
   return write(s,'synthetic_trip_started');
  }
- if(action==='confirm_presence'){
-  ensure(s,'confirm_presence');if(s.presence)throw Error('ALREADY_CONFIRMED');
-  s.presence=true;return write(s,'presence_confirmed');
+ if(action==='simulate_arrival'||action==='reach_stop'){
+  ensure(s,'mark_stop');
+  if(s.atStop)throw Error('STOP_CURRENTLY_ACTIVE');
+  // UI-155 one simulated Chauffeur arrival event; includes standstill and route advance.
+  // No real vehicle control and no actual GPS validation.
+  if(action==='reach_stop'&&!s.driverSecured)throw Error('VEHICLE_NOT_SECURED');
+  const stop=nextStop(s);
+  if(!stop)throw Error('ALL_STOPS_REACHED');
+  stop.reached=true;s.atStop=true;s.activeStopId=stop.id;s.driverSecured=true;
+  return write(s,'synthetic_arrival_'+stop.id);
  }
  if(action==='board'||action==='alight'||action==='mark_absent'){
-  const student=s.students.find(x=>x.id===studentId);
-  ensure(s,action,student);requireStop(s);
-  if(action==='board')student.boarded=true;
-  else if(action==='alight')student.alighted=true;
-  else {if(student.boarded)throw Error('ALREADY_BOARDED');student.absent=true;}
-  // Any pointage change invalidates previous final empty-bus confirmation.
+  const p=s.students.find(x=>x.id===studentId);
+  ensure(s,action,p);requireActiveStop(s);
+  if(action==='board'){
+   if(p.pickupStopId!==s.activeStopId)throw Error('WRONG_PICKUP_STOP');
+   p.boarded=true;
+  }else if(action==='alight'){
+   if(p.dropoffStopId!==s.activeStopId)throw Error('WRONG_DROPOFF_STOP');
+   p.alighted=true;
+  }else{
+   if(p.pickupStopId!==s.activeStopId)throw Error('WRONG_PICKUP_STOP');
+   if(!['non_present','family_notified'].includes(reason))throw Error('ABSENCE_REASON_REQUIRED');
+   p.absent=true;p.absenceReason=reason;
+  }
   s.events=s.events.filter(e=>e.type!=='empty_bus_confirmed');
-  return write(s,action,studentId);
- }
- if(action==='reach_stop'){
-  ensure(s,'mark_stop');requireStop(s);
-  const stop=s.stops.find(x=>!x.reached);
-  if(!stop)throw Error('ALL_STOPS_REACHED');
-  stop.reached=true;
-  s.driverSecured=false; // each new stop requires a separate synthetic stationary signal
-  return write(s,'stop_reached_'+stop.id);
+  return write(s,action,p.id);
  }
  if(action==='report_incident'){
-  ensure(s,'report_incident');requireStop(s);
   if(!INCIDENTS.some(x=>x[1]===incident))throw Error('INVALID_INCIDENT');
-  s.alert=incident;return write(s,'incident_'+incident);
+  const critical=CRITICAL_INCIDENTS.includes(incident);
+  // Critical report is accessible without a standstill; it NEVER triggers real help.
+  ensure(s,critical?'view_trip':'report_incident');
+  if(s.trip.status==='completed')throw Error('TRIP_COMPLETED');
+  if(!critical)requireActiveStop(s);
+  const id='INC-DEMO-'+s.nextId;
+  s.alert=incident;
+  s.alerts.push({id,kind:incident,critical,status:'open',stopId:s.activeStopId,delivery:'LOCAL_SIMULATION_ONLY'});
+  return write(s,'incident_'+incident);
+ }
+ if(action==='resolve_incident'){
+  ensure(s,'report_incident');requireActiveStop(s);
+  const a=s.alerts.find(x=>x.id===incidentId);
+  if(!a||a.status!=='open')throw Error('INCIDENT_NOT_OPEN');
+  a.status='resolved_demo';
+  return write(s,'incident_resolved_'+a.kind);
  }
  if(action==='confirm_empty'){
-  ensure(s,'confirm_empty');requireStop(s);
+  ensure(s,'confirm_empty');requireActiveStop(s);
+  if(count(s)!==0)throw Error('CHILDREN_REMAIN');
   if(s.events.some(e=>e.type==='empty_bus_confirmed'))throw Error('ALREADY_CONFIRMED');
+  if(s.stops.some(p=>!p.reached))throw Error('ROUTE_NOT_COMPLETED');
   return write(s,'empty_bus_confirmed');
  }
  if(action==='simulate_network_loss'||action==='simulate_network_return'){
@@ -97,23 +166,12 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null}={})
  }
  if(action==='finish_demo_trip'){
   if(s.trip.status!=='in_progress'||count(s)!==0)throw Error('FINISH_BLOCKED');
-  requireStop(s);
-  if(s.stops.some(x=>!x.reached))throw Error('ROUTE_NOT_COMPLETED');
+  requireActiveStop(s);
+  if(s.stops.some(p=>!p.reached))throw Error('ROUTE_NOT_COMPLETED');
   if(unaccounted(s)!==0)throw Error('STUDENTS_NOT_RECONCILED');
+  if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
   if(!s.events.some(e=>e.type==='empty_bus_confirmed'))throw Error('EMPTY_BUS_CONFIRMATION_REQUIRED');
   s.trip.status='completed';return write(s,'synthetic_trip_finished');
  }
  throw Error('ACTION_DENIED');
-}
-export function attendantSummary(s){
- return freeze({
-  mode:'demo',status:s.trip.status,presence:s.presence,
-  assigned:s.students.length,onboard:count(s),alighted:s.students.filter(x=>x.alighted).length,
-  unaccounted:unaccounted(s),nextStop:s.stops.find(x=>!x.reached)?.name||'Terminus atteint',
-  stopsReached:s.stops.filter(x=>x.reached).length,stopsTotal:s.stops.length,
-  ready:s.ready,driverSecured:s.driverSecured,
-  canToggleReady:s.trip.status==='planned'&&s.presence&&s.driverSecured,
-  canReportIncidents:s.trip.status==='in_progress'&&s.driverSecured,
-  pendingRealSync:0,events:s.events.length,network:s.network
- });
 }
