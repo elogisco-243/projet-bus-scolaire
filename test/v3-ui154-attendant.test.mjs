@@ -8,7 +8,7 @@ const css=read('../mobile-session19/style.css');
 const model=read('../mobile-session19/attendant-demo.mjs');
 test('UI154: follow-up main action preserved, result rendered only under dedicated view',()=>{
  assert.match(ui,/SUIVI DE TOURNÉE<\/span>','go_followup'/);
- assert.match(ui,/view==='followup'\?'followup'/);
+ assert.match(ui,/view=action==='go_followup'\?'followup'/);
  assert.match(ui,/view!=='dashboard'/);
  assert.match(ui,/<h1>Suivi de tournée<\/h1>/);
  assert.doesNotMatch(ui,/showTourDetails/);
@@ -55,5 +55,5 @@ test('UI154: DEMO never sends real events or loads network clients',()=>{
  assert.doesNotMatch(ui,/fetch\s*\(|XMLHttpRequest|new WebSocket/);
  assert.match(model,/LOCAL_SIMULATION_ONLY/);
  assert.match(ui,/Sans serveur réel/);
- assert.match(ui,/validation croisée entre deux comptes n'est pas encore activée/);
+ assert.match(ui,/validation croisée entre deux comptes n\\?'est pas encore activée/);
 });
