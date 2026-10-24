@@ -100,11 +100,20 @@ function tourSubpage(d){
  '<h2>Événements</h2>'+(state.events.length?state.events.slice().reverse().map(e=>
  '<div class="line"><span>'+escapeHTML(eventLabel(e))+'</span><small>'+escapeHTML(e.studentId||e.stopId||'Démo locale')+'</small></div>').join(''):'<p class="hint">Aucun événement.</p>')+'</section>';
 }
+function activeAlertBanner(){
+ const opened=state.alerts.filter(a=>a.status==='open').sort((a,b)=>Number(b.critical)-Number(a.critical));
+ if(!opened.length)return '';
+ const top=opened[0],label=INCIDENTS.find(x=>x[1]===top.kind)?.[0]||'Incident';
+ return '<button type="button" class="active-alert-banner" data-action="go_alerts" aria-label="Ouvrir les alertes en cours">'+
+  '<strong>'+icon('alert')+' ALERTE ACTIVE'+(opened.length>1?' · +'+(opened.length-1):'')+'</strong>'+
+  '<span>'+escapeHTML(label)+' · '+(top.critical?'Critique':'À examiner')+'</span></button>';
+}
 function tourDashboard(d,started,done){
  return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"><section class="card tour-hero">'+
  '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state">'+
  (started?'● EN COURS':done?'✓ TERMINÉE':'○ À PRÉPARER')+'</span><span class="network-icon" title="Réseau fictif">⌁</span></div></div>'+
  '<div class="next-stop"><div><span class="hero-label">PROCHAIN ARRÊT</span><strong>'+escapeHTML(d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
+ activeAlertBanner()+
  '<div class="hero-stats">'+
  '<button type="button" class="hero-stat" data-action="go_students"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
  '<button type="button" class="hero-stat" data-action="go_stops"><span class="hero-label">'+icon('pin')+' ARRÊTS ATTEINTS</span><strong>'+d.stopsReached+'/'+d.stopsTotal+'</strong><span class="stat-chevron">›</span></button></div>'+
