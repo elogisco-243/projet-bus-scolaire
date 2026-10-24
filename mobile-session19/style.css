@@ -1,0 +1,181 @@
+/* A2S Scola UI-153 — Accompagnateur DEMO.
+   Reprend la composition de l'ecran Chauffeur v1.7 photographie sur
+   telephone + tablette. Aucun CSS sur la production / Chauffeur. */
+:root{
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color:#221538;background:#fff;
+  --violet:#2a1151;--violet-deep:#210b44;--violet-card:#46246d;
+  --violet-tile:#5a317e;--accent:#692dbb;--soft:#f0e6ff;
+}
+*{box-sizing:border-box}
+html,body,#app{width:100%;height:100%;min-height:0;margin:0;overflow:hidden}
+body{background:#fff}
+button{font:inherit;cursor:pointer;border:0;border-radius:13px;padding:12px 14px;touch-action:manipulation}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
+.app{
+  display:flex;flex-direction:column;min-width:0;width:100%;
+  height:100dvh;min-height:0;max-height:100dvh;overflow:hidden;
+  background:#fff;
+}
+.head{
+  margin:calc(env(safe-area-inset-top,0px) + 10px) clamp(8px,2vw,24px) 0;
+  padding:clamp(12px,2vw,22px);
+  flex:0 0 auto;
+  border-radius:19px;
+  background:linear-gradient(110deg,#2a1151,#32175b);
+  color:white;
+}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand-left{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  flex:0 0 auto;display:grid;place-items:center;
+  width:clamp(38px,5vw,61px);height:clamp(38px,5vw,61px);
+  background:#f4eafb;color:#441c78;
+  border-radius:9px;font-weight:900;font-size:clamp(22px,3vw,31px)
+}
+.brand-name{font-weight:850;font-size:clamp(19px,3vw,28px);line-height:1.1}
+.brand-sub{margin-top:4px;color:#e4d8f0;font-size:clamp(11px,1.55vw,15px)}
+.settings-symbol{
+  display:grid;place-items:center;flex:0 0 auto;
+  background:#ffffff13;border:1px solid #ffffff20;
+  border-radius:12px;width:clamp(36px,5vw,50px);
+  height:clamp(36px,5vw,50px);font-size:26px;
+}
+.demo-pill{margin-top:7px;display:inline-block;font-size:10px;font-weight:800;
+  color:#5f3a0a;background:#ffe6a5;border-radius:16px;padding:3px 9px}
+.content{
+  flex:1 1 auto;min-height:0;min-width:0;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:clamp(11px,2vw,20px) clamp(9px,2.2vw,25px) 14px;
+  background:#fff;
+}
+.tour-dashboard{display:flex;flex-direction:column;gap:clamp(9px,1.5vh,15px)}
+.card{background:#fff;border-radius:16px;border:1px solid #e9e1f1;
+  padding:clamp(13px,2vw,21px);box-shadow:0 2px 7px #2c155010;
+  margin:0 0 12px}
+.card h2{color:#2a1547;font-size:clamp(17px,2.2vw,23px);margin:0 0 12px}
+.tour-dashboard .card{margin:0}
+.tour-hero{
+  background:linear-gradient(140deg,#34175c,#2b134f 84%)!important;
+  border:none!important;color:#fff;
+  box-shadow:none;
+  border-radius:20px;padding:clamp(13px,2vw,22px);
+}
+.tour-hero h2{color:white}
+.tour-heading{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin:0 0 clamp(9px,1.3vh,15px)}
+.tour-heading h2{margin:0;font-size:clamp(20px,2.7vw,27px);letter-spacing:.01em}
+.tour-heading-right{display:flex;align-items:center;gap:9px}
+.trip-state{border:1px solid #00905f;background:#096f43;color:#b8ffd3;
+  font-size:clamp(9px,1.4vw,13px);padding:6px 10px;font-weight:850;
+  border-radius:50px;white-space:nowrap}
+.network-icon{font-size:26px;color:#30d38c;font-weight:900}
+.next-stop,.hero-stats>div{
+  background:linear-gradient(140deg,#64377e,#4c2972);
+  border-radius:14px;padding:clamp(11px,1.8vw,19px);min-width:0;
+}
+.next-stop{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:clamp(8px,1.4vh,13px)}
+.hero-label{color:#eadcf7;font-size:clamp(10px,1.6vw,15px);font-weight:730;
+  display:block;line-height:1.25}
+.next-stop strong{font-size:clamp(22px,4.3vw,45px);
+  line-height:1.13;display:block;margin-top:5px;overflow-wrap:anywhere}
+.sound-icon{display:grid;place-items:center;background:#76439c;
+  color:white;border-radius:12px;width:clamp(40px,5.5vw,67px);
+  height:clamp(40px,5.5vw,67px);font-size:clamp(23px,3.1vw,34px);flex-shrink:0}
+.hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.hero-stats strong{display:block;font-size:clamp(20px,3.3vw,36px);
+  line-height:1.1;margin-top:5px;color:#fff;overflow-wrap:anywhere}
+.hero-info{margin-top:9px;border-top:1px solid #ffffff38}
+.hero-info>div{display:flex;align-items:center;gap:8px;
+  padding:clamp(6px,.9vh,10px) 3px;min-width:0}
+.hero-info strong{color:#fff;display:block;font-size:clamp(12px,1.8vw,17px)}
+.hero-info small{color:#e2d5eb;display:block;font-size:clamp(10px,1.45vw,13px);margin-top:3px}
+.hero-info>div>div{flex:1;min-width:0}
+.hero-symbol{width:24px;flex:0 0 24px;font-size:20px;color:#d5b4ff}
+.read-only-indicator{display:inline-block;width:36px;height:21px;
+  border-radius:20px;background:#a39aaa;position:relative;flex-shrink:0}
+.read-only-indicator:before{content:"";position:absolute;top:3px;left:3px;
+  width:15px;height:15px;border-radius:50%;background:#eee}
+.dashboard-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1vw,13px)}
+.dashboard-actions button{min-height:clamp(66px,10vh,112px);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:5px;font-size:clamp(20px,2.7vw,29px);min-width:0}
+.dashboard-actions button span{font-size:clamp(11px,1.6vw,17px);line-height:1.2;text-align:center;font-weight:850}
+.primary{color:#fff;background:linear-gradient(120deg,#752bd6,#5c1da7);font-weight:800}
+.light{color:#4a2581;background:linear-gradient(120deg,#efe6ff,#f4eefa);font-weight:800}
+.warn{color:#56370a;background:linear-gradient(110deg,#ffdf80,#ffd067);font-weight:850}
+.danger{color:#a0182d;background:#ffe4e8;font-weight:800}
+.tour-controls{margin-top:2px!important}
+.tour-controls h2{font-size:15px;margin-bottom:5px}
+.hint{font-size:12px;line-height:1.45;color:#6d607c}
+.full{width:100%;margin:5px 0}
+.page-title{font-size:clamp(21px,3vw,30px);margin:6px 0 16px;color:#271346}
+.line{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin:10px 0;padding:5px 0;border-bottom:1px solid #eee8f6}
+.line:last-child{border-bottom:0}
+.line>div,.line>span{min-width:0;overflow-wrap:anywhere}
+.line strong{font-size:clamp(12px,1.8vw,15px)}
+.buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.buttons button{min-width:0}
+.status{font-size:12px;color:#75668a}
+.error{background:#fff1df;color:#763c00;padding:10px;border-radius:10px;margin:0 0 10px}
+.bottom{
+  flex:0 0 auto;position:relative;z-index:10;
+  width:min(600px,calc(100% - 16px));max-width:100%;
+  margin:0 auto calc(env(safe-area-inset-bottom,0px) + 5px);
+  padding:7px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  background:#fff;border:1px solid #ede7f4;border-radius:18px;
+  box-shadow:0 2px 19px #2c15501b;
+}
+.bottom button{padding:6px 2px;min-height:55px;min-width:0;
+  background:transparent;border-radius:12px;color:#352a47;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.bottom button.active{background:#ece3fc;color:#6429bc;font-weight:850}
+.nav-icon{display:block;line-height:1;font-size:clamp(18px,2.4vw,24px)}
+.nav-label{display:block;font-size:clamp(10px,1.45vw,13px);line-height:1.2;text-align:center}
+@media(min-width:700px){
+ .head{padding:18px 23px;margin:16px 24px 0}
+ .content{padding:16px 25px 16px}
+ .bottom{width:min(640px,calc(100% - 30px))}
+}
+@media(max-height:730px){
+ .head{padding:8px 12px;margin-top:5px}
+ .brand-mark{height:34px;width:34px;font-size:20px}
+ .settings-symbol{height:34px;width:34px;font-size:20px}
+ .demo-pill{padding:2px 7px;margin-top:3px}
+ .content{padding-top:8px;padding-bottom:8px}
+ .tour-hero{padding:10px}
+ .tour-heading{margin-bottom:7px}
+ .next-stop,.hero-stats>div{padding:9px}
+ .next-stop{margin-bottom:7px}
+ .hero-info{margin-top:5px}
+ .hero-info>div{padding:4px 0}
+ .dashboard-actions button{min-height:58px}
+ .bottom{padding:4px}
+ .bottom button{min-height:47px;padding:3px 2px}
+}
+@media(max-width:359px){
+ .head{margin-left:6px;margin-right:6px}
+ .content{padding-left:7px;padding-right:7px}
+ .tour-heading h2{font-size:18px}
+ .trip-state{padding:4px 6px;font-size:9px}
+ .network-icon{font-size:20px}
+ .dashboard-actions button{min-height:62px}
+ .dashboard-actions button span{font-size:10px}
+ .nav-label{font-size:9px}
+}
+@media(orientation:landscape) and (max-height:510px){
+ .brand-sub{font-size:11px}
+ .head{margin:3px 10px 0;padding:5px 12px}
+ .demo-pill{margin-top:2px}
+ .tour-hero{padding:9px}
+ .bottom button{min-height:40px}
+ .bottom{margin-bottom:2px}
+}
+
+/* UI-153 branded asset: downsampled from the unchanged official logo. */
+.brand-mark{font-size:0;background:#fff url('data:image/png;base64,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') center / cover no-repeat}

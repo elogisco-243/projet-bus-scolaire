@@ -1,0 +1,28 @@
+name: Bus V3 - SYNC-06 Native Storage Gate Contract
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync06-durable-mobile-gate
+  pull_request:
+    branches:
+      - feature/bus-v3-sync05-mobile-contract
+permissions:
+  contents: read
+jobs:
+  native-bridge-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify SYNC-06 module syntax
+        run: |
+          node --check mobile-sync06/assignment.mjs
+          node --check mobile-sync06/durable.mjs
+      - name: Native adapter simulator, assignment scope and crash recovery
+        run: node --test mobile-sync06/tests/sync06-durable.test.mjs
+      - name: SYNC-05 offline and V3 authorization regressions
+        run: |
+          node --test mobile-sync05/tests/sync05-contract.test.mjs
+          node --test test/v3-sync04-write-api.test.js test/v3-sync03-read-api.test.js

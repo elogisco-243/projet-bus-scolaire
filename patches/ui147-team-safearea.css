@@ -1,0 +1,105 @@
+/* A2S-SCOLA-UI147-SYNC14-TEAM-FIT - TEST COPY ONLY.
+ * Team screen only. Preserve all original HTML/JS, authorization gates and other tabs.
+ * Reserve Android status-bar space; pin header and bottom nav; permit scroll fallback.
+ */
+@media (max-width: 480px) {
+  body:has(.driver-mobile .crew-settings) {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .shell:has(> .driver-mobile .crew-settings) {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    padding: max(30px, env(safe-area-inset-top, 0px)) 8px 0;
+  }
+  .shell:has(> .driver-mobile .crew-settings) > .top {
+    flex: 0 0 auto;
+    min-height: 62px;
+    margin: 0 0 6px;
+    padding: 7px 10px;
+  }
+  .shell > .mobile-frame.driver-mobile:has(.crew-settings) {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+    padding: 4px 5px calc(78px + env(safe-area-inset-bottom, 0px));
+  }
+  .driver-mobile:has(.crew-settings) > .panel {
+    padding: 12px 12px 9px;
+    border-radius: 18px;
+    margin: 0;
+  }
+  .driver-mobile:has(.crew-settings) > .panel > h3:first-child {
+    font-size: 17px;
+    line-height: 1.18;
+    margin: 0 0 6px;
+  }
+  .driver-mobile:has(.crew-settings) > .panel > p.muted {
+    font-size: 12px;
+    line-height: 1.25;
+    margin: 0 0 7px;
+  }
+  .driver-mobile:has(.crew-settings) > .panel > p[role="status"] {
+    font-size: 13px;
+    line-height: 1.23;
+    padding: 10px 11px;
+    margin: 0 0 8px;
+  }
+  .driver-mobile .crew-settings > .crew-static-title {
+    margin: 4px 0 8px;
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  .driver-mobile .crew-settings .driver-crew-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin: 8px 0;
+  }
+  .driver-mobile .crew-settings .driver-crew-choice {
+    min-width: 0;
+    min-height: 56px;
+    padding: 8px 10px;
+    gap: 7px;
+    font-size: 12.5px;
+    line-height: 1.2;
+    border-radius: 12px;
+  }
+  .driver-mobile .crew-settings .driver-crew-choice:first-child {
+    grid-column: 1 / -1;
+  }
+  .driver-mobile .crew-settings .driver-crew-choice .scola-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+  .driver-mobile .crew-settings .driver-crew-choice span {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .driver-mobile .crew-settings .driver-crew-choice.active::after {
+    width: 19px;
+    height: 19px;
+    font-size: 12px;
+  }
+  .driver-mobile .crew-settings .solo-check {
+    min-height: 48px;
+    padding: 9px 10px;
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    line-height: 1.2;
+  }
+  .driver-mobile:has(.crew-settings) .mobile-bottom {
+    bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  }
+}

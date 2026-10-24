@@ -1,0 +1,22 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {makeAttendantDemo,runAttendantDemo,attendantSummary} from '../mobile-session19/attendant-demo.mjs';
+const apply=(s,action,args)=>runAttendantDemo(s,action,args);
+const active=()=>apply(apply(makeAttendantDemo(),'confirm_presence'),'start_demo_trip');
+test('SYNC19: demo starts with no children on board',()=>{const s=makeAttendantDemo();assert.equal(attendantSummary(s).onboard,0);assert.equal(s.mode,'demo')});
+test('SYNC19: no start before presence',()=>assert.throws(()=>apply(makeAttendantDemo(),'start_demo_trip'),/DEPARTURE_NOT_AUTHORIZED/));
+test('SYNC19: presence then synthetic trip',()=>assert.equal(active().trip.status,'in_progress'));
+test('SYNC19: duplicate presence refused',()=>assert.throws(()=>apply(apply(makeAttendantDemo(),'confirm_presence'),'confirm_presence'),/ALREADY_CONFIRMED/));
+test('SYNC19: boarding and alighting keeps correct count',()=>{let s=active();s=apply(s,'board',{studentId:'E-01'});assert.equal(attendantSummary(s).onboard,1);s=apply(s,'alight',{studentId:'E-01'});assert.equal(attendantSummary(s).onboard,0)});
+test('SYNC19: cannot alight before boarding',()=>assert.throws(()=>apply(active(),'alight',{studentId:'E-02'}),/NOT_BOARDED/));
+test('SYNC19: duplicate boarding refused',()=>{let s=apply(active(),'board',{studentId:'E-01'});assert.throws(()=>apply(s,'board',{studentId:'E-01'}),/DUPLICATE_BOARDING/)});
+test('SYNC19: cannot finish with child aboard',()=>{let s=apply(active(),'board',{studentId:'E-01'});assert.throws(()=>apply(s,'finish_demo_trip'),/FINISH_BLOCKED/)});
+test('SYNC19: final check mandatory',()=>assert.throws(()=>apply(active(),'finish_demo_trip'),/EMPTY_BUS_CONFIRMATION_REQUIRED/));
+test('SYNC19: normal closure',()=>{let s=active();s=apply(s,'confirm_empty');s=apply(s,'finish_demo_trip');assert.equal(s.trip.status,'completed')});
+test('SYNC19: incident remains simulated local event',()=>{let s=apply(active(),'report_incident',{incident:'medical'});assert.equal(s.alert,'medical');assert.equal(s.events.at(-1).delivery,'LOCAL_SIMULATION_ONLY')});
+test('SYNC19: simulation offline never marks real sync',()=>{let s=apply(active(),'simulate_network_loss');s=apply(s,'report_incident',{incident:'delay'});assert.equal(s.network,'simulated-offline');assert.equal(attendantSummary(s).pendingRealSync,0)});
+test('SYNC19: operation event impossible in demo controller',()=>{let s=active();s.mode='operational';assert.throws(()=>apply(s,'report_incident',{incident:'delay'}),/DEMO_ONLY/)});
+test('SYNC19: wrong student refused',()=>assert.throws(()=>apply(active(),'board',{studentId:'OTHER'}),/STUDENT_NOT_ON_TRIP/));
+test('SYNC19: no driver power',()=>assert.throws(()=>apply(active(),'assign_vehicle'),/ACTION_DENIED/));
+test('SYNC19: state updates do not mutate prior snapshot',()=>{let first=active();let second=apply(first,'board',{studentId:'E-01'});assert.equal(first.trip.onboardCount,0);assert.equal(second.trip.onboardCount,1)});
+
+test('SYNC19: changed pointage requires new final empty check',()=>{let s=active();s=apply(s,'confirm_empty');s=apply(s,'board',{studentId:'E-01'});s=apply(s,'alight',{studentId:'E-01'});assert.throws(()=>apply(s,'finish_demo_trip'),/EMPTY_BUS_CONFIRMATION_REQUIRED/)});
