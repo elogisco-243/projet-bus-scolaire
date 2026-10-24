@@ -119,7 +119,7 @@ function tourDashboard(d,started,done){
  '</div>'+workflowPanel(d)+'</section>';
 }
 function pointagePage(d){
- const here=state.students.filter(p=>d.atStop&&(p.pickupStopId===d.activeStopId||p.dropoffStopId===d.activeStopId));
+ const here=state.students.filter(p=>d.atStop&&(p.pickupStopId===d.activeStopId||(p.dropoffStopId===d.activeStopId&&p.boarded&&!p.alighted)));
  return '<section class="card pointage-card"><h2>Pointage des élèves</h2>'+
  '<p class="pointage-context">'+(d.atStop?icon('pin')+' Arrêt actif : <strong>'+escapeHTML(d.activeStopName)+'</strong>':'Aucun arrêt actif. Simulez une arrivée depuis Ma tournée.')+'</p>'+
  '<p class="hint">Seules les actions relatives aux élèves attendus à cet arrêt sont proposées.</p>'+
