@@ -67,7 +67,7 @@ export function attendantSummary(s){
   atStop:s.atStop,pendingAtStop:pendingAtStop(s),openAlerts:openAlerts(s),
   ready:s.ready,driverSecured:s.driverSecured,
   canToggleReady:s.trip.status==='planned'&&s.presence&&s.driverSecured,
-  canStart:s.trip.status==='planned'&&s.presence&&s.driverSecured&&s.ready,
+  canStart:s.trip.status==='planned'&&s.presence&&s.driverSecured&&s.ready&&openAlerts(s)===0,
   canReportIncidents:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured,
   canSimulateArrival:s.trip.status==='in_progress'&&!s.atStop&&!!nextStop(s),
   canResume:s.trip.status==='in_progress'&&s.atStop&&pendingAtStop(s)===0&&!!nextStop(s)&&!s.alerts.some(a=>a.status==='open'&&a.critical),
