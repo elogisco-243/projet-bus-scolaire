@@ -52,6 +52,7 @@ const friendlyErrors={
  STUDENTS_NOT_RECONCILED:'Des élèves ne sont pas justifiés.',
  EMPTY_BUS_CONFIRMATION_REQUIRED:'Inspection finale du bus requise.',
  OPEN_INCIDENTS:'Des incidents restent ouverts.',
+ OPEN_CRITICAL_INCIDENT:'Une alerte critique ouverte bloque la reprise du trajet.',
  CHILDREN_REMAIN:'Il reste des élèves à bord.',
  ALREADY_AT_TERMINUS:'Terminus déjà atteint.'
 };
@@ -61,11 +62,13 @@ function workflowStep(d){
  if(d.status==='planned'){
   if(!d.presence)return ['Étape 1/3 · Présence','Confirmez votre présence sur cet écran.','Confirmer ma présence','confirm_presence'];
   if(!d.driverSecured)return ['Étape 2/3 · Sécurisation','Confirmation Chauffeur fictive, démo uniquement.','Simuler validation Chauffeur','simulate_driver_secure'];
+  if(d.openAlerts)return ['Incident(s) en attente','Traitez les alertes locales avant le départ.','Voir les alertes','go_alerts'];
   if(!d.ready)return ['Étape 3/3 · Préparation','Activez le switch dans la carte violette.',null,null];
   return ['Prêt au départ','Toutes les conditions de simulation sont réunies.','Démarrer la tournée (démo)','start_demo_trip'];
  }
  if(d.canSimulateArrival)return ['Prochain arrêt · '+d.nextStop,'Une action simule l’arrivée sécurisée et ouvre Pointage.','Simuler arrivée à l’arrêt','simulate_arrival'];
  if(d.atStop&&d.pendingAtStop>0)return ['Arrêt actif · '+d.activeStopName,d.pendingAtStop+' élève(s) à pointer à cet arrêt.','Ouvrir Pointage','go_boarding'];
+ if(d.atStop&&d.openAlerts&&!d.canResume&&d.pendingAtStop===0&&d.stopsReached<d.stopsTotal)return ['Incident(s) à traiter','Une alerte critique doit être traitée avant la reprise.','Voir les alertes','go_alerts'];
  if(d.canResume)return ['Pointage terminé · '+d.activeStopName,'Reprise fictive du trajet.','Simuler reprise du trajet','simulate_driver_resume'];
  if(d.atStop)return ['Terminus · contrôle final','Vérifiez les élèves, incidents et le bus.','Vérifier la clôture','go_closing'];
  return ['Tournée en cours','Consultez les résultats via Suivi de tournée.','Suivi de tournée','go_followup'];
@@ -147,7 +150,7 @@ function alertPage(d){
  (state.alerts.length?state.alerts.slice().reverse().map(a=>
  '<div class="alert-entry"><div><strong>'+escapeHTML(INCIDENTS.find(x=>x[1]===a.kind)?.[0]||a.kind)+'</strong><small>'+
  (a.status==='open'?'Ouverte · démo locale':'Traitée en démo · aucun envoi')+'</small></div>'+
- (a.status==='open'?button('Traiter (démo)','resolve_incident',a.id,'light',!d.canReportIncidents):'')+'</div>').join(''):
+ (a.status==='open'?button('Traiter (démo)','resolve_incident',a.id,'light',!d.canReportIncidents&&!(d.status==='planned'&&d.driverSecured)):'')+'</div>').join(''):
  '<p class="empty-alerts">Aucune alerte enregistrée.</p>')+'</section>';
 }
 function teamPage(d,done){
