@@ -28,5 +28,5 @@ test('UI153: test host is isolated local demo, not an operational app',()=>{
  assert.match(build,/cd\.eneo360\.busscolaire\.v3\.sync09\.test/);
  assert.match(build,/connect-src \\'none\\'/);
  assert.doesNotMatch(ui,/fetch\s*\(|XMLHttpRequest|new WebSocket/);
- assert.match(ui,/validation croisée entre deux comptes n'est pas encore activée/);
+ assert.match(ui,/validation croisée entre deux comptes n\\?'est pas encore activée/);
 });
