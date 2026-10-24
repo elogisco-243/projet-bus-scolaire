@@ -107,12 +107,13 @@ test('UI155: closure requires all pupils, no open incident and final bus inspect
  const done=apply(empty,'finish_demo_trip');
  assert.equal(done.trip.status,'completed');
 });
-test('UI155: any pointage change invalidates prior empty-bus check',()=>{
- let s=at3();
- s=apply(s,'confirm_empty');
- s=apply(s,'alight',{studentId:'E-01'});
- assert.equal(s.events.some(x=>x.type==='empty_bus_confirmed'),false);
- assert.throws(()=>apply(s,'finish_demo_trip'),/EMPTY_BUS_CONFIRMATION_REQUIRED/);
+test('UI155: final inspection is refused while any pupil is still aboard',()=>{
+ const s=at3();
+ assert.throws(()=>apply(s,'confirm_empty'),/CHILDREN_REMAIN/);
+ const after=apply(s,'alight',{studentId:'E-01'});
+ const checked=apply(after,'confirm_empty');
+ assert.equal(attendantSummary(checked).canFinish,true);
+ assert.throws(()=>apply(checked,'confirm_empty'),/ALREADY_CONFIRMED/);
 });
 test('UI155: cannot declare empty while pupils remain',()=>assert.throws(()=>apply(at3(),'confirm_empty'),/CHILDREN_REMAIN/));
 test('UI155: no real sync when network simulated offline',()=>{
