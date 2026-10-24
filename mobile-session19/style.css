@@ -304,3 +304,13 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .workflow-strip{padding:8px 11px}
  .workflow-cta{padding:8px 9px}
 }
+
+/* UI-155: only visible when an incident is open, priority critical-first. */
+.active-alert-banner{
+ display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;
+ margin:0 0 9px;padding:8px 12px;background:#f7e8ff;color:#36105b;
+ border-radius:12px;text-align:left;border:1px solid #cf9bf8;
+}
+.active-alert-banner strong{font-size:clamp(12px,1.9vw,16px);font-weight:900}
+.active-alert-banner strong .ui-icon{width:17px;height:17px}
+.active-alert-banner span{font-size:clamp(11px,1.7vw,14px);font-weight:750}
