@@ -14,9 +14,9 @@ mkdirSync(join(dest,'mobile-session19'),{recursive:true});
 mkdirSync(join(dest,'mobile-session18'),{recursive:true});
 for(const name of ['index.html','style.css','app.mjs','attendant-demo.mjs'])copyFileSync(join(source,name),join(dest,'mobile-session19',name));
 copyFileSync(join(root,'mobile-session18','attendant-policy.mjs'),join(dest,'mobile-session18','attendant-policy.mjs'));
-writeFileSync(join(dest,'index.html'),`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"><title>A2S Scola Test</title></head><body><p>Démo Accompagnateur, sans réseau réel.</p><a href="./mobile-session19/index.html">Ouvrir la démo</a></body></html>`);
+writeFileSync(join(dest,'index.html'),`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'"><title>A2S Scola Test</title></head><body><p>Démo Accompagnateur, sans réseau réel.</p><a href="./mobile-session19/index.html">Ouvrir la démo</a></body></html>`);
 // CSP meta on nested page: no network, inline JS, or external origins permitted.
 const nested=join(dest,'mobile-session19','index.html');
-const page=readFileSync(nested,'utf8').replace('<head>','<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\'; style-src \'self\'; connect-src \'none\'; img-src \'none\'; base-uri \'none\'; object-src \'none\'">');
+const page=readFileSync(nested,'utf8').replace('<head>','<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\'; style-src \'self\'; connect-src \'none\'; img-src data:; base-uri \'none\'; object-src \'none\'">');
 writeFileSync(nested,page);
 console.log('SYNC19 demo testhost assets prepared at '+dest);
