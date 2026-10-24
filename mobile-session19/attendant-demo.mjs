@@ -70,7 +70,7 @@ export function attendantSummary(s){
   canStart:s.trip.status==='planned'&&s.presence&&s.driverSecured&&s.ready,
   canReportIncidents:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured,
   canSimulateArrival:s.trip.status==='in_progress'&&!s.atStop&&!!nextStop(s),
-  canResume:s.trip.status==='in_progress'&&s.atStop&&pendingAtStop(s)===0&&!!nextStop(s),
+  canResume:s.trip.status==='in_progress'&&s.atStop&&pendingAtStop(s)===0&&!!nextStop(s)&&!s.alerts.some(a=>a.status==='open'&&a.critical),
   canConfirmEmpty:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured&&count(s)===0,
   canFinish:s.trip.status==='in_progress'&&close.every(x=>x.ok),
   closure:close,pendingRealSync:0,events:s.events.length,network:s.network
