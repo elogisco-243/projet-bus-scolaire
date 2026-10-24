@@ -1,105 +1,178 @@
-:root{font-family:system-ui,-apple-system,Arial,sans-serif;color:#12233e;background:#edf2f8}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer;border:0;border-radius:13px;padding:12px 14px}button:disabled{opacity:.45;cursor:not-allowed}.app{height:100dvh;min-height:0;width:100%;max-width:none;margin:0;background:#f7f9fc;display:flex;flex-direction:column;overflow:hidden}.head{background:#0b1f3a;color:white;padding:calc(env(safe-area-inset-top) + 13px) 18px 14px;flex-shrink:0}.head h1{font-size:19px;margin:5px 0}.eyebrow{font-size:12px;opacity:.85}.pill{display:inline-block;background:#ffedd5;color:#854d0e;padding:5px 10px;border-radius:30px;font-size:12px;font-weight:700}.content{flex:1;padding:14px 15px;overflow-y:auto;min-height:0}.card{background:white;border:1px solid #e0e7f0;border-radius:17px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #0b1f3a08}.card h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:#54637a}.line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}.line strong{font-size:14px}.primary{background:#0b1f3a;color:white}.warn{background:#f59e0b;color:#211607}.light{background:#e7f0fb;color:#0b1f3a}.danger{background:#fee2e2;color:#991b1b}.full{width:100%;margin:5px 0}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bottom{flex-shrink:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:white;border-top:1px solid #dae3ee;padding:7px 3px calc(env(safe-area-inset-bottom) + 7px);box-shadow:0 -4px 16px #0b1f3a0b}.bottom button{border-radius:10px;background:transparent;color:#52637b;padding:8px 1px;font-size:11px;min-width:0}.bottom button.active{background:#e4f5ef;color:#137757;font-weight:700}.bottom span{display:block;font-size:20px;margin-bottom:4px}.notice{background:#fff5d9;color:#744e07;padding:10px 12px;border-radius:12px;font-size:12px;margin-bottom:12px}.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;text-align:center}.counts div{padding:12px 3px;background:#eff5fa;border-radius:12px}.counts strong{display:block;font-size:22px}.status{font-size:12px;color:#67758b}.error{background:#fee2e2;color:#8a1616;padding:10px;border-radius:10px;margin:8px 0}@media(max-height:650px){.head{padding-top:calc(env(safe-area-inset-top) + 6px);padding-bottom:7px}.head h1{font-size:16px}.content{padding:9px 12px}.card{padding:11px;margin-bottom:8px}.bottom{padding-top:3px}.bottom button{padding:4px 0}}
-/* UI-150 / SYNC-20: tablet fills its WebView instead of a 560px phone column. */
-html,body,#app{height:100%;min-height:0;width:100%;overflow:hidden}
-.content{min-width:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.line>div,.line>span{min-width:0;overflow-wrap:anywhere}
-.bottom{width:100%;z-index:10}
-.bottom button{min-height:48px;touch-action:manipulation}
-@media(min-width:600px){
- .head{padding-inline:clamp(20px,4vw,56px)}
- .content{width:100%;padding:clamp(18px,3vw,36px) clamp(20px,4vw,56px)}
- .card{padding:clamp(20px,2vw,30px);border-radius:20px}
- .head h1{font-size:clamp(21px,2vw,28px)}
- .card h2{font-size:clamp(18px,1.8vw,23px)}
- .bottom{padding-inline:clamp(16px,4vw,56px)}
- .bottom button{font-size:13px}
- .counts{gap:12px}
- .counts div{padding:18px}
+/* A2S Scola UI-153 — Accompagnateur DEMO.
+   Reprend la composition de l'ecran Chauffeur v1.7 photographie sur
+   telephone + tablette. Aucun CSS sur la production / Chauffeur. */
+:root{
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color:#221538;background:#fff;
+  --violet:#2a1151;--violet-deep:#210b44;--violet-card:#46246d;
+  --violet-tile:#5a317e;--accent:#692dbb;--soft:#f0e6ff;
 }
-@media(min-width:900px) and (orientation:landscape){
- .content:has(.counts){display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);align-content:start;align-items:start;gap:16px}
- .content:has(.counts)>.card{margin:0}
+*{box-sizing:border-box}
+html,body,#app{width:100%;height:100%;min-height:0;margin:0;overflow:hidden}
+body{background:#fff}
+button{font:inherit;cursor:pointer;border:0;border-radius:13px;padding:12px 14px;touch-action:manipulation}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
+.app{
+  display:flex;flex-direction:column;min-width:0;width:100%;
+  height:100dvh;min-height:0;max-height:100dvh;overflow:hidden;
+  background:#fff;
 }
-@media(max-width:359px){.head{padding-inline:10px}.content{padding:8px}.card{padding:10px}.bottom button{font-size:10px}.buttons{gap:4px}.buttons button{padding-inline:5px}}
-
-/* UI-151: historical Driver Tour Dashboard theme. Demo testhost only. */
-:root{--scola-purple:#291052;--scola-violet:#5725aa;--scola-lavender:#eee6ff;--scola-ink:#29134e;--scola-green:#00d58d}
-body{background:#f7f5fc;color:var(--scola-ink)}
-.app{background:#faf9fe}
-.head{background:linear-gradient(115deg,#210b49 0%,#331265 65%,#260d50 100%);box-shadow:0 3px 14px #25114e22;padding-block:calc(env(safe-area-inset-top) + 14px) 13px}
+.head{
+  margin:calc(env(safe-area-inset-top,0px) + 10px) clamp(8px,2vw,24px) 0;
+  padding:clamp(12px,2vw,22px);
+  flex:0 0 auto;
+  border-radius:19px;
+  background:linear-gradient(110deg,#2a1151,#32175b);
+  color:white;
+}
 .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand-name{font-weight:800;font-size:clamp(18px,2.5vw,26px);letter-spacing:-.02em}
-.brand-sub{font-size:12px;color:#e0d4f3}
-.brand-mark{display:grid;place-items:center;background:#6a36c1;border-radius:12px;min-width:42px;min-height:42px;font-size:23px}
-.brand-left{display:flex;align-items:center;gap:11px}
-.head .eyebrow{margin-top:5px}
-.head h1{font-size:clamp(17px,2vw,23px);margin:4px 0 6px}
-.pill{background:#eee6ff;color:#44247a}
-.card{border-color:#e4ddf1;box-shadow:0 4px 15px #2910520a}
-.card h2{color:#211047}
-.card.tour-hero{background:linear-gradient(130deg,#2e125d,#210b49);color:white;border-color:#3d206b}
-.card.tour-hero h2,.card.tour-hero strong{color:white}
-.card.tour-hero .line{border-bottom:1px solid #ffffff22;padding:5px 0}
-.card.tour-hero .hint{color:#e1d5f1}
-.primary{background:linear-gradient(130deg,#7434d2,#4f239d);color:white;font-weight:700}
-.warn{background:#ffdb76;color:#3c290d;font-weight:700}
-.light{background:#efe8ff;color:#402279;font-weight:650}
-.danger{background:#ffe0e3;color:#a21e39;font-weight:700}
-button:focus-visible{outline:3px solid #f9c84b;outline-offset:2px}
-button{min-height:44px}
-.counts div{background:#f0eaff}
-.counts strong{color:#321165}
-.notice{background:#fff2d3;color:#624417}
-.bottom{border-top:1px solid #e9e1f2;box-shadow:0 -5px 16px #22094a10}
-.bottom button{color:#5e5670;font-weight:600}
-.bottom button.active{background:#ede4ff;color:#6124be}
-.bottom span{font-size:21px}
-@media(min-width:900px) and (orientation:landscape){
- .content:has(.counts){grid-template-columns:minmax(0,1.45fr) minmax(280px,1fr);grid-template-rows:auto 1fr}
- .content:has(.counts)>.notice{grid-column:1/-1}
- .content:has(.counts)>.tour-hero{grid-column:1;grid-row:2}
- .content:has(.counts)>.effectifs{grid-column:2;grid-row:2}
+.brand-left{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  flex:0 0 auto;display:grid;place-items:center;
+  width:clamp(38px,5vw,61px);height:clamp(38px,5vw,61px);
+  background:#f4eafb;color:#441c78;
+  border-radius:9px;font-weight:900;font-size:clamp(22px,3vw,31px)
 }
-
-/* UI-152: reproduce historical Driver Tour Dashboard composition in attendant DEMO. */
-.head{padding:calc(env(safe-area-inset-top) + 9px) clamp(12px,3vw,32px) 10px}
-.head .eyebrow{display:none}.head h1{display:none}
-.head .brand{min-height:48px}
-.brand-mark{background:#f1e8ff;color:#5127a2}
-.pill{margin:2px 0 0 52px;font-size:10px;padding:3px 8px}
-.content{padding:10px clamp(10px,2.7vw,28px);background:#faf9fd}
-.tour-dashboard{max-width:100%;display:flex;flex-direction:column;gap:9px}
-.tour-dashboard .card{margin-bottom:0}
-.tour-dashboard .tour-hero{border-radius:20px;padding:clamp(13px,2.5vw,23px);background:linear-gradient(135deg,#30115e,#1e0b42)}
-.tour-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}
-.tour-heading h2{font-size:clamp(16px,2.5vw,25px);margin:0}
-.trip-state{background:#076948;color:#75ffb5;border:1px solid #07a66b;border-radius:50px;font-size:clamp(10px,1.4vw,14px);font-weight:800;padding:7px 11px;white-space:nowrap}
-.next-stop,.hero-stats>div{background:#ffffff10;border-radius:16px;padding:clamp(11px,2vw,18px)}
-.next-stop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-.hero-label{font-size:clamp(10px,1.4vw,13px);font-weight:650;color:#e7d6fd;display:block}
-.next-stop strong{display:block;font-size:clamp(22px,3.5vw,34px);margin-top:6px}
-.stop-sound{font-size:27px;color:#00dfa1;background:#006a49;padding:9px 12px;border-radius:14px}
-.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.hero-stats strong{display:block;font-size:clamp(19px,3vw,29px);margin-top:7px}
-.hero-info{margin-top:12px}
-.hero-info>div{display:flex;align-items:center;gap:11px;padding:7px 0;border-top:1px solid #ffffff27}
-.hero-info strong,.hero-info small{display:block}
-.hero-info strong{font-size:clamp(12px,1.8vw,16px)}
-.hero-info small{font-size:11px;color:#ded0f4;margin-top:3px}
-.hero-symbol{font-size:24px;color:#ad8aff;min-width:30px}
-.dashboard-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.dashboard-actions button{min-height:clamp(65px,10vh,100px);margin:0;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;font-size:22px;border-radius:16px}
-.dashboard-actions button span{font-size:clamp(11px,1.6vw,15px);font-weight:850}
-.dashboard-actions .warn{background:linear-gradient(140deg,#ffd97d,#ffbf4f);color:#301457}
-.dashboard-actions .light{background:linear-gradient(140deg,#f3edff,#e4d8fa)}
-.tour-controls .hint{margin:5px 0}
-.bottom{border-radius:18px 18px 0 0;padding-inline:clamp(7px,3vw,36px);box-shadow:0 -5px 22px #2d0b4f17}
-.bottom button.active{color:#5023a0;background:#ece3fe}
-@media(min-width:900px) and (orientation:landscape){
- .content:has(.tour-dashboard){display:block}
- .tour-dashboard{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,1fr);align-items:start;gap:14px}
- .tour-dashboard .tour-hero{grid-row:1/3}
- .tour-dashboard .dashboard-actions{grid-column:2;grid-row:1}
- .tour-dashboard .tour-controls{grid-column:2;grid-row:2}
+.brand-name{font-weight:850;font-size:clamp(19px,3vw,28px);line-height:1.1}
+.brand-sub{margin-top:4px;color:#e4d8f0;font-size:clamp(11px,1.55vw,15px)}
+.settings-symbol{
+  display:grid;place-items:center;flex:0 0 auto;
+  background:#ffffff13;border:1px solid #ffffff20;
+  border-radius:12px;width:clamp(36px,5vw,50px);
+  height:clamp(36px,5vw,50px);font-size:26px;
 }
-@media(max-height:700px){.head{padding-top:calc(env(safe-area-inset-top) + 5px);padding-bottom:5px}.brand-mark{min-height:34px;min-width:34px}.brand{min-height:35px}.pill{margin-left:45px}.tour-dashboard .tour-hero{padding:10px}.next-stop,.hero-stats>div{padding:9px}.hero-info>div{padding:5px 0}.dashboard-actions button{min-height:64px}}
+.demo-pill{margin-top:7px;display:inline-block;font-size:10px;font-weight:800;
+  color:#5f3a0a;background:#ffe6a5;border-radius:16px;padding:3px 9px}
+.content{
+  flex:1 1 auto;min-height:0;min-width:0;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:clamp(11px,2vw,20px) clamp(9px,2.2vw,25px) 14px;
+  background:#fff;
+}
+.tour-dashboard{display:flex;flex-direction:column;gap:clamp(9px,1.5vh,15px)}
+.card{background:#fff;border-radius:16px;border:1px solid #e9e1f1;
+  padding:clamp(13px,2vw,21px);box-shadow:0 2px 7px #2c155010;
+  margin:0 0 12px}
+.card h2{color:#2a1547;font-size:clamp(17px,2.2vw,23px);margin:0 0 12px}
+.tour-dashboard .card{margin:0}
+.tour-hero{
+  background:linear-gradient(140deg,#34175c,#2b134f 84%)!important;
+  border:none!important;color:#fff;
+  box-shadow:none;
+  border-radius:20px;padding:clamp(13px,2vw,22px);
+}
+.tour-hero h2{color:white}
+.tour-heading{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin:0 0 clamp(9px,1.3vh,15px)}
+.tour-heading h2{margin:0;font-size:clamp(20px,2.7vw,27px);letter-spacing:.01em}
+.tour-heading-right{display:flex;align-items:center;gap:9px}
+.trip-state{border:1px solid #00905f;background:#096f43;color:#b8ffd3;
+  font-size:clamp(9px,1.4vw,13px);padding:6px 10px;font-weight:850;
+  border-radius:50px;white-space:nowrap}
+.network-icon{font-size:26px;color:#30d38c;font-weight:900}
+.next-stop,.hero-stats>div{
+  background:linear-gradient(140deg,#64377e,#4c2972);
+  border-radius:14px;padding:clamp(11px,1.8vw,19px);min-width:0;
+}
+.next-stop{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-bottom:clamp(8px,1.4vh,13px)}
+.hero-label{color:#eadcf7;font-size:clamp(10px,1.6vw,15px);font-weight:730;
+  display:block;line-height:1.25}
+.next-stop strong{font-size:clamp(22px,4.3vw,45px);
+  line-height:1.13;display:block;margin-top:5px;overflow-wrap:anywhere}
+.sound-icon{display:grid;place-items:center;background:#76439c;
+  color:white;border-radius:12px;width:clamp(40px,5.5vw,67px);
+  height:clamp(40px,5.5vw,67px);font-size:clamp(23px,3.1vw,34px);flex-shrink:0}
+.hero-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.hero-stats strong{display:block;font-size:clamp(20px,3.3vw,36px);
+  line-height:1.1;margin-top:5px;color:#fff;overflow-wrap:anywhere}
+.hero-info{margin-top:9px;border-top:1px solid #ffffff38}
+.hero-info>div{display:flex;align-items:center;gap:8px;
+  padding:clamp(6px,.9vh,10px) 3px;min-width:0}
+.hero-info strong{color:#fff;display:block;font-size:clamp(12px,1.8vw,17px)}
+.hero-info small{color:#e2d5eb;display:block;font-size:clamp(10px,1.45vw,13px);margin-top:3px}
+.hero-info>div>div{flex:1;min-width:0}
+.hero-symbol{width:24px;flex:0 0 24px;font-size:20px;color:#d5b4ff}
+.read-only-indicator{display:inline-block;width:36px;height:21px;
+  border-radius:20px;background:#a39aaa;position:relative;flex-shrink:0}
+.read-only-indicator:before{content:"";position:absolute;top:3px;left:3px;
+  width:15px;height:15px;border-radius:50%;background:#eee}
+.dashboard-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1vw,13px)}
+.dashboard-actions button{min-height:clamp(66px,10vh,112px);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:5px;font-size:clamp(20px,2.7vw,29px);min-width:0}
+.dashboard-actions button span{font-size:clamp(11px,1.6vw,17px);line-height:1.2;text-align:center;font-weight:850}
+.primary{color:#fff;background:linear-gradient(120deg,#752bd6,#5c1da7);font-weight:800}
+.light{color:#4a2581;background:linear-gradient(120deg,#efe6ff,#f4eefa);font-weight:800}
+.warn{color:#56370a;background:linear-gradient(110deg,#ffdf80,#ffd067);font-weight:850}
+.danger{color:#a0182d;background:#ffe4e8;font-weight:800}
+.tour-controls{margin-top:2px!important}
+.tour-controls h2{font-size:15px;margin-bottom:5px}
+.hint{font-size:12px;line-height:1.45;color:#6d607c}
+.full{width:100%;margin:5px 0}
+.page-title{font-size:clamp(21px,3vw,30px);margin:6px 0 16px;color:#271346}
+.line{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin:10px 0;padding:5px 0;border-bottom:1px solid #eee8f6}
+.line:last-child{border-bottom:0}
+.line>div,.line>span{min-width:0;overflow-wrap:anywhere}
+.line strong{font-size:clamp(12px,1.8vw,15px)}
+.buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.buttons button{min-width:0}
+.status{font-size:12px;color:#75668a}
+.error{background:#fff1df;color:#763c00;padding:10px;border-radius:10px;margin:0 0 10px}
+.bottom{
+  flex:0 0 auto;position:relative;z-index:10;
+  width:min(600px,calc(100% - 16px));max-width:100%;
+  margin:0 auto calc(env(safe-area-inset-bottom,0px) + 5px);
+  padding:7px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  background:#fff;border:1px solid #ede7f4;border-radius:18px;
+  box-shadow:0 2px 19px #2c15501b;
+}
+.bottom button{padding:6px 2px;min-height:55px;min-width:0;
+  background:transparent;border-radius:12px;color:#352a47;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.bottom button.active{background:#ece3fc;color:#6429bc;font-weight:850}
+.nav-icon{display:block;line-height:1;font-size:clamp(18px,2.4vw,24px)}
+.nav-label{display:block;font-size:clamp(10px,1.45vw,13px);line-height:1.2;text-align:center}
+@media(min-width:700px){
+ .head{padding:18px 23px;margin:16px 24px 0}
+ .content{padding:16px 25px 16px}
+ .bottom{width:min(640px,calc(100% - 30px))}
+}
+@media(max-height:730px){
+ .head{padding:8px 12px;margin-top:5px}
+ .brand-mark{height:34px;width:34px;font-size:20px}
+ .settings-symbol{height:34px;width:34px;font-size:20px}
+ .demo-pill{padding:2px 7px;margin-top:3px}
+ .content{padding-top:8px;padding-bottom:8px}
+ .tour-hero{padding:10px}
+ .tour-heading{margin-bottom:7px}
+ .next-stop,.hero-stats>div{padding:9px}
+ .next-stop{margin-bottom:7px}
+ .hero-info{margin-top:5px}
+ .hero-info>div{padding:4px 0}
+ .dashboard-actions button{min-height:58px}
+ .bottom{padding:4px}
+ .bottom button{min-height:47px;padding:3px 2px}
+}
+@media(max-width:359px){
+ .head{margin-left:6px;margin-right:6px}
+ .content{padding-left:7px;padding-right:7px}
+ .tour-heading h2{font-size:18px}
+ .trip-state{padding:4px 6px;font-size:9px}
+ .network-icon{font-size:20px}
+ .dashboard-actions button{min-height:62px}
+ .dashboard-actions button span{font-size:10px}
+ .nav-label{font-size:9px}
+}
+@media(orientation:landscape) and (max-height:510px){
+ .brand-sub{font-size:11px}
+ .head{margin:3px 10px 0;padding:5px 12px}
+ .demo-pill{margin-top:2px}
+ .tour-hero{padding:9px}
+ .bottom button{min-height:40px}
+ .bottom{margin-bottom:2px}
+}
