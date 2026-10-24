@@ -41,7 +41,7 @@ test('UI155: one synthetic arrival activates a single stop and enables pointage'
 test('UI155: pointage cannot occur on moving vehicle or at wrong stop',()=>{
  assert.throws(()=>apply(started(),'board',{studentId:'E-01'}),/VEHICLE_NOT_SECURED_AT_STOP/);
  assert.throws(()=>apply(at1(),'board',{studentId:'E-02'}),/WRONG_PICKUP_STOP/);
- assert.throws(()=>apply(at1(),'alight',{studentId:'E-01'}),/WRONG_DROPOFF_STOP/);
+ assert.throws(()=>apply(apply(at1(),'board',{studentId:'E-01'}),'alight',{studentId:'E-01'}),/WRONG_DROPOFF_STOP/);
 });
 test('UI155: cannot resume while scheduled pupil has not been pointed',()=>{
  assert.throws(()=>apply(at1(),'simulate_driver_resume'),/POINTAGE_PENDING_AT_STOP/);
