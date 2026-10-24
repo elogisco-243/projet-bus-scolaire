@@ -132,3 +132,27 @@ test('UI155: immutable demo state snapshots',()=>{
  assert.equal(s.trip.onboardCount,0);assert.equal(next.trip.onboardCount,1);
  assert.equal(s.students[0].boarded,false);
 });
+
+test('UI155: unresolved critical alert before departure blocks departure until safe demo handling',()=>{
+ let s=apply(makeAttendantDemo(),'report_incident',{incident:'medical'});
+ s=apply(s,'confirm_presence');
+ s=apply(s,'simulate_driver_secure');
+ s=apply(s,'toggle_ready');
+ assert.equal(attendantSummary(s).canStart,false);
+ assert.throws(()=>apply(s,'start_demo_trip'),/OPEN_INCIDENTS/);
+ s=apply(s,'resolve_incident',{incidentId:s.alerts[0].id});
+ assert.equal(attendantSummary(s).canStart,true);
+ assert.equal(apply(s,'start_demo_trip').trip.status,'in_progress');
+});
+test('UI155: critical incident blocks simulated departure from current stop until resolved',()=>{
+ let s=apply(at1(),'board',{studentId:'E-01'});
+ s=apply(s,'report_incident',{incident:'accident'});
+ assert.equal(attendantSummary(s).canResume,false);
+ assert.throws(()=>apply(s,'simulate_driver_resume'),/OPEN_CRITICAL_INCIDENT/);
+ s=apply(s,'resolve_incident',{incidentId:s.alerts[0].id});
+ assert.equal(attendantSummary(s).canResume,true);
+});
+test('UI155: safety prevents resolving a critical alert before departure while not secured',()=>{
+ let s=apply(makeAttendantDemo(),'report_incident',{incident:'missing_child'});
+ assert.throws(()=>apply(s,'resolve_incident',{incidentId:s.alerts[0].id}),/VEHICLE_NOT_SECURED/);
+});
