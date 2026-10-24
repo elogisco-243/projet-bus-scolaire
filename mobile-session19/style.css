@@ -179,3 +179,78 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
 
 /* UI-153 branded asset: downsampled from the unchanged official logo. */
 .brand-mark{font-size:0;background:#fff url('data:image/png;base64,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') center / cover no-repeat}
+
+/* UI-154 — driver-aligned clickable indicators, conditional safety switch,
+   alerts grid and dedicated child/itinerary/follow-up screens. DEMO host only. */
+.ui-icon{display:inline-block;width:1.25em;height:1.25em;vertical-align:middle;flex:0 0 auto}
+.settings-symbol .ui-icon{width:26px;height:26px;color:#fff}
+.hero-stats .hero-stat{
+ position:relative;appearance:none;border:none;width:100%;text-align:left;
+ background:linear-gradient(140deg,#64377e,#4c2972);border-radius:14px;
+ padding:clamp(11px,1.8vw,19px) 32px clamp(11px,1.8vw,19px) clamp(11px,1.8vw,19px);
+ min-width:0;color:#fff;
+}
+.hero-stat .hero-label{display:flex;align-items:center;gap:5px}
+.hero-stat .hero-label .ui-icon{width:17px;height:17px}
+.hero-stat strong{display:block;font-size:clamp(23px,3.5vw,38px);margin-top:5px;color:white;line-height:1.1}
+.hero-stat .stat-chevron{position:absolute;right:11px;bottom:10px;color:#d0b2e9;font-size:27px}
+.hero-stat:active{filter:brightness(1.13)}
+.hero-symbol .ui-icon{width:20px;height:20px}
+.sound-icon .ui-icon{width:26px;height:26px}
+.safety-row{border-top:0}
+.safety-switch{border-radius:999px;min-width:54px;height:31px;background:#8e78ae;padding:4px!important;flex:0 0 54px;display:flex;align-items:center;justify-content:flex-start;border:1px solid #ffffff26;transition:background .15s ease}
+.safety-switch span{width:23px;height:23px;border-radius:100%;background:#fff;box-shadow:0 1px 4px #2a115155;transition:transform .15s ease}
+.safety-switch.on{background:#24a873}
+.safety-switch.on span{transform:translateX(23px)}
+.safety-switch:disabled{opacity:.7;cursor:not-allowed}
+.safety-row>div{min-width:0}
+.dashboard-actions button .ui-icon{width:clamp(25px,4vw,33px);height:clamp(25px,4vw,33px);opacity:.9}
+.nav-icon .ui-icon{width:clamp(22px,3vw,29px);height:clamp(22px,3vw,29px)}
+.dashboard-actions .warn{background:#ffdd82;color:#503665}
+.dashboard-actions .light{background:#f1ebfa;color:#8f7fa6}
+.dashboard-actions .primary{background:linear-gradient(125deg,#7420d2,#5d18ba);color:white}
+.tour-dashboard{gap:clamp(9px,1.5vh,15px)}
+.tour-hero .hero-info strong{font-size:clamp(12px,1.8vw,17px)}
+.sub-page h1{margin:8px 0 12px;color:#231046;font-size:clamp(24px,4.1vw,32px)}
+.sub-page h2{margin-top:18px}
+.back-button{display:flex;gap:4px;align-items:center;background:#f0e6ff;color:#37136d;font-weight:800;padding:9px 12px}
+.back-button .ui-icon{width:16px;height:16px}
+.alerts-card{border:0;box-shadow:0 1px 9px #2613440a;border-radius:23px;padding:clamp(15px,2.3vw,26px)}
+.alert-instruction{font-size:clamp(19px,3.2vw,29px);line-height:1.38;margin:0 0 16px;color:#202020}
+.safety-details{margin:0 0 16px}
+.safety-details summary{color:#270c55;font-size:clamp(17px,2.7vw,24px);font-weight:850;cursor:pointer}
+.safety-details p{margin:6px 0 0}
+.alert-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.4vw,13px)}
+.alert-tile{
+ padding:10px 7px;min-height:clamp(94px,14vh,120px);border:1px solid #e9e0f1;
+ display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;
+ font-size:clamp(17px,2.4vw,25px);font-weight:850;line-height:1.1;
+ border-radius:17px;white-space:normal;text-align:center;
+}
+.alert-tile .ui-icon{width:clamp(25px,3.7vw,34px);height:clamp(25px,3.7vw,34px)}
+.alert-tile span{font-size:clamp(18px,2.6vw,25px)}
+.alert-tile.traffic,.alert-tile.delay{background:#f5f1fb;color:#64547c}
+.alert-tile.breakdown{background:#fff5db;color:#8b6b2c}
+.alert-tile.accident,.alert-tile.medical,.alert-tile.missing_child{background:#fff0f4;color:#b75b77}
+.alert-tile:disabled{opacity:.48;cursor:not-allowed}
+.alerts-log{border:none;border-radius:23px}
+.alerts-log h2{font-size:clamp(24px,3.7vw,34px);color:#191919}
+.empty-alerts{color:#777;font-size:clamp(18px,2.9vw,27px);margin:6px 0}
+.student-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #ece8f4}
+.student-line>div:first-child{min-width:56px}
+.student-line .buttons{flex:1;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.student-line .buttons button{padding:10px 2px;font-size:clamp(10px,1.8vw,13px)}
+.subtle{color:#5c4679;background:#f0edfa}
+@media(max-width:359px){
+ .hero-stats .hero-stat{padding:9px 24px 9px 8px}
+ .hero-stat .hero-label{font-size:9px}
+ .stat-chevron{right:7px}
+ .alert-tile span{font-size:15px}
+ .student-line{flex-direction:column;align-items:stretch}
+ .student-line .buttons button{font-size:11px}
+}
+@media(max-height:730px){
+ .alert-tile{min-height:78px}
+ .alert-tile span{font-size:16px}
+ .hero-stats .hero-stat{padding:9px 29px 9px 9px}
+}
