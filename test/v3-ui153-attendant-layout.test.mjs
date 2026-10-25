@@ -7,7 +7,7 @@ const ui=read('../mobile-session19/app.mjs');
 const css=read('../mobile-session19/style.css');
 const build=read('../scripts/build-attendant-testhost.mjs');
 test('UI153: navigation Accompagnateur has Chauffeur format with approved order',()=>{
- const match=ui.match(/\[\['tour','▣','Ma tournée'\],\['alerts','⚠','Alertes'\],\['boarding','☑','Pointage'\],\['team','♧','Équipe'\]\]/);
+ const match=ui.match(/\[\['tour','▣','Ma tournée'\],\['alerts','⚠','Alertes'\],\['team','♧','Équipe'\],\['more','•••','Plus'\]\]/);
  assert.ok(match,'Navigation must have exactly four menu entries in approved order');
 });
 test('UI153: dashboard mirrors photographed Driver v1.7 composition',()=>{
