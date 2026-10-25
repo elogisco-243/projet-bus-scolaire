@@ -64,31 +64,7 @@ const friendlyErrors={
  ALREADY_AT_TERMINUS:'Terminus déjà atteint.'
 };
 const back=()=>button(icon('back')+' Retour à Ma tournée','back_tour','','back-button');
-function workflowStep(d){
- if(d.status==='completed')return ['Tournée terminée','Clôture locale enregistrée.',null,null];
- if(d.status==='planned'){
-  if(!d.presence)return ['Étape 1/3 · Présence','Confirmez votre présence sur cet écran.','Confirmer ma présence','confirm_presence'];
-  if(!d.driverSecured)return ['Étape 2/3 · Sécurisation','Confirmation Chauffeur fictive, démo uniquement.','Simuler validation Chauffeur','simulate_driver_secure'];
-  if(d.openAlerts)return ['Incident(s) en attente','Traitez les alertes locales avant le départ.','Voir les alertes','go_alerts'];
-  if(!d.ready)return ['Étape 3/3 · Préparation','Activez le switch « Prêt au départ » ici ou dans Ma tournée.',null,null];
-  return ['Prêt au départ','Toutes les conditions de simulation sont réunies.','Démarrer la tournée (démo)','start_demo_trip'];
- }
- if(d.canSimulateArrival)return ['Prochain arrêt · '+d.nextStop,'Une action simule l’arrivée sécurisée et ouvre Pointage.','Simuler arrivée à l’arrêt','simulate_arrival'];
- if(d.atStop&&d.pendingAtStop>0)return ['Arrêt actif · '+d.activeStopName,d.pendingAtStop+' élève(s) à pointer à cet arrêt.','Ouvrir Pointage','go_boarding'];
- if(d.atStop&&d.openAlerts&&!d.canResume&&d.pendingAtStop===0&&d.stopsReached<d.stopsTotal)return ['Incident(s) à traiter','Une alerte critique doit être traitée avant la reprise.','Voir les alertes','go_alerts'];
- if(d.canResume)return ['Pointage terminé · '+d.activeStopName,'Reprise fictive du trajet.','Simuler reprise du trajet','simulate_driver_resume'];
- if(d.atStop)return ['Terminus · contrôle final','Vérifiez les élèves, incidents et le bus.','Vérifier la clôture','go_closing'];
- return ['Tournée en cours','Consultez les résultats via Suivi de tournée.','Suivi de tournée','go_followup'];
-}
-function workflowPanel(d){
- const [heading,detail,label,action]=workflowStep(d);
- return '<section class="workflow-strip" aria-label="Prochaine action"><div><strong>'+escapeHTML(heading)+'</strong><small>'+escapeHTML(detail)+'</small></div>'+
- (action?button(escapeHTML(label),action,'','workflow-cta'):'')+'</section>';
-}
 function tourSubpage(d){
- if(view==='start')return '<section class="card sub-page">'+back()+'<h1>Démarrer la course</h1><p class="hint">Accompagnateur · démonstration locale : le départ réel reste validé par le Chauffeur. Aucune commande du véhicule.</p>'+workflowPanel(d)+(d.status==='planned'?button('Activer Prêt au départ (démo)','toggle_ready','','light full',!d.canToggleReady||d.ready):'')+'</section>';
- if(view==='arrival')return '<section class="card sub-page">'+back()+'<h1>Arrêt atteint</h1><p class="hint">Seul le Chauffeur valide une arrivée réelle. La commande ci-dessous simule un signal Chauffeur sur cet appareil de test.</p>'+button(icon('pin')+' Simuler arrivée Chauffeur','simulate_arrival','','warn full',!d.canSimulateArrival)+(d.atStop?'<p class="hint">Arrêt déjà actif. Touchez « Élèves à bord » pour le pointage.</p>'+button('Voir les élèves','go_students','','light full'):'')+'</section>';
- if(view==='new_trip')return '<section class="card sub-page">'+back()+'<h1>Nouvelle tournée</h1><p class="hint">Une nouvelle tournée réelle doit être affectée par la supervision. Ici, seule une nouvelle simulation fictive est possible après clôture.</p>'+button('Nouvelle simulation locale','new_demo_trip','','primary full',d.status!=='completed')+'</section>';
  if(view==='students')return '<section class="card sub-page">'+back()+'<h1>Élèves à bord</h1><p class="hint">Liste fictive : élèves affectés au véhicule et états du pointage.</p>'+
  state.students.map(p=>'<div class="line"><strong>'+escapeHTML(p.id)+'</strong><span>'+
  (p.absent?'Absent':p.alighted?'Descendu':p.boarded?'À bord':'En attente')+'</span></div>').join('')+
@@ -97,12 +73,10 @@ function tourSubpage(d){
  if(view==='stops')return '<section class="card sub-page">'+back()+'<h1>Itinéraire et arrêts</h1><p class="hint">Itinéraire fictif, aucune position GPS réelle.</p>'+
  state.stops.map((p,i)=>'<div class="line"><strong>'+(i+1)+'. '+escapeHTML(p.name)+'</strong><span>'+(p.id===d.activeStopId?'Arrêt actif':p.reached?'Atteint':'À venir')+'</span></div>').join('')+
  button(icon('pin')+' Simuler arrivée au prochain arrêt','simulate_arrival','','warn full',!d.canSimulateArrival)+'</section>';
- if(view==='closing')return '<section class="card sub-page closing-page">'+back()+'<h1>Clôture de la tournée</h1><p class="hint">Contrôle guidé : aucune validation réelle du Chauffeur dans ce test.</p>'+
- d.closure.map(x=>'<div class="closing-check '+(x.ok?'pass':'fail')+'"><span aria-hidden="true">'+(x.ok?'✓':'!')+'</span><strong>'+escapeHTML(x.label)+'</strong><span>'+(x.ok?'Conforme':'À compléter')+'</span></div>').join('')+
- (d.openAlerts?button('Voir les alertes à traiter','go_alerts','','warn full'):'')+
- (d.unaccounted?button('Consulter les élèves','go_students','','light full'):'')+
- button('Confirmer bus vide (démo)','confirm_empty','','light full',!d.canConfirmEmpty||d.stopsReached!==d.stopsTotal||d.closure.find(x=>x.id==='empty').ok)+
- button('Clôturer la tournée (démo)','finish_demo_trip','','primary full',!d.canFinish)+'</section>';
+ if(view==='closing')return '<section class="card sub-page closing-page">'+back()+
+ '<h1>Clôturer la course</h1><p class="hint">Démo locale · inspection finale du bus obligatoire avant la clôture.</p>'+
+ d.closure.map(x=>'<div class="closing-check '+(x.ok?'pass':'fail')+'"><span aria-hidden="true">'+(x.ok?'✓':'!')+'</span><strong>'+escapeHTML(x.label)+'</strong><span>'+(x.ok?'Conforme':'À confirmer')+'</span></div>').join('')+
+ button('Je confirme le bus vide et clôture (démo)','demo_confirm_empty_and_finish','','primary full',!d.canOpenClosing)+'</section>';
  return '<section class="card sub-page">'+back()+'<h1>Suivi de tournée</h1><p class="hint">Résultats locaux uniquement. Pas de GPS ou de validation Chauffeur réelle.</p>'+
  '<div class="line"><span>État</span><strong>'+escapeHTML(d.status)+'</strong></div>'+
  '<div class="line"><span>Arrêts atteints</span><strong>'+d.stopsReached+'/'+d.stopsTotal+'</strong></div>'+
@@ -142,13 +116,13 @@ function tourDashboard(d,started,done){
  '<div><span class="hero-symbol">'+icon('bus')+'</span><div><strong>Bus BUS-DÉMO-01 · Circuit fictif A</strong></div></div>'+
  '<div><span class="hero-symbol">'+icon('team')+'</span><div><strong>Équipe affectée · Accompagnateur '+(d.presence?'présent':'à confirmer')+'</strong></div></div>'+
  '<div class="safety-row"><span class="hero-symbol">'+icon('shield')+'</span><div><strong>Prêt au départ · Bus immobilisé et sécurisé</strong><small>'+
- (d.driverSecured?'Confirmation Chauffeur fictive':'Confirmation Chauffeur fictive requise')+'</small></div>'+
- '<button type="button" role="switch" aria-label="Prêt au départ (simulation)" aria-checked="'+d.ready+'" class="safety-switch '+(d.ready?'on':'')+'" data-action="toggle_ready" '+(!d.canToggleReady?'disabled':'')+'><span></span></button></div></div></section>'+
+ (d.ready?'Préparation simulée · aucun accord réel du Chauffeur':'Validation Chauffeur simulée après activation')+'</small></div>'+
+ '<button type="button" role="switch" aria-label="Prêt au départ (simulation locale, sans validation Chauffeur réelle)" aria-checked="'+d.ready+'" class="safety-switch '+(d.ready?'on':'')+'" data-action="demo_prepare_departure" '+(!d.canDemoPrepare?'disabled':'')+'><span></span></button></div></div></section>'+
  '<div class="dashboard-actions" aria-label="Actions rapides">'+
- button(icon('play')+'<span>DÉMARRER LA COURSE</span>','go_start','','primary dash-action')+
- button(icon('refresh')+'<span>NOUVELLE TOURNÉE</span>','go_new_trip','','light dash-action')+
- button(icon('pin')+'<span>ARRÊT ATTEINT</span>','go_arrival','','warn dash-action')+
- button(icon('flag')+'<span>CLÔTURER LA COURSE</span>','go_closing','','light dash-action')+
+ button(icon('play')+'<span>DÉMARRER LA COURSE</span>','start_demo_trip','','primary dash-action',!d.canStart)+
+ button(icon('refresh')+'<span>NOUVELLE TOURNÉE</span>','new_demo_trip','','light dash-action',d.status!=='completed')+
+ button(icon('pin')+'<span>ARRÊT ATTEINT</span>','simulate_arrival','','warn dash-action',!d.canSimulateArrival)+
+ button(icon('flag')+'<span>CLÔTURER LA COURSE</span>','go_closing','','light dash-action',!d.canOpenClosing)+
  '</div></section>';
 }
 function pointagePage(d){
@@ -166,7 +140,7 @@ function pointagePage(d){
   return '<div class="student-line"><div><strong>'+escapeHTML(p.id)+'</strong><div class="status">'+escapeHTML(status)+' · '+(pickup?'Montée':'Descente')+'</div></div><div class="buttons">'+actions+'</div></div>';
  }).join(''):'<p class="hint">Aucun élève attendu à cet arrêt.</p>')+'</section>'+
  (d.atStop?'<section class="card stop-actions"><div class="line"><strong>Pointages restants</strong><strong>'+d.pendingAtStop+'</strong></div>'+
- (d.canResume?button('Reprendre la tournée (démo)','simulate_driver_resume','','primary full'):'')+
+ (d.canResume?'<p class="hint">Pointage terminé : retour automatique au tableau de bord pour l’arrêt suivant.</p>':'')+
  (d.stopsReached===d.stopsTotal?button('Vérifier la clôture','go_closing','','primary full',d.pendingAtStop>0):'')+
  (d.pendingAtStop?'<p class="hint">Départ de l’arrêt bloqué jusqu’au pointage complet.</p>':'')+'</section>':'');
 }
@@ -240,8 +214,8 @@ root.addEventListener('click',e=>{
    if(action==='go_team')message='Validation croisée réelle indisponible : équipe fictive uniquement.';
   }else if(action==='go_followup'||action==='go_students'||action==='go_stops'){
    tab='tour';view=action==='go_followup'?'followup':action==='go_students'?'students':'stops';
-  }else if(action==='go_start'||action==='go_arrival'||action==='go_new_trip'||action==='go_closing'){
-   tab='tour';view=action==='go_start'?'start':action==='go_arrival'?'arrival':action==='go_new_trip'?'new_trip':'closing';
+  }else if(action==='go_closing'){
+   tab='tour';view='closing';
   }else if(action==='go_journal'||action==='go_voice'||action==='go_sync'){
    tab='more';view=action==='go_journal'?'journal':action==='go_voice'?'voice':'sync';
   }
@@ -259,8 +233,16 @@ root.addEventListener('click',e=>{
     action==='mark_absent'?{studentId:target.dataset.arg,reason:'non_present'}:
     {studentId:target.dataset.arg};
    state=runAttendantDemo(state,actual,args);
-   if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'){tab='tour';view='dashboard';}
-   if(action==='simulate_arrival'){stopPulseWaitingFor=attendantSummary(state).activeStopId;tab='tour';view='students';}
+   if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'||action==='demo_confirm_empty_and_finish'){tab='tour';view='dashboard';}
+   if(action==='simulate_arrival'){stopPulseWaitingFor=attendantSummary(state).activeStopId;tab='tour';view='dashboard';}
+   if(action==='board'||action==='alight'||action==='mark_absent'){
+    const latest=attendantSummary(state);
+    if(latest.atStop&&latest.pendingAtStop===0){
+     // Only DEMO resumes automatically, after all pointages and safety blockers are cleared.
+     if(latest.canResume)state=runAttendantDemo(state,'simulate_driver_resume');
+     tab='tour';view='dashboard';
+    }
+   }
   }
  }catch(err){message='Action refusée : '+(friendlyErrors[err.message]||err.message);}
  render();
