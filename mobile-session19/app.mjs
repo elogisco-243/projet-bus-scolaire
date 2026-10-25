@@ -150,7 +150,8 @@ function alertPage(d){
  '<details class="safety-details"><summary>Consignes de sécurité</summary><p class="hint">Les situations critiques peuvent être signalées sans attendre une confirmation d’arrêt. Contactez directement les secours conformément au protocole : cette DÉMO NE CONTACTE PERSONNE.</p></details>'+
  '<div class="alert-grid">'+INCIDENTS.map(([name,id])=>button(icon(icons[id])+'<span>'+escapeHTML(name)+'</span>','incident',id,'alert-tile '+id,!CRITICAL_INCIDENTS.includes(id)&&!d.canReportIncidents)).join('')+'</div>'+
  '<p class="hint">Urgence critique : action accessible même en déplacement. Incidents ordinaires : arrêt sécurisé requis. Aucun envoi réel.</p></section>'+
- '<section class="card alerts-log"><h2>Suivi des alertes</h2>'+
+ '<section class="card alerts-log"><h2>Suivi des alertes</h2>'+ 
+ (d.status==='planned'&&d.openAlerts>0&&!d.driverSecured?button('Confirmer bus immobilisé (démo)','simulate_driver_secure','','light full'):'')+
  (state.alerts.length?state.alerts.slice().reverse().map(a=>
  '<div class="alert-entry"><div><strong>'+escapeHTML(INCIDENTS.find(x=>x[1]===a.kind)?.[0]||a.kind)+'</strong><small>'+
  (a.status==='open'?'Ouverte · démo locale':'Traitée en démo · aucun envoi')+'</small></div>'+
