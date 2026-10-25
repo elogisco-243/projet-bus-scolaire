@@ -122,7 +122,7 @@ test('PAIR/13: driver legacy demo itself supports in-progress warning and only o
  d=resolveIncident(d,accounts.operator,id);
  assert.equal(d.incidents[0].status,'resolved');
 });
-test('PAIR/14: attendant DEMO session refuses forged mode and чуж role',()=>{
+test('PAIR/14: attendant DEMO session refuses forged mode and role',()=>{
  const s=attendStop(attendantStart());s.session.role='driver';
  assert.throws(()=>runAttendantDemo(s,'board',{studentId:'E-01'}),/ROLE_DENIED/);
 });
@@ -182,7 +182,7 @@ test('PAIR/21: resolving critical alert with pointage complete automatically unb
  const m=h.html().match(/data-action="resolve_incident" data-arg="([^"]+)"/);
  assert.ok(m);
  h.click('resolve_incident',m[1]);
- assert.match(h.html(),/ALERTE ACTIVE/)===false;
+ assert.doesNotMatch(h.html(),/ALERTE ACTIVE/);
  h.click('tour','',true);
  assert.equal(h.clickIfEnabled('simulate_arrival'),true);
 });
