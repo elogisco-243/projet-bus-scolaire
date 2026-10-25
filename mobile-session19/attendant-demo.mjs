@@ -1,5 +1,6 @@
 /** UI-155: isolated, ephemeral attendant DEMO. No operational server or vehicle action. */
 import {authorizeAttendant} from '../mobile-session18/attendant-policy.mjs';
+import {checkStudentAtStop,checkClosure} from './shared-trip-contract.mjs';
 const freeze=Object.freeze;
 export const CRITICAL_INCIDENTS=freeze(['accident','medical','missing_child']);
 export const INCIDENTS=freeze([
@@ -102,8 +103,20 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
   ensure(s,'confirm_empty');
   if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
   if(s.events.some(e=>e.type==='empty_bus_confirmed'))throw Error('ALREADY_CONFIRMED');
+  const closure=checkClosure({
+   started:true,parked:s.driverSecured,atStop:s.atStop,activeStopId:s.activeStopId,
+   stops:s.stops,students:s.students,unresolvedAlerts:openAlerts(s),
+   inspectionConfirmed:true // explicit action in this branch records that inspection
+  });
+  if(!closure.ok)throw Error(closure.code);
   write(s,'empty_bus_confirmed');
   if(!attendantClosingChecklist(s).every(x=>x.ok))throw Error('FINISH_BLOCKED');
+  const final=checkClosure({
+   started:true,parked:s.driverSecured,atStop:s.atStop,activeStopId:s.activeStopId,
+   stops:s.stops,students:s.students,unresolvedAlerts:openAlerts(s),
+   inspectionConfirmed:s.events.some(e=>e.type==='empty_bus_confirmed')
+  });
+  if(!final.ok)throw Error(final.code);
   s.trip.status='completed';return write(s,'synthetic_trip_finished');
  }
  if(action==='confirm_presence'){
@@ -149,6 +162,16 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
  if(action==='board'||action==='alight'||action==='mark_absent'){
   const p=s.students.find(x=>x.id===studentId);
   ensure(s,action,p);requireActiveStop(s);
+  // UI-160: same stop/assignment safety preflight as the future shared domain.
+  const admission=checkStudentAtStop({
+   started:s.trip.status==='in_progress',completed:s.trip.status==='completed',
+   parked:s.driverSecured,atStop:s.atStop,activeStopId:s.activeStopId,
+   stops:s.stops,student:p,action
+  });
+  if(!admission.ok){
+   if(admission.code==='PUPIL_WRONG_STOP')throw Error(action==='alight'?'WRONG_DROPOFF_STOP':'WRONG_PICKUP_STOP');
+   throw Error(admission.code);
+  }
   if(action==='board'){
    if(p.pickupStopId!==s.activeStopId)throw Error('WRONG_PICKUP_STOP');
    p.boarded=true;
