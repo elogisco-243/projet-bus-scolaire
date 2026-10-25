@@ -398,3 +398,39 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .network-icon{width:28px;height:28px;flex-basis:28px}
  .network-icon .ui-icon{width:20px;height:20px}
 }
+
+/* UI-157: fit all four driver-format actions on compact portrait screens.
+   Bottom navigation stays anchored; small screens can still scroll subpages. */
+@media(orientation:portrait) and (max-height:760px){
+ .head{margin-top:5px;padding:8px 11px}
+ .brand{gap:7px}.brand-left{gap:8px}
+ .brand-mark{height:34px;width:34px}
+ .brand-name{font-size:19px}.brand-sub{font-size:11px;margin-top:2px}
+ .demo-pill{font-size:9px;padding:2px 7px;margin-top:2px}
+ .content{padding-top:7px;padding-bottom:6px}
+ .tour-dashboard{gap:7px}
+ .tour-hero{padding:9px 10px}
+ .tour-heading{margin-bottom:5px}
+ .tour-heading h2{font-size:18px}
+ .trip-state{padding:3px 7px;font-size:10px}
+ .next-stop{padding:7px 10px;margin-bottom:5px}
+ .next-stop strong{margin-top:2px;font-size:32px!important}
+ .sound-icon{width:37px;height:37px}
+ .hero-stats{gap:6px}
+ .hero-stats .hero-stat{padding:7px 25px 7px 9px}
+ .hero-stat strong{font-size:23px;margin-top:2px}
+ .hero-info{margin-top:5px}
+ .hero-info>div{padding:3px 1px}
+ .tour-hero .hero-info strong{font-size:12px}
+ .hero-info small{font-size:10px;margin-top:1px}
+ .hero-symbol{width:18px;flex-basis:18px}
+ .hero-symbol .ui-icon{width:17px;height:17px}
+ .safety-switch{height:27px;min-width:51px;flex-basis:51px}
+ .safety-switch span{width:19px;height:19px}
+ .safety-switch.on span{transform:translateX(23px)}
+ .dashboard-actions{gap:6px}
+ .dashboard-actions button{min-height:clamp(62px,10.3vh,76px);padding:6px 5px;gap:3px}
+ .dashboard-actions button span{font-size:clamp(11px,2vw,14px)}
+ .bottom{padding:3px;margin-bottom:3px}
+ .bottom button{min-height:46px;padding:2px}
+}
