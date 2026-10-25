@@ -434,3 +434,47 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .bottom{padding:3px;margin-bottom:3px}
  .bottom button{min-height:46px;padding:2px}
 }
+
+
+/* UI-159 — strong, unmistakable enabled vs disabled actions on Android.
+   This intentionally overrides the generic muted colors from UI-157.
+   The app keeps native disabled attributes as the source of truth. */
+.dashboard-actions button[data-action="start_demo_trip"]:enabled{
+ background:linear-gradient(125deg,#7936D3,#5815B0);
+ color:#FFFFFF;opacity:1;
+ box-shadow:0 2px 7px #39126430;
+}
+.dashboard-actions button[data-action="start_demo_trip"]:disabled{
+ background:#9689A9;color:#EEE9F5;opacity:1;
+ box-shadow:none;
+}
+.dashboard-actions button[data-action="simulate_arrival"]:enabled{
+ background:#FFD15D;color:#3E235C;opacity:1;
+ box-shadow:0 2px 7px #9A661C30;
+}
+.dashboard-actions button[data-action="simulate_arrival"]:disabled{
+ background:#F0E8D3;color:#9A907C;opacity:1;
+ box-shadow:none;
+}
+.dashboard-actions button[data-action="new_demo_trip"]:enabled{
+ background:#EAE0FB;color:#50238D;opacity:1;
+}
+.dashboard-actions button[data-action="new_demo_trip"]:disabled{
+ background:#F3EFF8;color:#9E91AF;opacity:1;
+}
+.dashboard-actions button[data-action="go_closing"]:enabled{
+ background:#6D2CC1;color:#FFFFFF;opacity:1;
+ box-shadow:0 2px 7px #39126430;
+}
+.dashboard-actions button[data-action="go_closing"]:disabled{
+ background:#F1F1F1;color:#A6A6A6;opacity:1;
+ box-shadow:none;
+}
+.dashboard-actions button:enabled:active{filter:brightness(1.1)}
+.dashboard-actions button:enabled:focus-visible{
+ outline:3px solid #F2B544;outline-offset:2px;
+}
+@media(forced-colors:active){
+ .dashboard-actions button:enabled{outline:2px solid Highlight;outline-offset:-2px}
+ .dashboard-actions button:disabled{color:GrayText;outline:1px solid GrayText}
+}
