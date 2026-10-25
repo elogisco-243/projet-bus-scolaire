@@ -6,10 +6,9 @@ const read=p=>readFileSync(fileURLToPath(new URL(p,import.meta.url)),'utf8');
 const ui=read('../mobile-session19/app.mjs');
 const css=read('../mobile-session19/style.css');
 const model=read('../mobile-session19/attendant-demo.mjs');
-test('UI154: follow-up main action preserved, result rendered only under dedicated view',()=>{
- assert.match(ui,/SUIVI DE TOURNÉE<\/span>','go_followup'/);
- assert.match(ui,/view=action==='go_followup'\?'followup'/);
- assert.match(ui,/view!=='dashboard'/);
+test('UI154/UI157: follow-up remains in a dedicated journal under Plus',()=>{
+ assert.match(ui,/go_journal/);
+ assert.match(ui,/view==='journal'/);
  assert.match(ui,/<h1>Suivi de tournée<\/h1>/);
  assert.doesNotMatch(ui,/showTourDetails/);
 });
@@ -22,7 +21,7 @@ test('UI154: both hero counters are real buttons',()=>{
  assert.match(ui,/view==='stops'/);
 });
 test('UI154: bottom four tabs remain unchanged',()=>{
- assert.match(ui,/\[\['tour','▣','Ma tournée'\],\['alerts','⚠','Alertes'\],\['boarding','☑','Pointage'\],\['team','♧','Équipe'\]\]/);
+ assert.match(ui,/\[\['tour','▣','Ma tournée'\],\['alerts','⚠','Alertes'\],\['team','♧','Équipe'\],\['more','•••','Plus'\]\]/);
  assert.equal((ui.match(/dash-action'\)/g)||[]).length,4);
 });
 test('UI154: demo-only readiness switch is clickable and guarded',()=>{
