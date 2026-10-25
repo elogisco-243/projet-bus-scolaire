@@ -593,3 +593,18 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){
  .next-stop strong{animation:none!important}
 }
+
+/* UI-161: the ARRÊT ATTEINT tile doubles as the pointage entry only at
+   an already reached stop. It NEVER records an extra stop on this path. */
+.dashboard-actions .dash-action.pointage-direct:not(:disabled){
+ background:#f5bd20!important;
+ color:#211810!important;
+ border:2px solid #fff0a1!important;
+ box-shadow:0 0 0 2px #bb8312!important;
+}
+.safety-row .safety-status-mark{
+ display:flex;align-items:center;justify-content:center;
+ min-width:51px;width:51px;min-height:27px;
+ color:#ffe48a;flex:0 0 51px;
+}
+.safety-status-mark .ui-icon{width:22px;height:22px}
