@@ -121,8 +121,8 @@ function tourDashboard(d,started,done){
  const attention=indicatorAttention(d);
  return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"><section class="card tour-hero">'+
  '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state '+(started?'state-running':done?'state-complete':'state-preparing')+'">'+
- (started?'● EN COURS':done?'✓ TERMINÉE':'À PRÉPARER')+'</span><span class="network-icon '+(d.network==='simulated-online'?'wifi-online':'wifi-offline')+'" role="img" aria-label="'+(d.network==='simulated-online'?'Wi-Fi simulé actif — sans serveur réel':'Wi-Fi simulé inactif — sans serveur réel')+'" title="Wi-Fi simulé, aucune connexion serveur">'+icon('wifi')+'</span></div></div>'+
- '<div class="next-stop"><div><span class="hero-label">PROCHAIN ARRÊT</span><strong>'+escapeHTML(d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
+ (started?'● EN COURS':done?'✓ TERMINÉE':'À PRÉPARER')+'</span><span class="network-icon '+(d.network==='simulated-online'?'wifi-online':'wifi-offline')+'" role="img" aria-label="'+(d.network==='simulated-online'?'Wi-Fi simulé actif — sans serveur réel':'Wi-Fi simulé inactif — sans serveur réel')+'" title="Wi-Fi simulé, aucune connexion serveur">'+icon(d.network==='simulated-online'?'wifi':'wifi-off')+'</span></div></div>'+
+ '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">PROCHAIN ARRÊT</span><strong>'+escapeHTML(d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
  activeAlertBanner()+
  '<div class="hero-stats">'+
  '<button type="button" class="hero-stat'+(attention.pointagePending?' indicator-pending':'')+(attention.pointagePulse?' indicator-pulse':'')+'" data-action="go_students" aria-label="Élèves à bord : '+d.onboard+(attention.pointagePending?' ; '+d.pendingAtStop+' pointage(s) attendu(s) à l’arrêt actif':'')+'"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
