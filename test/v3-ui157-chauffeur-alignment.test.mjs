@@ -119,3 +119,21 @@ test('UI157: closures remain safe and role authorization never controls vehicles
  assert.match(h.html(),/data-action="finish_demo_trip"[^>]*disabled/);
  assert.throws(()=>runAttendantDemo(makeAttendantDemo(),'assign_vehicle'),/ACTION_DENIED/);
 });
+
+test('UI157: preparatory flow can complete readiness without returning to another tab',()=>{
+ const h=create();
+ h.click('go_start');
+ h.click('confirm_presence');
+ h.click('simulate_driver_secure');
+ assert.match(h.html(),/Activer Prêt au départ \(démo\)/);
+ h.click('toggle_ready');
+ assert.match(h.html(),/Prêt au départ/);
+ h.click('start_demo_trip');
+ assert.match(h.html(),/trip-state state-running">● EN COURS/);
+});
+test('UI157: compact portrait styling keeps four actions two-by-two and nav anchored',()=>{
+ assert.match(css,/\.dashboard-actions\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(orientation:portrait\) and \(max-height:760px\)/);
+ assert.match(css,/\.bottom\{\s*flex:0 0 auto;position:relative/);
+ assert.match(css,/\.dashboard-actions button:nth-child\(4\)/);
+});
