@@ -99,7 +99,7 @@ test('SAFETY/05: pre-start critical alert shows secure confirmation on the actua
   attendantSummary,attendantClosingChecklist,INCIDENTS,CRITICAL_INCIDENTS
  },{timeout:3000});
  const click=(action,arg='')=>clickHandler({target:{closest:()=>({disabled:false,dataset:{action,arg}})}});
- click('incident','missing_child');click('go_alerts');
+ click('go_alerts');click('incident','missing_child');
  assert.match(root.innerHTML,/Confirmer bus immobilisé \(démo\)/);
  click('simulate_driver_secure');
  const incidentId=root.innerHTML.match(/data-action="resolve_incident" data-arg="([^"]+)"/)?.[1];
