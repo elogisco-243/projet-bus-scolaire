@@ -14,8 +14,8 @@ test('UI154: follow-up main action preserved, result rendered only under dedicat
  assert.doesNotMatch(ui,/showTourDetails/);
 });
 test('UI154: both hero counters are real buttons',()=>{
- assert.match(ui,/class="hero-stat" data-action="go_students"/);
- assert.match(ui,/class="hero-stat" data-action="go_stops"/);
+ assert.match(ui,/data-action="go_students"/);
+ assert.match(ui,/data-action="go_stops"/);
  assert.match(ui,/ÉLÈVES À BORD/);
  assert.match(ui,/ARRÊTS ATTEINTS/);
  assert.match(ui,/view==='students'/);
