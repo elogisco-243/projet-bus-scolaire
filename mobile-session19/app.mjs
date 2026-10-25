@@ -70,7 +70,7 @@ function workflowStep(d){
   if(!d.presence)return ['Étape 1/3 · Présence','Confirmez votre présence sur cet écran.','Confirmer ma présence','confirm_presence'];
   if(!d.driverSecured)return ['Étape 2/3 · Sécurisation','Confirmation Chauffeur fictive, démo uniquement.','Simuler validation Chauffeur','simulate_driver_secure'];
   if(d.openAlerts)return ['Incident(s) en attente','Traitez les alertes locales avant le départ.','Voir les alertes','go_alerts'];
-  if(!d.ready)return ['Étape 3/3 · Préparation','Activez le switch dans la carte violette.',null,null];
+  if(!d.ready)return ['Étape 3/3 · Préparation','Activez le switch « Prêt au départ » ici ou dans Ma tournée.',null,null];
   return ['Prêt au départ','Toutes les conditions de simulation sont réunies.','Démarrer la tournée (démo)','start_demo_trip'];
  }
  if(d.canSimulateArrival)return ['Prochain arrêt · '+d.nextStop,'Une action simule l’arrivée sécurisée et ouvre Pointage.','Simuler arrivée à l’arrêt','simulate_arrival'];
@@ -86,7 +86,7 @@ function workflowPanel(d){
  (action?button(escapeHTML(label),action,'','workflow-cta'):'')+'</section>';
 }
 function tourSubpage(d){
- if(view==='start')return '<section class="card sub-page">'+back()+'<h1>Démarrer la course</h1><p class="hint">Accompagnateur · démonstration locale : le départ réel reste validé par le Chauffeur. Aucune commande du véhicule.</p>'+workflowPanel(d)+(d.status==='planned'?'<p class="hint">Une fois les vérifications réalisées, activez le switch de préparation sur Ma tournée.</p>'+button('Voir le switch de préparation','back_tour','','light full'):'')+'</section>';
+ if(view==='start')return '<section class="card sub-page">'+back()+'<h1>Démarrer la course</h1><p class="hint">Accompagnateur · démonstration locale : le départ réel reste validé par le Chauffeur. Aucune commande du véhicule.</p>'+workflowPanel(d)+(d.status==='planned'?button('Activer Prêt au départ (démo)','toggle_ready','','light full',!d.canToggleReady||d.ready):'')+'</section>';
  if(view==='arrival')return '<section class="card sub-page">'+back()+'<h1>Arrêt atteint</h1><p class="hint">Seul le Chauffeur valide une arrivée réelle. La commande ci-dessous simule un signal Chauffeur sur cet appareil de test.</p>'+button(icon('pin')+' Simuler arrivée Chauffeur','simulate_arrival','','warn full',!d.canSimulateArrival)+(d.atStop?'<p class="hint">Arrêt déjà actif. Touchez « Élèves à bord » pour le pointage.</p>'+button('Voir les élèves','go_students','','light full'):'')+'</section>';
  if(view==='new_trip')return '<section class="card sub-page">'+back()+'<h1>Nouvelle tournée</h1><p class="hint">Une nouvelle tournée réelle doit être affectée par la supervision. Ici, seule une nouvelle simulation fictive est possible après clôture.</p>'+button('Nouvelle simulation locale','new_demo_trip','','primary full',d.status!=='completed')+'</section>';
  if(view==='students')return '<section class="card sub-page">'+back()+'<h1>Élèves à bord</h1><p class="hint">Liste fictive : élèves affectés au véhicule et états du pointage.</p>'+
