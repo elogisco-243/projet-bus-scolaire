@@ -1,5 +1,7 @@
 import {makeAttendantDemo,runAttendantDemo,attendantSummary,attendantClosingChecklist,INCIDENTS,CRITICAL_INCIDENTS} from './attendant-demo.mjs';
 let state=makeAttendantDemo(),tab='tour',view='dashboard',message='';
+// UI-156: visual hints remain local to this DEMO; no timer, telemetry or real alert.
+let pointagePulseSeenAt=null, stopPulseWaitingFor=null;
 const root=document.querySelector('#app');
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const iconPaths={
@@ -82,7 +84,8 @@ function tourSubpage(d){
  if(view==='students')return '<section class="card sub-page">'+back()+'<h1>Élèves à bord</h1><p class="hint">Liste fictive : élèves affectés au véhicule et états du pointage.</p>'+
  state.students.map(p=>'<div class="line"><strong>'+escapeHTML(p.id)+'</strong><span>'+
  (p.absent?'Absent':p.alighted?'Descendu':p.boarded?'À bord':'En attente')+'</span></div>').join('')+
- button('Ouvrir Pointage','go_boarding','','primary full')+'</section>';
+ '</section>'+
+ (d.atStop?pointagePage(d):'<section class="card"><p class="hint">Le pointage devient accessible à l’arrivée simulée et sécurisée d’un arrêt.</p></section>');
  if(view==='stops')return '<section class="card sub-page">'+back()+'<h1>Itinéraire et arrêts</h1><p class="hint">Itinéraire fictif, aucune position GPS réelle.</p>'+
  state.stops.map((p,i)=>'<div class="line"><strong>'+(i+1)+'. '+escapeHTML(p.name)+'</strong><span>'+(p.id===d.activeStopId?'Arrêt actif':p.reached?'Atteint':'À venir')+'</span></div>').join('')+
  button(icon('pin')+' Simuler arrivée au prochain arrêt','simulate_arrival','','warn full',!d.canSimulateArrival)+'</section>';
@@ -108,15 +111,25 @@ function activeAlertBanner(){
   '<strong>'+icon('alert')+' ALERTE ACTIVE'+(opened.length>1?' · +'+(opened.length-1):'')+'</strong>'+
   '<span>'+escapeHTML(label)+' · '+(top.critical?'Critique':'À examiner')+'</span></button>';
 }
+// Attention is strictly an affordance: never modifies the route or pupil records.
+function indicatorAttention(d){
+ const pointagePending=d.status==='in_progress'&&d.atStop&&d.driverSecured&&d.pendingAtStop>0;
+ const pointagePulse=pointagePending&&pointagePulseSeenAt!==d.activeStopId;
+ if(pointagePulse)pointagePulseSeenAt=d.activeStopId;
+ const stopPulse=!!stopPulseWaitingFor&&stopPulseWaitingFor===d.activeStopId&&d.stopsReached>0;
+ if(stopPulse)stopPulseWaitingFor=null;
+ return {pointagePending,pointagePulse,stopPulse};
+}
 function tourDashboard(d,started,done){
+ const attention=indicatorAttention(d);
  return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"><section class="card tour-hero">'+
  '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state">'+
  (started?'● EN COURS':done?'✓ TERMINÉE':'○ À PRÉPARER')+'</span><span class="network-icon" title="Réseau fictif">⌁</span></div></div>'+
  '<div class="next-stop"><div><span class="hero-label">PROCHAIN ARRÊT</span><strong>'+escapeHTML(d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
  activeAlertBanner()+
  '<div class="hero-stats">'+
- '<button type="button" class="hero-stat" data-action="go_students"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
- '<button type="button" class="hero-stat" data-action="go_stops"><span class="hero-label">'+icon('pin')+' ARRÊTS ATTEINTS</span><strong>'+d.stopsReached+'/'+d.stopsTotal+'</strong><span class="stat-chevron">›</span></button></div>'+
+ '<button type="button" class="hero-stat'+(attention.pointagePending?' indicator-pending':'')+(attention.pointagePulse?' indicator-pulse':'')+'" data-action="go_students" aria-label="Élèves à bord : '+d.onboard+(attention.pointagePending?' ; '+d.pendingAtStop+' pointage(s) attendu(s) à l’arrêt actif':'')+'"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
+ '<button type="button" class="hero-stat'+(attention.stopPulse?' indicator-new-stop':'')+'" data-action="go_stops" aria-label="Arrêts atteints : '+d.stopsReached+' sur '+d.stopsTotal+(attention.stopPulse?' ; nouvel arrêt confirmé':'')+'"><span class="hero-label">'+icon('pin')+' ARRÊTS ATTEINTS</span><strong>'+d.stopsReached+'/'+d.stopsTotal+'</strong><span class="stat-chevron">›</span></button></div>'+
  '<div class="hero-info">'+
  '<div><span class="hero-symbol">'+icon('bus')+'</span><div><strong>Bus BUS-DÉMO-01 · Circuit fictif A</strong></div></div>'+
  '<div><span class="hero-symbol">'+icon('team')+'</span><div><strong>Équipe affectée · Accompagnateur '+(d.presence?'présent':'à confirmer')+'</strong></div></div>'+
@@ -208,7 +221,7 @@ root.addEventListener('click',e=>{
    tab='tour';view=action==='go_followup'?'followup':action==='go_students'?'students':'stops';
   }else if(action==='go_closing'){tab='tour';view='closing';}
   else if(action==='back_tour'){tab='tour';view='dashboard';}
-  else if(action==='reset'){state=makeAttendantDemo();tab='tour';view='dashboard';}
+  else if(action==='reset'){state=makeAttendantDemo();tab='tour';view='dashboard';pointagePulseSeenAt=null;stopPulseWaitingFor=null;}
   else if(action==='network')state=runAttendantDemo(state,state.network==='simulated-online'?'simulate_network_loss':'simulate_network_return');
   else{
    const actual=action==='incident'?'report_incident':action;
@@ -218,7 +231,7 @@ root.addEventListener('click',e=>{
     {studentId:target.dataset.arg};
    state=runAttendantDemo(state,actual,args);
    if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'){tab='tour';view='dashboard';}
-   if(action==='simulate_arrival'){tab='boarding';view='dashboard';}
+   if(action==='simulate_arrival'){stopPulseWaitingFor=attendantSummary(state).activeStopId;tab='boarding';view='dashboard';}
   }
  }catch(err){message='Action refusée : '+(friendlyErrors[err.message]||err.message);}
  render();
