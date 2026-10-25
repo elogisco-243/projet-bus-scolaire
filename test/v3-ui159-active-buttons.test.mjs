@@ -39,10 +39,11 @@ test('UI159: starting disables start and enables yellow ARRÊT ATTEINT',()=>{
  assert.match(actionTag(h,'start_demo_trip'),/\bdisabled\b/);
  assert.doesNotMatch(actionTag(h,'simulate_arrival'),/\bdisabled\b/);
 });
-test('UI159: at stop arrival is disabled, then re-enabled after pupil pointage',()=>{
+test('UI159/UI161: at stop Arrêt atteint safely opens pointage, then next arrival re-enables',()=>{
  const h=makeUI();h.click('demo_prepare_departure');h.click('start_demo_trip');
  h.click('simulate_arrival');
- assert.match(actionTag(h,'simulate_arrival'),/\bdisabled\b/);
+ assert.doesNotMatch(actionTag(h,'go_students'),/\bdisabled\b/);
+ assert.match(h.html(),/class="warn dash-action pointage-direct" data-action="go_students"/);
  h.click('go_students');h.click('board','E-01');
  assert.doesNotMatch(actionTag(h,'simulate_arrival'),/\bdisabled\b/);
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
@@ -59,7 +60,7 @@ test('UI159: specific enabled/disabled CSS overrides muted UI157 without changin
  assert.match(ui159,/simulate_arrival"\]:enabled\{[\s\S]*?background:#FFD15D/);
  assert.match(ui159,/@media\(forced-colors:active\)/);
  assert.match(ui, /!d\.canStart/);
- assert.match(ui, /!d\.canSimulateArrival/);
+ assert.match(ui, /d\.canSimulateArrival/);
 });
 test('UI159: closing and new-trip tiles maintain distinct guarded states',()=>{
  const h=makeUI();
