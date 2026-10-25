@@ -353,3 +353,48 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .hero-stats .hero-stat.indicator-pending{outline:2px solid Highlight;outline-offset:-2px}
  .hero-stats .hero-stat.indicator-pending::after{background:Highlight;box-shadow:none}
 }
+
+/* UI-157 — Chauffeur v1.7 alignment within isolated Accompagnateur TESTHOST.
+   Exact labels/order and visual proportions; role-specific actions stay on DEMO. */
+.trip-state.state-preparing{
+ border:1px solid #826d9f;background:#513475;color:#f1e8ff;
+}
+.trip-state.state-running{
+ border:1px solid #159a63;background:#13835b;color:#ebfff3;
+}
+.trip-state.state-complete{
+ border:1px solid #ab9ebb;background:#635474;color:#f6f2fa;
+}
+.network-icon{display:grid;place-items:center;border-radius:50%;width:34px;height:34px;flex:0 0 34px}
+.network-icon .ui-icon{width:24px;height:24px;stroke-width:2.1}
+.network-icon.wifi-online{color:#49d88d;background:#1b6a44}
+.network-icon.wifi-offline{color:#b8a8c9;background:#594d68}
+.next-stop strong{
+ color:#ffe38a!important;font-size:clamp(34px,8.3vw,54px)!important;
+ font-weight:850;line-height:1.06;letter-spacing:-.02em;
+}
+.next-stop .hero-label{
+ font-size:clamp(12px,2.1vw,16px);color:#efe2f9;font-weight:820;
+}
+.dashboard-actions button{min-height:clamp(88px,12vh,128px)}
+.dashboard-actions button .ui-icon{width:clamp(29px,4.4vw,36px);height:clamp(29px,4.4vw,36px)}
+.dashboard-actions button span{
+ font-size:clamp(13px,2.5vw,20px);font-weight:900;line-height:1.12;
+}
+.dashboard-actions .primary{background:#9485aa;color:#fff}
+.dashboard-actions .light{background:#f3effa;color:#85729f}
+.dashboard-actions .warn{background:#ffe29b;color:#866b47}
+.dashboard-actions button:nth-child(4){background:#f6f6f6;color:#a4a4a4}
+.bottom .nav-icon .ui-icon{width:clamp(26px,4.8vw,33px);height:clamp(26px,4.8vw,33px)}
+.more-tools{display:flex;flex-direction:column;gap:10px}
+.more-tools h1{margin:0 0 8px;font-size:clamp(25px,4vw,34px)}
+.more-tools button{display:flex;align-items:center;gap:12px;justify-content:flex-start;text-align:left;font-size:clamp(15px,2.4vw,22px)}
+.more-tools button .ui-icon{width:clamp(21px,3.6vw,28px);height:clamp(21px,3.6vw,28px)}
+@media(max-height:780px){
+ .dashboard-actions button{min-height:76px}
+ .dashboard-actions button .ui-icon{width:26px;height:26px}
+ .dashboard-actions button span{font-size:clamp(11px,2.1vw,16px)}
+ .next-stop strong{font-size:clamp(31px,7vw,48px)!important}
+ .network-icon{width:28px;height:28px;flex-basis:28px}
+ .network-icon .ui-icon{width:20px;height:20px}
+}
