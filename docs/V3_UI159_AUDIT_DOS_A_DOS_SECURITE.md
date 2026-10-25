@@ -4,10 +4,15 @@
 
 ## Conclusion et niveau de preuve
 
-- **Contrôles automatiques réels en CI GitHub : 288 tests répertoriés, 284 PASS, 0 FAIL, 4 TODO**, sur le commit `24a327ccac996726f051f2f1f421c2b6ad61e43c`. Workflow « Bus v2 tests » : https://github.com/elogisco-243/projet-bus-scolaire/actions/runs/40237457824
+- **Contrôles automatiques réels en CI GitHub : 294 tests répertoriés, 290 PASS, 0 FAIL, 4 TODO**, sur le commit `7f15cca1f310d055f01da4d85bdd6aa4c9bdc74f`. Workflow « Bus v2 tests » : https://github.com/elogisco-243/projet-bus-scolaire/actions/runs/40238054527
 - Les workflows « Bus V3 - PostgreSQL Tests » et « Bus V3 - PostgreSQL RLS Tests » ont aussi réussi sur ce même commit. Ils ne prouvent **pas** une session opérationnelle commune sur deux téléphones.
 - **26 scénarios PAIR/** ont été ajoutés dans `test/v3-ui159-side-by-side-safety.test.mjs`, combinant les règles d'un **ancien modèle Chauffeur de démonstration** (`frontend/src/domain.mjs`) et celles du **TESTHOST Accompagnateur UI-158/UI-159** (`mobile-session19/attendant-demo.mjs`). Ils ne sont **pas** un test E2E des deux APK v1.7 / UI-159 réellement synchronisés.
 - L'utilisateur a confirmé auparavant la compilation et l'installation de UI-158 sur l'AVD Android 16. **UI-159 n'est pas encore compilée ni installée localement** ; la correction visuelle reste à vérifier en capture Android.
+
+## Tests adversariaux ajoutés
+- `test/v3-ui159-adversarial-invariants.test.mjs` : **10 séries de 420 actions aléatoires déterministes** (4 200 tentatives d'action : acceptées ou correctement refusées), pour vérifier la conservation du compteur à bord, l'ordre des arrêts, l'immuabilité des états, le contrôle des absences, le refus de fermeture prématurée et l'absence de transmission externe.
+- Cas critiques supplémentaires : aucun départ malgré une alerte Enfant manquant ouverte ; confirmation explicite du bus immobilisé pour traiter cette alerte en Démo, puis retour au parcours simple ; aucune fausse inspection finale.
+- **290 PASS ne veut pas dire 290 simulations de deux appareils**. La plupart des tests sont unitaires, DOM simulé ou règles serveur isolées.
 
 ## Correction principale (UI-159)
 Défaut observé : le bouton « DÉMARRER LA COURSE » gardait un **fond gris-violet**, y compris quand le switch le rendait disponible. Cela provenait du CSS `.dashboard-actions .primary` statique ; la 4e tuile avait aussi un gris forcé `nth-child(4)`.
