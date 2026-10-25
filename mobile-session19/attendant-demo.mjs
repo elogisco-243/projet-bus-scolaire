@@ -85,6 +85,7 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
  // UI-158: one explicit readiness switch replaces three fictitious setup commands.
  // Isolated DEMO: records synthetic preparation only, NEVER a real Chauffeur approval.
  if(action==='demo_prepare_departure'){
+  ensure(s,'confirm_presence');
   if(s.trip.status!=='planned')throw Error('TRIP_NOT_PLANNED');
   if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
   if(s.ready){s.ready=false;return write(s,'demo_ready_cancelled');}
@@ -98,6 +99,7 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
   if(s.stops.some(p=>!p.reached))throw Error('ROUTE_NOT_COMPLETED');
   if(unaccounted(s)!==0)throw Error('STUDENTS_NOT_RECONCILED');
   if(count(s)!==0)throw Error('CHILDREN_REMAIN');
+  ensure(s,'confirm_empty');
   if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
   if(s.events.some(e=>e.type==='empty_bus_confirmed'))throw Error('ALREADY_CONFIRMED');
   write(s,'empty_bus_confirmed');
