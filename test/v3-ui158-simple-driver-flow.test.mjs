@@ -76,8 +76,8 @@ test('UI158: closure never bypasses inspection, open incidents or missing studen
  s=runAttendantDemo(s,'start_demo_trip');
  s=runAttendantDemo(s,'simulate_arrival');
  assert.throws(()=>runAttendantDemo(s,'demo_confirm_empty_and_finish'),/ROUTE_NOT_COMPLETED/);
- const h=makeUI();start(h);h.click('go_closing');
- assert.match(h.html(),/CLÔTURER LA COURSE/);
+ const h=makeUI();start(h);
+ assert.match(h.html(),/data-action="go_closing"[^>]*disabled/);
  assert.doesNotMatch(h.html(),/✓ TERMINÉE/);
 });
 test('UI158: active critical incident prevents auto-resume even when pupil is pointed',()=>{
