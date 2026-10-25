@@ -16,7 +16,7 @@ export function checkArrivedStop({started=false,completed=false,parked=false,atS
  if(!parked||!atStop||!activeStopId)return fail('VEHICLE_NOT_SECURED_AT_STOP');
  const index=stops.findIndex(p=>p.id===activeStopId);
  if(index<0||stops[index].reached!==true)return fail('STOP_NOT_CONFIRMED');
- if(stops.slice(index+1).some(p=>p.reached))return fail('STOP_ORDER_CONFLICT');
+ if(stops.slice(0,index).some(p=>p.reached!==true)||stops.slice(index+1).some(p=>p.reached))return fail('STOP_ORDER_CONFLICT');
  return permit();
 }
 export function checkStudentAtStop({started=false,completed=false,parked=false,atStop=false,activeStopId=null,stops=[],student=null,action=null}={}){
