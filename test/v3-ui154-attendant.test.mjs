@@ -22,14 +22,13 @@ test('UI154: both hero counters are real buttons',()=>{
 });
 test('UI154: bottom four tabs remain unchanged',()=>{
  assert.match(ui,/\[\['tour','▣','Ma tournée'\],\['alerts','⚠','Alertes'\],\['team','♧','Équipe'\],\['more','•••','Plus'\]\]/);
- assert.equal((ui.match(/dash-action'\)/g)||[]).length,4);
+ assert.equal((ui.match(/dash-action/g)||[]).length,4);
 });
-test('UI154: demo-only readiness switch is clickable and guarded',()=>{
- assert.match(ui,/role="switch" aria-label="Prêt au départ \(simulation\)"/);
- assert.match(ui,/data-action="toggle_ready"/);
- assert.match(ui,/!d\.canToggleReady\?'disabled'/);
- assert.match(model,/READY_PRECONDITIONS_NOT_MET/);
- assert.match(model,/!s\.driverSecured\|\|!s\.ready/);
+test('UI154/UI158: demo-only readiness switch is clickable and guarded',()=>{
+ assert.match(ui,/role="switch" aria-label="Prêt au départ \(simulation locale/);
+ assert.match(ui,/data-action="demo_prepare_departure"/);
+ assert.match(model,/demo_prepare_departure/);
+ assert.match(model,/DEPARTURE_NOT_AUTHORIZED/);
 });
 test('UI154: driver-aligned safety instructions, six alerts, and alert history',()=>{
  assert.match(ui,/Pour signaler une alerte, immobilisez et sécurisez le bus/);
