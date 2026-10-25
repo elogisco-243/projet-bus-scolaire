@@ -122,7 +122,7 @@ function tourDashboard(d,started,done){
  return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"><section class="card tour-hero">'+
  '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state '+(started?'state-running':done?'state-complete':'state-preparing')+'">'+
  (started?'● EN COURS':done?'✓ TERMINÉE':'À PRÉPARER')+'</span><span class="network-icon '+(d.network==='simulated-online'?'wifi-online':'wifi-offline')+'" role="img" aria-label="'+(d.network==='simulated-online'?'Wi-Fi simulé actif — sans serveur réel':'Wi-Fi simulé inactif — sans serveur réel')+'" title="Wi-Fi simulé, aucune connexion serveur">'+icon(d.network==='simulated-online'?'wifi':'wifi-off')+'</span></div></div>'+
- '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">PROCHAIN ARRÊT</span><strong>'+escapeHTML(d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
+ '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">'+(d.atStop?'ARRÊT ACTUEL':'PROCHAIN ARRÊT')+'</span><strong>'+escapeHTML(d.atStop?d.activeStopName:d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
  activeAlertBanner()+
  '<div class="hero-stats">'+
  '<button type="button" class="hero-stat'+(attention.pointagePending?' indicator-pending':'')+(attention.pointagePulse?' indicator-pulse':'')+'" data-action="go_students" aria-label="Élèves à bord : '+d.onboard+(attention.pointagePending?' ; '+d.pendingAtStop+' pointage(s) attendu(s) à l’arrêt actif':'')+'"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
@@ -130,13 +130,20 @@ function tourDashboard(d,started,done){
  '<div class="hero-info">'+
  '<div><span class="hero-symbol">'+icon('bus')+'</span><div><strong>Bus BUS-DÉMO-01 · Circuit fictif A</strong></div></div>'+
  '<div><span class="hero-symbol">'+icon('team')+'</span><div><strong>Équipe affectée · Accompagnateur '+(d.presence?'présent':'à confirmer')+'</strong></div></div>'+
- '<div class="safety-row"><span class="hero-symbol">'+icon('shield')+'</span><div><strong>Prêt au départ · Bus immobilisé et sécurisé</strong><small>'+
- (d.ready?'Préparation simulée · aucun accord réel du Chauffeur':'Validation Chauffeur simulée après activation')+'</small></div>'+
- '<button type="button" role="switch" aria-label="Prêt au départ (simulation locale, sans validation Chauffeur réelle)" aria-checked="'+d.ready+'" class="safety-switch '+(d.ready?'on':'')+'" data-action="demo_prepare_departure" '+(!d.canDemoPrepare?'disabled':'')+'><span></span></button></div></div></section>'+
+ '<div class="safety-row"><span class="hero-symbol">'+icon('shield')+'</span>'+
+ (d.status==='planned'?
+  '<div><strong>Prêt au départ · Préparation démo</strong><small>'+(d.ready?'Préparation simulée, aucun accord Chauffeur réel':'Activez le switch pour préparer la simulation')+'</small></div>'+
+  '<button type="button" role="switch" aria-label="Prêt au départ (simulation locale, sans validation Chauffeur réelle)" aria-checked="'+d.ready+'" class="safety-switch '+(d.ready?'on':'')+'" data-action="demo_prepare_departure" '+(!d.canDemoPrepare?'disabled':'')+'><span></span></button>':
+  d.status==='completed'?
+  '<div><strong>Tournée terminée (démo)</strong><small>Clôture et inspection locales enregistrées</small></div><span class="safety-status-mark" aria-hidden="true">'+icon('check')+'</span>':
+  d.atStop?
+  '<div><strong>Arrêt enregistré · Sécurisation simulée</strong><small>'+(d.pendingAtStop>0?'Pointage à effectuer : '+d.pendingAtStop+' élève(s)':'Pointage terminé'+(d.openAlerts?' · Alerte à traiter':' · Arrêt sécurisé (démo)'))+'</small></div><span class="safety-status-mark" aria-hidden="true">'+icon('check')+'</span>':
+  '<div><strong>Trajet en cours (démo)</strong><small>Prochaine arrivée à confirmer en simulation</small></div><span class="safety-status-mark" aria-hidden="true">'+icon('route')+'</span>')+
+ '</div></div></section>'+
  '<div class="dashboard-actions" aria-label="Actions rapides">'+
  button(icon('play')+'<span>DÉMARRER LA COURSE</span>','start_demo_trip','','primary dash-action',!d.canStart)+
  button(icon('refresh')+'<span>NOUVELLE TOURNÉE</span>','new_demo_trip','','light dash-action',d.status!=='completed')+
- button(icon('pin')+'<span>ARRÊT ATTEINT</span>','simulate_arrival','','warn dash-action',!d.canSimulateArrival)+
+ button(icon('pin')+'<span>ARRÊT ATTEINT</span>',attention.pointagePending?'go_students':'simulate_arrival','','warn dash-action'+(attention.pointagePending?' pointage-direct':''),!(d.canSimulateArrival||attention.pointagePending))+
  button(icon('flag')+'<span>CLÔTURER LA COURSE</span>','go_closing','','light dash-action',!d.canOpenClosing)+
  '</div></section>';
 }
