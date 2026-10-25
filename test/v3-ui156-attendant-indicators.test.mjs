@@ -45,15 +45,13 @@ test('UI156: both bubbles have driver-size labels, numbers, arrows and no subtex
  assert.doesNotMatch(page,/Accès au pointage|Accès à l.itinéraire/);
  assert.doesNotMatch(page,/indicator-pending|indicator-pulse|indicator-new-stop/);
 });
-test('UI156: new active stop highlights both indicators, and only pending pupils stay highlighted',()=>{
- const h=makeUI();start(h);arrive(h);h.click('back_tour');
+test('UI156/UI158: first arrival highlights counters, then pending remains steady',()=>{
+ const h=makeUI();h.click('demo_prepare_departure');h.click('start_demo_trip');h.click('simulate_arrival');
  let page=h.html();
  assert.match(page,/hero-stat indicator-pending indicator-pulse/);
  assert.match(page,/hero-stat indicator-new-stop/);
- assert.match(page,/1 pointage\(s\) attendu\(s\)/);
  h.click('go_stops');h.click('back_tour');
- page=h.html();
- assert.match(page,/hero-stat indicator-pending/);
+ page=h.html();assert.match(page,/hero-stat indicator-pending/);
  assert.doesNotMatch(page,/indicator-pulse|indicator-new-stop/);
 });
 test('UI156: the pupil bubble leads directly to active-stop pointage in one navigation',()=>{
@@ -76,14 +74,13 @@ test('UI156: completing pointage removes student highlight, without changing sto
  assert.match(page,/ÉLÈVES À BORD<\/span><strong>1<\/strong>/);
  assert.match(page,/ARRÊTS ATTEINTS<\/span><strong>1\/3<\/strong>/);
 });
-test('UI156: a later confirmed stop produces a new pulse and the next assigned pupil only',()=>{
- const h=makeUI();start(h);arrive(h);
- h.click('board','E-01');h.click('simulate_driver_resume');arrive(h);h.click('back_tour');
+test('UI156/UI158: following arrival again highlights only the next pupil',()=>{
+ const h=makeUI();h.click('demo_prepare_departure');h.click('start_demo_trip');h.click('simulate_arrival');
+ h.click('go_students');h.click('board','E-01');h.click('simulate_arrival');
  assert.match(h.html(),/hero-stat indicator-pending indicator-pulse/);
  assert.match(h.html(),/hero-stat indicator-new-stop/);
  h.click('go_students');
- const page=h.html();
- assert.match(page,/data-action="board" data-arg="E-02"/);
+ const page=h.html();assert.match(page,/data-action="board" data-arg="E-02"/);
  assert.doesNotMatch(page,/data-action="board" data-arg="E-01"/);
 });
 test('UI156: after last student action indicators become steady again, route bubble navigates',()=>{
