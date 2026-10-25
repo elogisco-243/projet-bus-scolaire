@@ -478,3 +478,41 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .dashboard-actions button:enabled{outline:2px solid Highlight;outline-offset:-2px}
  .dashboard-actions button:disabled{color:GrayText;outline:1px solid GrayText}
 }
+
+/* UI-159: one coherent visual state machine for all four Chauffeur-style tiles.
+   Disabled is gray, enabled actions have a saturated contrast-safe color. */
+.dashboard-actions .dash-action:disabled{
+ opacity:1!important;
+ background:#eceaef!important;
+ color:#726e7b!important;
+ border:1px solid #d7d3dd!important;
+ cursor:not-allowed;
+}
+.dashboard-actions .dash-action:disabled .ui-icon{opacity:.65}
+.dashboard-actions .dash-action.primary:not(:disabled){
+ background:linear-gradient(125deg,#7228cd,#5e1bad)!important;
+ color:#fff!important;
+ border:1px solid #5e1bad;
+}
+.dashboard-actions .dash-action.warn:not(:disabled){
+ background:#ffd65b!important;
+ color:#422250!important;
+ border:1px solid #c99a2c;
+}
+.dashboard-actions .dash-action.light:not(:disabled){
+ background:#ede5fb!important;
+ color:#42206a!important;
+ border:1px solid #8860b0;
+}
+/* Override old unconditional fourth-tile gray without changing its label. */
+.dashboard-actions .dash-action:nth-child(4):not(:disabled){
+ background:#ede5fb!important;
+ color:#42206a!important;
+}
+.dashboard-actions .dash-action:not(:disabled):focus-visible{
+ outline:3px solid #ffd65b;outline-offset:2px;
+}
+@media(forced-colors:active){
+ .dashboard-actions .dash-action:disabled{color:GrayText!important;border-color:GrayText!important}
+ .dashboard-actions .dash-action:not(:disabled){color:ButtonText!important;border-color:ButtonText!important}
+}
