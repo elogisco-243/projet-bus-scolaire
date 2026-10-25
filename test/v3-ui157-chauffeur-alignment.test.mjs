@@ -73,34 +73,24 @@ test('UI157: exact bottom navigation and pupils bubble remains single pointage e
  assert.doesNotMatch(page,/Accès au pointage|Accès à l.itinéraire/);
  h.click('go_students');assert.match(h.html(),/<h1>Élèves à bord<\/h1>/);
 });
-test('UI157: start tile opens a safe preparation subpage, not real driver privilege',()=>{
+test('UI157/UI158: start tile follows Chauffeur switch without wizard',()=>{
  const h=create();
- h.click('go_start');
- assert.match(h.html(),/<h1>Démarrer la course<\/h1>/);
- assert.match(h.html(),/départ réel reste validé par le Chauffeur/);
- assert.match(h.html(),/Étape 1\/3/);
+ assert.match(h.html(),/data-action="start_demo_trip"[^>]*disabled/);
+ h.click('demo_prepare_departure');
  h.click('start_demo_trip');
- assert.match(h.html(),/Action refusée/);
- assert.match(h.html(),/Départ bloqué/);
+ assert.match(h.html(),/trip-state state-running/);
+ assert.doesNotMatch(h.html(),/<h1>Démarrer la course<\/h1>/);
 });
-test('UI157: Arrêt atteint tile opens an explanation, only explicit synthetic arrival updates counter',()=>{
- const h=create();startDemo(h);
- h.click('go_arrival');
- assert.match(h.html(),/<h1>Arrêt atteint<\/h1>/);
- assert.match(h.html(),/Seul le Chauffeur valide une arrivée réelle/);
- assert.match(h.html(),/Simuler arrivée Chauffeur/);
- h.click('simulate_arrival');
- assert.match(h.html(),/Arrêt actif/);
- h.click('back_tour');
- assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>1\/3<\/strong>/);
+test('UI157/UI158: Arrêt atteint is a direct DEMO action with correct counter',()=>{
+ const h=create();h.click('demo_prepare_departure');h.click('start_demo_trip');h.click('simulate_arrival');
+ assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
+ assert.match(h.html(),/hero-stat indicator-pending/);
+ assert.doesNotMatch(h.html(),/<h1>Arrêt atteint<\/h1>/);
 });
-test('UI157: New trip tile cannot erase incomplete trip or silently issue new assignment',()=>{
- const h=create();startDemo(h);
- h.click('go_new_trip');
- assert.match(h.html(),/nouvelle tournée réelle doit être affectée par la supervision/i);
+test('UI157/UI158: New trip cannot erase unfinished simulation',()=>{
+ const h=create();h.click('demo_prepare_departure');h.click('start_demo_trip');
  assert.match(h.html(),/data-action="new_demo_trip"[^>]*disabled/);
  h.click('new_demo_trip');
- assert.match(h.html(),/Action refusée/);
  assert.match(h.html(),/TRIP_NOT_COMPLETED/);
 });
 test('UI157: Plus contains journal, announcements and demo-only simulated sync',()=>{
@@ -112,24 +102,16 @@ test('UI157: Plus contains journal, announcements and demo-only simulated sync',
  assert.match(h.html(),/Sans serveur réel/);
  assert.match(h.html(),/Événements transmis<\/span><strong>0/);
 });
-test('UI157: closures remain safe and role authorization never controls vehicles',()=>{
- const h=create();h.click('go_closing');
- assert.match(h.html(),/Clôture de la tournée/);
- assert.match(h.html(),/Inspection finale du bus/);
- assert.match(h.html(),/data-action="finish_demo_trip"[^>]*disabled/);
+test('UI157/UI158: closure guarded by pupils, stops and final inspection',()=>{
+ const h=create();
+ assert.match(h.html(),/data-action="go_closing"[^>]*disabled/);
+ assert.throws(()=>runAttendantDemo(makeAttendantDemo(),'demo_confirm_empty_and_finish'),/TRIP_NOT_ACTIVE/);
  assert.throws(()=>runAttendantDemo(makeAttendantDemo(),'assign_vehicle'),/ACTION_DENIED/);
 });
-
-test('UI157: preparatory flow can complete readiness without returning to another tab',()=>{
+test('UI157/UI158: a single readiness switch enables direct departure',()=>{
  const h=create();
- h.click('go_start');
- h.click('confirm_presence');
- h.click('simulate_driver_secure');
- assert.match(h.html(),/Activer Prêt au départ \(démo\)/);
- h.click('toggle_ready');
- assert.match(h.html(),/Prêt au départ/);
- h.click('start_demo_trip');
- assert.match(h.html(),/trip-state state-running">● EN COURS/);
+ h.click('demo_prepare_departure');assert.match(h.html(),/aria-checked="true"/);
+ h.click('start_demo_trip');assert.match(h.html(),/trip-state state-running/);
 });
 test('UI157: compact portrait styling keeps four actions two-by-two and nav anchored',()=>{
  assert.match(css,/\.dashboard-actions\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
