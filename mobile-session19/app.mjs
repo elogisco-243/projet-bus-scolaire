@@ -44,7 +44,7 @@ const DRIVER_APK_ICONS=Object.freeze({
  more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>'
 });
 const icon=(id,cl='')=>'<svg class="ui-icon '+cl+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(DRIVER_APK_ICONS[id]||iconPaths[id]||iconPaths.check)+'</svg>';
-const button=(label,action,arg='',kind='light',disabled=false)=>'<button type="button" class="'+kind+'" data-action="'+action+'" data-arg="'+escapeHTML(arg)+'" '+(disabled?'disabled aria-disabled="true" title="Action indisponible à cette étape"':'')+'>'+label+'</button>';
+const button=(label,action,arg='',kind='light',disabled=false)=>'<button type="button" class="'+kind+'" data-action="'+action+'" data-arg="'+escapeHTML(arg)+'" '+(disabled?'disabled aria-disabled="true" title="Action indisponible à cette étape"':kind.includes('pointage-direct')?'title="Arrêt enregistré — ouvrir le pointage des élèves" aria-label="Arrêt atteint — ouvrir le pointage des élèves"':'')+'>'+label+'</button>';
 
 const eventLabel=e=>{
  if(e.type.startsWith('incident_resolved_'))return 'Incident traité (démo)';
