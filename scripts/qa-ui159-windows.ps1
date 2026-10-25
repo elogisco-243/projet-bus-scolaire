@@ -54,8 +54,10 @@ $ErrorActionPreference = "Stop"
     $Badging = & $Aapt dump badging $Apk
     if ($LASTEXITCODE -ne 0) { throw "Lecture manifeste impossible" }
     $Identity = $Badging | Select-String "^package:" | Select-Object -First 1
-    if (-not $Identity -or $Identity.ToString() -notmatch "name='([^']+)'") { throw "Package APK illisible" }
-    $ActualPackage = $Matches[1]
+    if (-not $Identity) { throw "Package APK illisible" }
+    if ($Identity.ToString() -match "name='([^']+)'") {
+       $ActualPackage = $Matches[1]
+    } else { throw "Package APK illisible" }
     if ($ActualPackage -ne $Package) { throw "Application non autorisee : $ActualPackage" }
     $Adb = "$Sdk\platform-tools\adb.exe"
     $Serial = $null
