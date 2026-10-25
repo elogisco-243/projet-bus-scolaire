@@ -67,6 +67,9 @@ export function attendantSummary(s){
   atStop:s.atStop,pendingAtStop:pendingAtStop(s),openAlerts:openAlerts(s),
   ready:s.ready,driverSecured:s.driverSecured,
   canToggleReady:s.trip.status==='planned'&&s.presence&&s.driverSecured,
+  canDemoPrepare:s.trip.status==='planned',
+  canOpenClosing:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured&&
+   s.stops.every(p=>p.reached)&&unaccounted(s)===0&&count(s)===0&&openAlerts(s)===0,
   canStart:s.trip.status==='planned'&&s.presence&&s.driverSecured&&s.ready&&openAlerts(s)===0,
   canReportIncidents:s.trip.status==='in_progress'&&s.atStop&&s.driverSecured,
   canSimulateArrival:s.trip.status==='in_progress'&&!s.atStop&&!!nextStop(s),
@@ -79,6 +82,28 @@ export function attendantSummary(s){
 export function runAttendantDemo(state,action,{studentId=null,incident=null,incidentId=null,reason=null}={}){
  const s=clone(state);
  if(!s||s.mode!=='demo'||s.session?.mode!=='demo')throw Error('DEMO_ONLY');
+ // UI-158: one explicit readiness switch replaces three fictitious setup commands.
+ // Isolated DEMO: records synthetic preparation only, NEVER a real Chauffeur approval.
+ if(action==='demo_prepare_departure'){
+  if(s.trip.status!=='planned')throw Error('TRIP_NOT_PLANNED');
+  if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
+  if(s.ready){s.ready=false;return write(s,'demo_ready_cancelled');}
+  s.presence=true;s.driverSecured=true;s.ready=true;
+  return write(s,'synthetic_joint_preparation_demo_only');
+ }
+ // A single explicit final inspection confirmation replaces duplicate closing steps.
+ if(action==='demo_confirm_empty_and_finish'){
+  if(s.trip.status!=='in_progress')throw Error('TRIP_NOT_ACTIVE');
+  requireActiveStop(s);
+  if(s.stops.some(p=>!p.reached))throw Error('ROUTE_NOT_COMPLETED');
+  if(unaccounted(s)!==0)throw Error('STUDENTS_NOT_RECONCILED');
+  if(count(s)!==0)throw Error('CHILDREN_REMAIN');
+  if(openAlerts(s)!==0)throw Error('OPEN_INCIDENTS');
+  if(s.events.some(e=>e.type==='empty_bus_confirmed'))throw Error('ALREADY_CONFIRMED');
+  write(s,'empty_bus_confirmed');
+  if(!attendantClosingChecklist(s).every(x=>x.ok))throw Error('FINISH_BLOCKED');
+  s.trip.status='completed';return write(s,'synthetic_trip_finished');
+ }
  if(action==='confirm_presence'){
   ensure(s,'confirm_presence');if(s.presence)throw Error('ALREADY_CONFIRMED');
   s.presence=true;return write(s,'presence_confirmed');
