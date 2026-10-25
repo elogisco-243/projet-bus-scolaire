@@ -27,6 +27,7 @@ $ErrorActionPreference = "Stop"
       ".\test\v3-ui157-chauffeur-alignment.test.mjs",
       ".\test\v3-ui158-simple-driver-flow.test.mjs",
       ".\test\v3-ui159-side-by-side-safety.test.mjs",
+      ".\test\v3-ui159-adversarial-invariants.test.mjs",
       ".\frontend\test\domain.test.mjs"
     )
     foreach ($File in $Tests) { if (-not (Test-Path $File)) { throw "Test absent : $File" } }
