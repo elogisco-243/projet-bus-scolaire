@@ -35,7 +35,7 @@ test('UI155: all preparation steps available from Ma tournée without switching 
  h.click('simulate_driver_secure');assert.match(h.html(),/Activez le switch/);
  h.click('back_tour');h.click('toggle_ready');assert.match(h.html(),/aria-checked="true"/);
  h.click('go_start');
- h.click('start_demo_trip');assert.match(h.html(),/Simuler arrivée à l’arrêt/);
+ h.click('start_demo_trip');h.click('go_arrival');assert.match(h.html(),/Simuler arrivée Chauffeur/);
 });
 test('UI155: one arrival opens stop-specific pointage and the right pupils',()=>{
  const h=create();
