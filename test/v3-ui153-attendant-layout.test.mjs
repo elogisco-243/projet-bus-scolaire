@@ -14,7 +14,7 @@ test('UI153: dashboard mirrors photographed Driver v1.7 composition',()=>{
  for(const c of ['tour-hero','tour-heading','next-stop','hero-stats','hero-info','dashboard-actions','bottom']){
   assert.ok(ui.includes(c),c+' must be present in dashboard');
  }
- assert.equal((ui.match(/dash-action'\)/g)||[]).length,4,'exactly four primary tiles');
+ assert.equal((ui.match(/dash-action/g)||[]).length,4,'exactly four primary tiles');
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
 });
 test('UI153: viewport sections do not overlay navigation',()=>{
