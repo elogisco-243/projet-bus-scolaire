@@ -29,7 +29,7 @@ const iconPaths={
  book:'<path d="M12 7c-3-2-6-2-9-1v13c3-1 6-1 9 1 3-2 6-2 9-1V6c-3-1-6-1-9 1Zm0 0v13"/>'
 };
 const icon=(id,cl='')=>'<svg class="ui-icon '+cl+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(iconPaths[id]||iconPaths.check)+'</svg>';
-const button=(label,action,arg='',kind='light',disabled=false)=>'<button type="button" class="'+kind+'" data-action="'+action+'" data-arg="'+escapeHTML(arg)+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
+const button=(label,action,arg='',kind='light',disabled=false)=>'<button type="button" class="'+kind+'" data-action="'+action+'" data-arg="'+escapeHTML(arg)+'" '+(disabled?'disabled aria-disabled="true" title="Action indisponible à cette étape"':'')+'>'+label+'</button>';
 
 const eventLabel=e=>{
  if(e.type.startsWith('incident_resolved_'))return 'Incident traité (démo)';
@@ -234,7 +234,25 @@ root.addEventListener('click',e=>{
     {studentId:target.dataset.arg};
    state=runAttendantDemo(state,actual,args);
    if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'||action==='demo_confirm_empty_and_finish'){tab='tour';view='dashboard';}
-   if(action==='simulate_arrival'){stopPulseWaitingFor=attendantSummary(state).activeStopId;tab='tour';view='dashboard';}
+   if(action==='simulate_arrival'){
+    const arrived=attendantSummary(state);
+    stopPulseWaitingFor=arrived.activeStopId;
+    // In DEMO only: an intermediate stop without scheduled pupils can continue
+    // after the synthetic standstill; closing/critical incidents remain guarded.
+    if(arrived.pendingAtStop===0&&arrived.canResume){
+     state=runAttendantDemo(state,'simulate_driver_resume');
+    }
+    tab='tour';view='dashboard';
+   }
+   if(action==='resolve_incident'){
+    const safe=attendantSummary(state);
+    // A critical incident blocks resume until explicitly resolved.
+    // Only the simulated trip (never a real vehicle) resumes after resolution.
+    if(safe.canResume){
+     state=runAttendantDemo(state,'simulate_driver_resume');
+     tab='tour';view='dashboard';
+    }
+   }
    if(action==='board'||action==='alight'||action==='mark_absent'){
     const latest=attendantSummary(state);
     if(latest.atStop&&latest.pendingAtStop===0){
