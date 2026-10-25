@@ -21,7 +21,12 @@ const iconPaths={
  speaker:'<path d="M3 9v6h4l5 4V5L7 9H3Zm13-1a5 5 0 0 1 0 8"/>',
  back:'<path d="m14 6-6 6 6 6"/>',
  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l-2 2-1.7-.7a1.7 1.7 0 0 0-1.6.5L14 21H10l-.4-2.3a1.7 1.7 0 0 0-1.6-.5l-1.7.7-2-2A1.7 1.7 0 0 0 4.6 15L3 14v-4l1.6-1a1.7 1.7 0 0 0-.3-1.9l2-2 1.7.7a1.7 1.7 0 0 0 1.6-.5L10 3h4l.4 2.3a1.7 1.7 0 0 0 1.6.5l1.7-.7 2 2a1.7 1.7 0 0 0-.3 1.9l1.6 1v4Z"/>',
- play:'<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/>'
+ play:'<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/>',
+ wifi:'<path d="M2 8a15 15 0 0 1 20 0M5 11a10 10 0 0 1 14 0M8.5 14.5a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/>',
+ refresh:'<path d="M20 11a8 8 0 1 0-2.3 6M20 4v7h-7"/>',
+ flag:'<path d="M5 21V4m0 1c5-4 9 4 14 0v11c-5 4-9-4-14 0"/>',
+ more:'<circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/>',
+ book:'<path d="M12 7c-3-2-6-2-9-1v13c3-1 6-1 9 1 3-2 6-2 9-1V6c-3-1-6-1-9 1Zm0 0v13"/>'
 };
 const icon=(id,cl='')=>'<svg class="ui-icon '+cl+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(iconPaths[id]||iconPaths.check)+'</svg>';
 const button=(label,action,arg='',kind='light',disabled=false)=>'<button type="button" class="'+kind+'" data-action="'+action+'" data-arg="'+escapeHTML(arg)+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
@@ -81,6 +86,9 @@ function workflowPanel(d){
  (action?button(escapeHTML(label),action,'','workflow-cta'):'')+'</section>';
 }
 function tourSubpage(d){
+ if(view==='start')return '<section class="card sub-page">'+back()+'<h1>Démarrer la course</h1><p class="hint">Accompagnateur · démonstration locale : le départ réel reste validé par le Chauffeur. Aucune commande du véhicule.</p>'+workflowPanel(d)+(d.status==='planned'?'<p class="hint">Une fois les vérifications réalisées, activez le switch de préparation sur Ma tournée.</p>'+button('Voir le switch de préparation','back_tour','','light full'):'')+'</section>';
+ if(view==='arrival')return '<section class="card sub-page">'+back()+'<h1>Arrêt atteint</h1><p class="hint">Seul le Chauffeur valide une arrivée réelle. La commande ci-dessous simule un signal Chauffeur sur cet appareil de test.</p>'+button(icon('pin')+' Simuler arrivée Chauffeur','simulate_arrival','','warn full',!d.canSimulateArrival)+(d.atStop?'<p class="hint">Arrêt déjà actif. Touchez « Élèves à bord » pour le pointage.</p>'+button('Voir les élèves','go_students','','light full'):'')+'</section>';
+ if(view==='new_trip')return '<section class="card sub-page">'+back()+'<h1>Nouvelle tournée</h1><p class="hint">Une nouvelle tournée réelle doit être affectée par la supervision. Ici, seule une nouvelle simulation fictive est possible après clôture.</p>'+button('Nouvelle simulation locale','new_demo_trip','','primary full',d.status!=='completed')+'</section>';
  if(view==='students')return '<section class="card sub-page">'+back()+'<h1>Élèves à bord</h1><p class="hint">Liste fictive : élèves affectés au véhicule et états du pointage.</p>'+
  state.students.map(p=>'<div class="line"><strong>'+escapeHTML(p.id)+'</strong><span>'+
  (p.absent?'Absent':p.alighted?'Descendu':p.boarded?'À bord':'En attente')+'</span></div>').join('')+
@@ -123,8 +131,8 @@ function indicatorAttention(d){
 function tourDashboard(d,started,done){
  const attention=indicatorAttention(d);
  return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"><section class="card tour-hero">'+
- '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state">'+
- (started?'● EN COURS':done?'✓ TERMINÉE':'○ À PRÉPARER')+'</span><span class="network-icon" title="Réseau fictif">⌁</span></div></div>'+
+ '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state '+(started?'state-running':done?'state-complete':'state-preparing')+'">'+
+ (started?'● EN COURS':done?'✓ TERMINÉE':'À PRÉPARER')+'</span><span class="network-icon '+(d.network==='simulated-online'?'wifi-online':'wifi-offline')+'" role="img" aria-label="'+(d.network==='simulated-online'?'Wi-Fi simulé actif — sans serveur réel':'Wi-Fi simulé inactif — sans serveur réel')+'" title="Wi-Fi simulé, aucune connexion serveur">'+icon('wifi')+'</span></div></div>'+
  '<div class="next-stop"><div><span class="hero-label">PROCHAIN ARRÊT</span><strong>'+escapeHTML(d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
  activeAlertBanner()+
  '<div class="hero-stats">'+
@@ -137,11 +145,11 @@ function tourDashboard(d,started,done){
  (d.driverSecured?'Confirmation Chauffeur fictive':'Confirmation Chauffeur fictive requise')+'</small></div>'+
  '<button type="button" role="switch" aria-label="Prêt au départ (simulation)" aria-checked="'+d.ready+'" class="safety-switch '+(d.ready?'on':'')+'" data-action="toggle_ready" '+(!d.canToggleReady?'disabled':'')+'><span></span></button></div></div></section>'+
  '<div class="dashboard-actions" aria-label="Actions rapides">'+
- button(icon('check')+'<span>POINTAGE DES ÉLÈVES</span>','go_boarding','','primary dash-action')+
- button(icon('shield')+'<span>VALIDATION CROISÉE</span>','go_team','','light dash-action')+
- button(icon('alert')+'<span>SIGNALER UN INCIDENT</span>','go_alerts','','warn dash-action')+
- button(icon('route')+'<span>SUIVI DE TOURNÉE</span>','go_followup','','light dash-action')+
- '</div>'+workflowPanel(d)+'</section>';
+ button(icon('play')+'<span>DÉMARRER LA COURSE</span>','go_start','','primary dash-action')+
+ button(icon('refresh')+'<span>NOUVELLE TOURNÉE</span>','go_new_trip','','light dash-action')+
+ button(icon('pin')+'<span>ARRÊT ATTEINT</span>','go_arrival','','warn dash-action')+
+ button(icon('flag')+'<span>CLÔTURER LA COURSE</span>','go_closing','','light dash-action')+
+ '</div></section>';
 }
 function pointagePage(d){
  const here=state.students.filter(p=>d.atStop&&(p.pickupStopId===d.activeStopId||(p.dropoffStopId===d.activeStopId&&p.boarded&&!p.alighted)));
@@ -182,18 +190,31 @@ function teamPage(d,done){
  '<section class="card"><h2>Session</h2><div class="line"><span>Environnement</span><strong>DÉMO</strong></div><p class="hint">Aucune synchronisation distante, même si le réseau simulé est connecté.</p>'+
  button('Simuler coupure / retour réseau','network','','light full')+button('Réinitialiser la simulation','reset','','light full')+'</section>';
 }
+function morePage(d){
+ if(view==='journal')return tourSubpage(d);
+ if(view==='voice')return '<section class="card sub-page">'+back()+'<h1>Annonces vocales</h1><p class="hint">Synthèse vocale indisponible dans cette démonstration isolée. Aucune annonce n’est envoyée.</p>'+button('Écouter le prochain arrêt (indisponible)','noop','','light full',true)+'</section>';
+ if(view==='sync')return '<section class="card sub-page">'+back()+'<h1>Connexion et synchronisation</h1><p class="hint">DEMO — Sans serveur réel. La connexion Wi-Fi affichée sur Ma tournée est exclusivement simulée.</p>'+
+ '<div class="line"><span>Réseau simulé</span><strong>'+(d.network==='simulated-online'?'Actif':'Inactif')+'</strong></div>'+
+ '<div class="line"><span>Événements transmis</span><strong>0</strong></div>'+
+ button('Simuler coupure / retour Wi-Fi','network','','light full')+
+ button('Réinitialiser cette démo','reset','','subtle full')+'</section>';
+ return '<section class="card more-tools"><h1>Outils</h1>'+
+ button(icon('book')+' Journal des tournées','go_journal','','light full')+
+ button(icon('speaker')+' Annonces vocales','go_voice','','light full')+
+ button(icon('refresh')+' Connexion et synchronisation','go_sync','','light full')+'</section>';
+}
 function content(){
  const d=attendantSummary(state),started=d.status==='in_progress',done=d.status==='completed';
  if(tab==='tour'&&view!=='dashboard')return tourSubpage(d);
  if(tab==='tour')return tourDashboard(d,started,done);
- if(tab==='boarding')return pointagePage(d);
  if(tab==='alerts')return alertPage(d);
- return teamPage(d,done);
+ if(tab==='team')return teamPage(d,done);
+ return morePage(d);
 }
-const navEntries=[['tour','▣','Ma tournée'],['alerts','⚠','Alertes'],['boarding','☑','Pointage'],['team','♧','Équipe']];
-const navIcon={tour:'bus',alerts:'alert',boarding:'check',team:'team'};
+const navEntries=[['tour','▣','Ma tournée'],['alerts','⚠','Alertes'],['team','♧','Équipe'],['more','•••','Plus']];
+const navIcon={tour:'bus',alerts:'alert',team:'team',more:'more'};
 function render(){
- const tabLabel={tour:'Ma tournée',boarding:'Pointage',alerts:'Alertes',team:'Équipe'};
+ const tabLabel={tour:'Ma tournée',alerts:'Alertes',team:'Équipe',more:'Plus'};
  root.innerHTML='<div class="app"><header class="head"><div class="brand"><div class="brand-left">'+
  '<span class="brand-mark" role="img" aria-label="Logo officiel A2S Scola">▣</span>'+
  '<div><div class="brand-name">A2S Scola</div><div class="brand-sub">Profil Accompagnateur · Démo</div></div></div>'+
@@ -215,14 +236,22 @@ root.addEventListener('click',e=>{
  const action=target.dataset.action;if(!action)return;
  try{
   if(action==='go_boarding'||action==='go_alerts'||action==='go_team'){
-   tab=action==='go_boarding'?'boarding':action==='go_alerts'?'alerts':'team';view='dashboard';
+   tab=action==='go_boarding'?'tour':action==='go_alerts'?'alerts':'team';view=action==='go_boarding'?'students':'dashboard';
    if(action==='go_team')message='Validation croisée réelle indisponible : équipe fictive uniquement.';
   }else if(action==='go_followup'||action==='go_students'||action==='go_stops'){
    tab='tour';view=action==='go_followup'?'followup':action==='go_students'?'students':'stops';
-  }else if(action==='go_closing'){tab='tour';view='closing';}
+  }else if(action==='go_start'||action==='go_arrival'||action==='go_new_trip'||action==='go_closing'){
+   tab='tour';view=action==='go_start'?'start':action==='go_arrival'?'arrival':action==='go_new_trip'?'new_trip':'closing';
+  }else if(action==='go_journal'||action==='go_voice'||action==='go_sync'){
+   tab='more';view=action==='go_journal'?'journal':action==='go_voice'?'voice':'sync';
+  }
   else if(action==='back_tour'){tab='tour';view='dashboard';}
   else if(action==='reset'){state=makeAttendantDemo();tab='tour';view='dashboard';pointagePulseSeenAt=null;stopPulseWaitingFor=null;}
   else if(action==='network')state=runAttendantDemo(state,state.network==='simulated-online'?'simulate_network_loss':'simulate_network_return');
+  else if(action==='new_demo_trip'){
+   if(state.trip.status!=='completed')throw Error('TRIP_NOT_COMPLETED');
+   state=makeAttendantDemo();tab='tour';view='dashboard';pointagePulseSeenAt=null;stopPulseWaitingFor=null;
+  }
   else{
    const actual=action==='incident'?'report_incident':action;
    const args=action==='incident'?{incident:target.dataset.arg}:
@@ -231,7 +260,7 @@ root.addEventListener('click',e=>{
     {studentId:target.dataset.arg};
    state=runAttendantDemo(state,actual,args);
    if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'){tab='tour';view='dashboard';}
-   if(action==='simulate_arrival'){stopPulseWaitingFor=attendantSummary(state).activeStopId;tab='boarding';view='dashboard';}
+   if(action==='simulate_arrival'){stopPulseWaitingFor=attendantSummary(state).activeStopId;tab='tour';view='students';}
   }
  }catch(err){message='Action refusée : '+(friendlyErrors[err.message]||err.message);}
  render();
