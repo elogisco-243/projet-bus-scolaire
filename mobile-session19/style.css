@@ -516,3 +516,80 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .dashboard-actions .dash-action:disabled{color:GrayText!important;border-color:GrayText!important}
  .dashboard-actions .dash-action:not(:disabled){color:ButtonText!important;border-color:ButtonText!important}
 }
+
+/* UI-160 — measured from supplied Chauffeur v1.7 UI-145 APK.
+   Source: theme.css UI-132 and ui-136.css; driver APK remains untouched. */
+.next-stop-info{min-width:0;flex:1 1 0;overflow:hidden}
+.next-stop .next-stop-info strong{
+ color:#ffe48a!important;
+ font-size:clamp(22px,6vw,29px)!important;
+ line-height:1.15!important;
+ font-weight:800!important;
+ margin-top:5px;
+ letter-spacing:normal;
+ overflow-wrap:normal;
+}
+.next-stop .hero-label{color:#dac9f5;font-size:11px;font-weight:700;letter-spacing:.055em}
+.bottom .nav-icon .ui-icon{width:25px!important;height:25px!important;stroke-width:2}
+.dashboard-actions .dash-action .ui-icon{width:26px!important;height:26px!important;flex:0 0 26px}
+.dashboard-actions .dash-action span{
+ font-size:clamp(12px,3.25vw,14px)!important;
+ font-weight:800;line-height:1.15;
+ letter-spacing:0;
+}
+.dashboard-actions{gap:8px}
+.dashboard-actions .dash-action{
+ min-width:0;
+ height:clamp(78px,10.5dvh,92px);
+ min-height:clamp(78px,10.5dvh,92px);
+ padding:6px 5px!important;
+ gap:4px;box-sizing:border-box;
+}
+.network-icon{height:30px;width:30px;flex-basis:30px}
+.network-icon .ui-icon{width:18px;height:18px}
+.network-icon.wifi-online{color:#4ade80;background:rgba(74,222,128,.15)}
+.network-icon.wifi-offline{color:#fca5a5;background:rgba(252,165,165,.15)}
+.trip-state.state-running{color:#69f7b2;background:#07583e;border-color:#26d98c}
+.trip-state.state-preparing{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.18)}
+.trip-state.state-complete{background:#e4e4e7;color:#41414b;border-color:#e4e4e7}
+.dashboard-actions .dash-action.primary:not(:disabled){
+ background:#210958!important;color:#fff!important;border:1px solid #210958!important;
+}
+.dashboard-actions .dash-action.warn:not(:disabled){
+ background:#f5bd20!important;color:#211810!important;border:1px solid #e6ae18!important;
+}
+.dashboard-actions .dash-action.light:not(:disabled){
+ background:#ede6ff!important;color:#210958!important;border:1px solid #c2adee!important;
+}
+.dashboard-actions .dash-action:nth-child(4):not(:disabled){
+ background:#e6def4!important;color:#210958!important;border:1px solid #a997c9!important;
+}
+.dashboard-actions .dash-action:disabled{
+ background:#eceaef!important;color:#726e7b!important;border:1px solid #d7d3dd!important;
+ opacity:1!important;
+}
+@media(max-width:480px){
+ .next-stop .next-stop-info strong{
+  display:block;width:100%;max-width:100%;
+  color:#ffe48a!important;
+  font-size:clamp(16px,4vw,20px)!important;
+  font-weight:800;line-height:1.2!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ }
+ .next-stop{padding:10px 12px}
+ .dashboard-actions .dash-action{height:clamp(78px,10.5dvh,92px);min-height:clamp(78px,10.5dvh,92px)}
+}
+@media(max-width:480px) and (max-height:740px){
+ .dashboard-actions .dash-action{
+  height:clamp(68px,9.6dvh,78px)!important;
+  min-height:clamp(68px,9.6dvh,78px)!important;
+  gap:3px;padding:4px 4px!important;
+ }
+ .dashboard-actions .dash-action .ui-icon{
+  width:23px!important;height:23px!important;flex-basis:23px!important;
+ }
+ .dashboard-actions .dash-action span{font-size:clamp(11px,3vw,13px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .next-stop strong{animation:none!important}
+}
