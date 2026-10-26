@@ -109,11 +109,15 @@ Cela confirme l'observation humaine d'une propagation de la décision sur les de
 
 **Validé par l'utilisateur.** Après avoir reçu le scénario de démonstration « enfant manquant » à l'arrêt fictif Dépôt, le blocage du feu vert Accompagnateur et de la reprise Chauffeur, la résolution simulée par le Superviseur et le renouvellement explicite du feu vert, l'utilisateur a répondu « Confirmé ». La confirmation concerne exclusivement le comportement de la tournée fictive sur le serveur local.
 
-**Bilan provisoire : 4 scénarios manuels validés sur 4 proposés successivement** (approbation, refus, absence Parent, incident critique).
+### Test 5 — remise encadrée simulée
 
-**Non encore confirmés par l'utilisateur** : annulation d'une demande en attente ; revue et remise simulée ; reprise réseau ; essais sur appareils distincts.
+**Validé par l'utilisateur.** Après le test de remise fictive E-01 à l'arrêt A, avec refus attendu avant revue du Superviseur, revue distincte du destinataire, remise ensuite enregistrée par l'Accompagnateur et état visible chez le Parent, l'utilisateur a répondu « Confirmé ». Le test ne constitue aucune vérification réelle d'identité, de badge, d'autorisation ou de remise physique.
 
-**Prochain essai — test 5, remise simulée encadrée :** après réinitialisation, Parent E-01 demande l'arrêt fictif A ; Superviseur approuve avant le pointage ; l'Accompagnateur fait monter E-01 au Dépôt, puis le Chauffeur atteint A. La tentative de remise avant revue Superviseur doit être refusée. Le Superviseur réalise une revue fictive du destinataire ; l'Accompagnateur enregistre ensuite la remise simulée. Le Parent doit voir la remise déclarée. Aucune identité ou aucun badge réel n'est vérifié.
+**Bilan provisoire : 5 scénarios manuels validés sur 5 proposés successivement** (approbation, refus, absence anticipée, incident critique, remise encadrée fictive).
+
+**Non encore confirmés par l'utilisateur** : annulation d'une demande Parent en attente ; reprise après déconnexion, essais entre navigateurs sur PC et émulateur Android, et synchronisation entre APK autonomes.
+
+**Prochain essai — test 6 : annulation Parent.** Réinitialiser la tournée fictive, préparer et démarrer la tournée, atteindre le Dépôt ; Parent E-01 demande le changement vers l'arrêt fictif A puis annule sa demande avant toute décision. Vérifier le statut « Annulée » chez le Parent et le Superviseur, et la destination d'origine inchangée chez l'Accompagnateur. Le Superviseur ne doit plus pouvoir approuver cette demande.
 
 ## Ce qui reste avant une synchronisation opérationnelle
 
