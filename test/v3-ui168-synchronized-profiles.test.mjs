@@ -186,7 +186,27 @@ test('UI168/HTTP10: Parent can cancel a pending request, leaving destination unt
  assert.equal((await state(h,a)).students[0].dropoffStopId,'STOP-03');
  assert.equal((await act(h,su,'review_change_demo',{requestId:id,demoPolicyApproved:true})).data.error,'REQUEST_NOT_PENDING');
 });
-test('UI168/HTTP11: CSS and browser app syntax pass node check',()=>{
+test('UI168/HTTP11: Parent changes and handover reviews stay blocked during a critical incident',async t=>{
+ const h=await openHub();t.after(h.close);
+ const a=await join(h,'accompagnateur'),d=await join(h,'chauffeur'),
+ p=await join(h,'parent'),su=await join(h,'superviseur');
+ await route(h,d,a);
+ const r=await ok(h,p,'request_change',{studentId:'E-01',toStopId:'STOP-02',recipientId:'PA-DEMO'});
+ await ok(h,d,'report_critical',{kind:'missing_child'});
+ const req=r.requests[0].id;
+ assert.equal((await act(h,su,'revalidate_change_demo',{requestId:req})).data.error,'CRITICAL_INCIDENT_OPEN');
+ assert.equal((await act(h,su,'review_change_demo',{requestId:req,demoPolicyApproved:true})).data.error,'CRITICAL_INCIDENT_OPEN');
+ const incident=(await state(h,su)).alerts[0];
+ await ok(h,su,'resolve_critical_demo',{incidentId:incident.id,demoResolutionConfirmed:true});
+ await ok(h,su,'revalidate_change_demo',{requestId:req});
+ await ok(h,su,'review_change_demo',{requestId:req,demoPolicyApproved:true});
+ await ok(h,a,'board',{studentId:'E-01'});
+ await ok(h,a,'clear_stop');await ok(h,d,'resume');
+ await ok(h,d,'arrive',{stopId:'STOP-02'});
+ await ok(h,d,'report_critical',{kind:'medical'});
+ assert.equal((await act(h,su,'review_handover_demo',{studentId:'E-01',recipientId:'PA-DEMO',demoRecipientAndPersonChecked:true})).data.error,'CRITICAL_INCIDENT_OPEN');
+});
+test('UI168/HTTP12: CSS and browser app syntax pass node check',()=>{
  for(const relative of ['../mobile-session21/demo-hub.mjs','../mobile-session21/demo-ui.mjs','../mobile-session21/coordination-demo.mjs']){
   const file=fileURLToPath(new URL(relative,import.meta.url));
   const check=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});
