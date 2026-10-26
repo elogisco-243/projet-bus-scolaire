@@ -290,7 +290,8 @@ root.addEventListener('click',e=>{
  try{
   if(action==='go_boarding'||action==='go_alerts'||action==='go_team'){
    tab=action==='go_boarding'?'tour':action==='go_alerts'?'alerts':'team';view=action==='go_boarding'?'students':'dashboard';
-   expressOpen=false;
+   expressOpen=action==='go_boarding'&&attendantSummary(state).atStop;
+   if(expressOpen)view='dashboard';
    if(action==='go_team')message='Validation croisée réelle indisponible : équipe fictive uniquement.';
   }else if(action==='go_followup'||action==='go_students'||action==='go_stops'){
    tab='tour';
@@ -299,7 +300,7 @@ root.addEventListener('click',e=>{
   }else if(action==='express_close'){expressOpen=false;view='dashboard';
   }else if(action==='express_filter'){expressFilter=target.dataset.arg||'all';expressOpen=true;
   }else if(action==='go_closing'){
-   tab='tour';view='closing';
+   expressOpen=false;tab='tour';view='closing';
   }else if(action==='go_journal'||action==='go_voice'||action==='go_sync'){
    tab='more';view=action==='go_journal'?'journal':action==='go_voice'?'voice':'sync';
   }
