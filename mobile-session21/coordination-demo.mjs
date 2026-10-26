@@ -175,6 +175,7 @@ export function viewCoordinationDemo(s,actorId){
  const role=ACTORS[actorId];
  const data={mode:'demo',role,tripId:s.tripId,status:s.status,revision:s.revision,
   stopId:s.stops[s.stopIndex]??null,parked:s.parked,
+  attendantReady:s.attendantReady,
   pendingAtStop:due(s).length,criticalAlerts:s.alerts.filter(x=>x.open).length,
   stopClearance:s.stopClearance};
  if(role==='parent')return {...data,children:s.students.filter(x=>x.parentId===actorId).map(x=>({
