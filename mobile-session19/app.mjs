@@ -120,7 +120,7 @@ function indicatorAttention(d){
 }
 function tourDashboard(d,started,done){
  const attention=indicatorAttention(d);
- return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"><section class="card tour-hero">'+
+ return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"'+(expressOpen?' inert aria-hidden="true"':'')+'><section class="card tour-hero">'+
  '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state '+(started?'state-running':done?'state-complete':'state-preparing')+'">'+
  (started?'● EN COURS':done?'✓ TERMINÉE':'À PRÉPARER')+'</span><span class="network-icon '+(d.network==='simulated-online'?'wifi-online':'wifi-offline')+'" role="img" aria-label="'+(d.network==='simulated-online'?'Wi-Fi simulé actif — sans serveur réel':'Wi-Fi simulé inactif — sans serveur réel')+'" title="Wi-Fi simulé, aucune connexion serveur">'+icon(d.network==='simulated-online'?'wifi':'wifi-off')+'</span></div></div>'+
  '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">'+(d.atStop?'ARRÊT ACTUEL':'PROCHAIN ARRÊT')+'</span><strong>'+escapeHTML(d.atStop?d.activeStopName:d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
@@ -171,7 +171,7 @@ function expressPage(d){
  const last=state.events.at(-1);
  const reversible=last&&['board','alight','mark_absent'].includes(last.type)&&last.stopId===d.activeStopId;
  const filters=[['all','Tous',pending],['alight','Descentes',r.departures.length],['board','Montées',r.boardings.length]];
- return '<section class="express-overlay" role="dialog" aria-modal="true" aria-label="Arrêt express — pointage des élèves">'+
+ return '<section class="express-overlay" role="region" aria-label="Arrêt express — pointage des élèves">'+
   '<div class="express-header"><div><span class="express-eyebrow">DÉMO · ARRÊT EXPRESS</span>'+
   '<h2>'+escapeHTML(d.activeStopName)+'</h2><small>Bus déclaré immobilisé · arrêt '+d.stopsReached+'/'+d.stopsTotal+'</small></div>'+
   button('×','express_close','','express-close')+'</div>'+
@@ -218,7 +218,7 @@ function pointagePage(d){
   return '<div class="student-line"><div><strong>'+escapeHTML(p.id)+'</strong><div class="status">'+escapeHTML(status)+' · '+(pickup?'Montée':'Descente')+'</div></div><div class="buttons">'+actions+'</div></div>';
  }).join(''):'<p class="hint">Aucun élève attendu à cet arrêt.</p>')+'</section>'+
  (d.atStop?'<section class="card stop-actions"><div class="line"><strong>Pointages restants</strong><strong>'+d.pendingAtStop+'</strong></div>'+
- (d.canResume?'<p class="hint">Pointage terminé : retour automatique au tableau de bord pour l’arrêt suivant.</p>':'')+
+ (d.canResume?'<p class="hint">Pointage terminé : attente de confirmation de reprise par le Chauffeur (simulation).</p>':'')+
  (d.stopsReached===d.stopsTotal?button('Vérifier la clôture','go_closing','','primary full',d.pendingAtStop>0):'')+
  (d.pendingAtStop?'<p class="hint">Départ de l’arrêt bloqué jusqu’au pointage complet.</p>':'')+'</section>':'');
 }
