@@ -1,0 +1,87 @@
+# A2S Scola — UI-168 : Parent, Superviseur et essai synchronisé
+
+**Statut au 26 octobre 2026 :** quatre profils de démonstration reliés à un seul serveur HTTP local, testé par plusieurs clients. Il ne s'agit pas d'un backend opérationnel et aucune application mobile Parent réelle n'est encore livrée.
+
+## Périmètre terminé pour la démonstration
+
+Les écrans de navigation locale permettent d'ouvrir, chacun dans un onglet indépendant :
+- **Chauffeur** : début de tournée, arrivée aux arrêts, reprise explicite, clôture fictive.
+- **Accompagnateur** : préparation, pointage élève par élève, feu vert de l'arrêt, remise fictive après revue séparée.
+- **Parent** : consultation de son enfant, demande de changement d'arrêt, suivi de l'état *en attente / approuvée / refusée*. Une deuxième session Parent permet de tester l'isolation entre deux familles fictives.
+- **Superviseur** : suivi des demandes, approbation ou refus avec motif, réexamen en cas de concurrence, alertes critiques, contrôle fictif du destinataire, réinitialisation de la démonstration.
+
+Le serveur unique `mobile-session21/demo-hub.mjs` :
+- écoute **uniquement** `127.0.0.1:4177`, n'ouvre aucun accès réseau externe ;
+- reçoit les actions HTTP des onglets, gère une tournée fictive partagée **en mémoire**, et renvoie les révisions actualisées ;
+- attribue des jetons de session temporaires pour différencier les onglets, **sans vérification d'identité réelle** : chacun peut choisir librement son profil localement ;
+- refuse les actions contraires au rôle déclaré dans la session de test ;
+- bloque les commandes en double ou fondées sur une révision périmée ;
+- est indépendant du serveur opérationnel, du Chauffeur v1.7 et des données réelles.
+
+**Aucune donnée de vrai enfant, vrai badge, véritable autorisation parentale ou véritable remise n'est utilisée.** Les retours de l'interface sont actualisés par consultation périodique du serveur local. Ce n'est pas un mécanisme de synchronisation opérationnelle multi-établissements.
+
+## Lancement Windows
+
+Dans PowerShell, sur la branche `feature/bus-v3-sync18-attendant-qa`, actualiser le dépôt, vérifier la syntaxe PowerShell et lancer :
+
+```powershell
+Set-Location "D:\A2S-Scola-UI153-Phone"
+git pull --ff-only origin feature/bus-v3-sync18-attendant-qa
+powershell -NoProfile -ExecutionPolicy RemoteSigned -File ".\scripts\qa-ui168-sessions-synchronisees.ps1"
+```
+
+Le script lance les tests UI-167 et UI-168, démarre le service local s'il est absent, ouvre **quatre onglets** puis crée une fiche de résultat vierge :
+
+`D:\A2S-Scola-UI153-Phone\Captures-UI168\Recette-synchronisee-UI168.csv`
+
+Les cinq accès possibles :
+- Chauffeur : `http://127.0.0.1:4177/?profile=chauffeur`
+- Accompagnateur : `http://127.0.0.1:4177/?profile=accompagnateur`
+- Parent de E-01 : `http://127.0.0.1:4177/?profile=parent`
+- Parent de E-02 : `http://127.0.0.1:4177/?profile=parent2`
+- Superviseur : `http://127.0.0.1:4177/?profile=superviseur`
+
+Le script indique le PID du serveur local pour l'arrêter avec `Stop-Process -Id <PID>`. Lorsque le serveur s'arrête, la tournée fictive en mémoire disparaît.
+
+### Test avec navigateur sur émulateur Android 16
+
+On peut lancer le script avec `-OpenAndroidEmulator` pour utiliser `adb reverse tcp:4177 tcp:4177` et ouvrir le profil **Accompagnateur** dans le navigateur de l'émulateur `emulator-5554`, en parallèle des profils du PC. Il s'agit du **navigateur** Android qui participe à l'essai synchronisé : **ce n'est pas l'APK Chauffeur ni l'APK Accompagnateur Android qui se synchronise déjà**.
+
+## Recette A — approbation et remise exceptionnelle
+
+1. **Accompagnateur** : « Confirmer la préparation (démo) ».
+2. **Chauffeur** : « Démarrer la tournée (démo) », puis « Arrêt atteint : Dépôt ».
+3. **Parent E-01** : demander que E-01 descende à **Arrêt fictif A** au lieu du terminus. Le Parent voit **pending** ; le Superviseur voit la même demande, mais l'Accompagnateur conserve encore le terminus comme destination.
+4. **Superviseur** : « Approuver (démo) ». Le Parent voit **approved_demo** et l'Accompagnateur voit maintenant la nouvelle destination. Si d'autres actions sont intervenues, cliquer d'abord sur « Réexaminer (démo) », puis approuver.
+5. **Accompagnateur** : « Monté » pour E-01, puis « Arrêt prêt à quitter (démo) ».
+6. **Chauffeur** : « Reprendre la course », puis « Arrêt atteint : Arrêt fictif A ».
+7. **Accompagnateur** : déclarer E-02 « Non présenté ». Tenter la « Remise confirmée » de E-01 **avant** la revue : l'application doit refuser.
+8. **Superviseur** : effectuer « Revue simulée » du destinataire de E-01. **Cela ne prouve aucun badge ou visage réel.**
+9. **Accompagnateur** : « Remise confirmée (démo) », puis « Arrêt prêt à quitter ».
+10. **Chauffeur** : reprendre, atteindre le terminus ; **Accompagnateur** confirme l'arrêt prêt ; **Chauffeur** clôture avec l'inspection fictive. La tournée passe à **completed**.
+
+## Recette B — refus d'une demande
+
+1. Le Superviseur réinitialise le banc de test après confirmation.
+2. Préparation et départ simulés, arrivée au Dépôt.
+3. Le Parent E-01 demande encore le changement d'arrêt ; le Superviseur choisit **« Refuser (démo) »**.
+4. Les deux sessions voient la demande refusée et l'Accompagnateur conserve la destination initiale, **Terminus fictif B**.
+5. L'enfant n'est pas remis au nouvel arrêt sur la base de cette demande refusée.
+
+## Recette C — sécurité et concurrence
+
+1. Signaler un incident critique depuis le Chauffeur ou l'Accompagnateur : le feu vert d'arrêt doit rester bloqué.
+2. Le Superviseur clôt la résolution **fictive** de l'incident ; l'Accompagnateur peut alors reprendre le processus de contrôle.
+3. Rejouer une commande avec le même identifiant : une nouvelle application du même ordre doit être évitée.
+4. Modifier la tournée dans un onglet alors qu'un autre possède une ancienne révision : ce dernier reçoit un conflit et doit recharger les informations.
+5. Ouvrir le Parent E-02 : aucun détail de l'enfant E-01 ne doit apparaître.
+
+## Ce qui reste avant une synchronisation opérationnelle
+
+- Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
+- Base de données transactionnelle de tournées avec révisions, événements horodatés et règles d'accès par établissement.
+- Intégration effective des quatre interfaces aux applications distribuées et test entre vrais appareils.
+- Vérification du destinataire par des moyens indépendants du client, consentements et révocations.
+- Reprise après coupure réseau, gestion des conflits et procédures humaines en cas d'incident.
+
+**Conclusion :** UI-168 permet une **recette synchronisée multi-session sur données fictives**, mais ne valide ni un déploiement ni le transport de vrais enfants. La production, `main` et le Chauffeur v1.7 restent inchangés.
