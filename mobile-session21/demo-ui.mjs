@@ -34,7 +34,9 @@ function actorBody(s){
   const requests=(s.requests||[]).map(r=>item('Élève '+r.studentId+' · '+esc(r.status),
    stopName(r.fromStopId)+' → '+stopName(r.toStopId)+' · demande de '+r.parentId,
    r.status==='pending'?
-    btn('Approuver (démo)','review_change_demo',{requestId:r.id,demoPolicyApproved:true})+
+    (r.proposedRevision!==s.revision?
+      btn('Réexaminer (démo)','revalidate_change_demo',{requestId:r.id},'action secondary'):
+      btn('Approuver (démo)','review_change_demo',{requestId:r.id,demoPolicyApproved:true}))+
     btn('Refuser (démo)','reject_change_demo',{requestId:r.id,reason:'policy_refused'},'action danger'):'')).join('');
   const alerts=(s.alerts||[]).map(a=>item(a.kind,a.open?'Critique ouverte':'Traitée en simulation',
    a.open?btn('Traiter (démo)','resolve_critical_demo',{incidentId:a.id,demoResolutionConfirmed:true}):'')).join('');
