@@ -55,11 +55,11 @@ test('UI158: Élèves à bord opens relevant pointage, then returns to home auto
  assert.match(h.html(),/ÉLÈVES À BORD<\/span><strong>1<\/strong>/);
  assert.doesNotMatch(h.html(),/indicator-pending/);
 });
-test('UI158: absence at next stop and dropoff at terminus complete course without resume wizard',()=>{
+test('UI158/UI163: one confirmed driver resume at each intermediate stop before closure',()=>{
  const h=makeUI();start(h);arrive(h);h.click('go_students');h.click('board','E-01');
- arrive(h);h.click('go_students');h.click('mark_absent','E-02');
+ h.click('simulate_driver_resume');arrive(h);h.click('go_students');h.click('mark_absent','E-02');
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>2\/3/);
- arrive(h);h.click('go_students');h.click('alight','E-01');
+ h.click('simulate_driver_resume');arrive(h);h.click('go_students');h.click('alight','E-01');
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>3\/3/);
  assert.match(h.html(),/ÉLÈVES À BORD<\/span><strong>0<\/strong>/);
  assert.doesNotMatch(h.html(),/data-action="go_closing"[^>]*disabled/);
