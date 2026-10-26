@@ -205,7 +205,9 @@ export function viewCoordinationDemo(s,actorId){
   pendingAtStop:due(s).length,criticalAlerts:s.alerts.filter(x=>x.open).length,
   stopClearance:s.stopClearance};
  if(role==='parent')return {...data,children:s.students.filter(x=>x.parentId===actorId).map(x=>({
-  studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,absent:x.absent,released:x.released})),
+  studentId:x.id,pickupStopId:x.pickupStopId,dropoffStopId:x.dropoffStopId,
+  pickupAlreadyPassed:index(s,x.pickupStopId)<=s.stopIndex,
+  boarded:x.boarded,absent:x.absent,released:x.released})),
   requests:s.requests.filter(x=>x.parentId===actorId).map(x=>({...x}))};
  return {...data,onboard:s.students.filter(x=>x.boarded&&!x.released).map(x=>x.id),
   waiting:due(s).map(x=>x.id),
