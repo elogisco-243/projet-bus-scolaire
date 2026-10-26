@@ -104,7 +104,7 @@ test('UI168/HTTP05: retries, stale updates and forged role are rejected appropri
  let cmd={type:'ready',payload:{},expectedRevision:s.revision,commandId:id};
  assert.equal((await call(h,'/api/action',{token:a,body:cmd})).data.accepted,true);
  assert.equal((await call(h,'/api/action',{token:a,body:cmd})).data.alreadyApplied,true);
- assert.equal((await call(h,'/api/action',{token:a,body:{...cmd,type:'start'}})).data.error,'IDEMPOTENCY_CONFLICT');
+ assert.equal((await call(h,'/api/action',{token:a,body:{...cmd,payload:{unexpected:true}}})).data.error,'IDEMPOTENCY_CONFLICT');
  assert.equal((await call(h,'/api/action',{token:d,body:{type:'start',payload:{},
     expectedRevision:s.revision,commandId:'COMMAND-STALE-1'}})).status,409);
  const forged=await call(h,'/api/action',{token:p,body:{
