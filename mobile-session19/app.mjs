@@ -94,8 +94,9 @@ function tourSubpage(d){
  button(icon('pin')+' Simuler arrivée au prochain arrêt','simulate_arrival','','warn full',!d.canSimulateArrival)+'</section>';
  if(view==='closing')return '<section class="card sub-page closing-page">'+back()+
  '<h1>Clôturer la course</h1><p class="hint">Démo locale · inspection finale du bus obligatoire avant la clôture.</p>'+
- d.closure.map(x=>'<div class="closing-check '+(x.ok?'pass':'fail')+'"><span aria-hidden="true">'+(x.ok?'✓':'!')+'</span><strong>'+escapeHTML(x.label)+'</strong><span>'+(x.ok?'Conforme':'À confirmer')+'</span></div>').join('')+
- button('Je confirme le bus vide et clôture (démo)','demo_confirm_empty_and_finish','','primary full',!d.canOpenClosing)+'</section>';
+ '<div class="closing-primary-action">'+button('Je confirme le bus vide et clôture (démo)','demo_confirm_empty_and_finish','','primary full',!d.canOpenClosing)+'</div>'+
+ '<p class="hint">La confirmation reste indisponible tant que les contrôles de sécurité ci-dessous ne sont pas satisfaits.</p>'+
+ d.closure.map(x=>'<div class="closing-check '+(x.ok?'pass':'fail')+'"><span aria-hidden="true">'+(x.ok?'✓':'!')+'</span><strong>'+escapeHTML(x.label)+'</strong><span>'+(x.ok?'Conforme':'À confirmer')+'</span></div>').join('')+'</section>';
  return '<section class="card sub-page">'+back()+'<h1>Suivi de tournée</h1><p class="hint">Résultats locaux uniquement. Pas de GPS ou de validation Chauffeur réelle.</p>'+
  '<div class="line"><span>État</span><strong>'+escapeHTML(d.status)+'</strong></div>'+
  '<div class="line"><span>Arrêts atteints</span><strong>'+d.stopsReached+'/'+d.stopsTotal+'</strong></div>'+
@@ -132,7 +133,7 @@ function tourDashboard(d,started,done){
  '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">'+stopLabel+'</span><strong class="stop-name-scroller'+(atTerminus?' terminus-reached':'')+'">'+escapeHTML(stopName)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
  activeAlertBanner()+
  '<div class="hero-stats">'+
- '<button type="button" class="hero-stat'+(attention.pointagePending?' indicator-pending':'')+(attention.pointagePulse?' indicator-pulse':'')+'" data-action="go_students" aria-label="Élèves à bord : '+d.onboard+(attention.pointagePending?' ; '+d.pendingAtStop+' pointage(s) attendu(s) à l’arrêt actif':'')+'"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
+ '<button type="button" class="hero-stat'+(attention.pointagePending?' indicator-pending':'')+(attention.pointagePulse?' indicator-pulse':'')+(d.status==='in_progress'&&d.onboard>0?' indicator-onboard':'')+'" data-action="go_students" aria-label="Élèves à bord : '+d.onboard+(attention.pointagePending?' ; '+d.pendingAtStop+' pointage(s) attendu(s) à l’arrêt actif':'')+'"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
  '<button type="button" class="hero-stat'+(attention.stopPulse?' indicator-new-stop':'')+'" data-action="go_stops" aria-label="Arrêts atteints : '+d.stopsReached+' sur '+d.stopsTotal+(attention.stopPulse?' ; nouvel arrêt confirmé':'')+'"><span class="hero-label">'+icon('pin')+' ARRÊTS ATTEINTS</span><strong>'+d.stopsReached+'/'+d.stopsTotal+'</strong><span class="stat-chevron">›</span></button></div>'+
  '<div class="hero-info">'+
  '<div><span class="hero-symbol">'+icon('bus')+'</span><div><strong>Bus BUS-DÉMO-01 · Circuit fictif A</strong></div></div>'+
