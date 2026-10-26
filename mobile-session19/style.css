@@ -772,3 +772,24 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
 .ux-trial-result strong{color:#2a1151;font-size:14px}
 .ux-trial-result span{font-size:13px;color:#3c2457}
 .ux-trial-result small{font-size:11px;line-height:1.3;color:#73588b}
+
+
+/* UI-170: keep the final safety action visible before the inspection checklist. */
+.closing-page .closing-primary-action{margin:12px 0 8px}
+.closing-page .closing-primary-action button{width:100%;min-height:48px;white-space:normal;line-height:1.35}
+.closing-page .closing-primary-action button:disabled{opacity:.55}
+/* UI-170: animated occupied-bus indicator, distinct from pending pointage. */
+.hero-stats .hero-stat.indicator-onboard:not(.indicator-pending){
+ box-shadow:inset 0 0 0 2px #ffd17c;
+ animation:ui170-onboard-border 1.8s ease-in-out infinite;
+}
+@keyframes ui170-onboard-border{
+ 0%,100%{box-shadow:inset 0 0 0 2px #ffd17c}
+ 50%{box-shadow:inset 0 0 0 4px #ffe8ae,0 0 0 2px #f2bc52}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero-stats .hero-stat.indicator-onboard:not(.indicator-pending){animation:none;outline:2px solid #ffd17c;outline-offset:-2px}
+}
+@media(forced-colors:active){
+ .hero-stats .hero-stat.indicator-onboard:not(.indicator-pending){animation:none;outline:2px solid Highlight;outline-offset:-2px}
+}
