@@ -186,6 +186,29 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
   s.events=s.events.filter(e=>e.type!=='empty_bus_confirmed');
   return write(s,action,p.id);
  }
+ // UI-163 — Undo only the immediately preceding pupil action at the same parked stop.
+ // Never erase the previous audit event; append a compensating event instead.
+ if(action==='undo_last_pointage'){
+  if(s.trip.status!=='in_progress')throw Error('TRIP_NOT_ACTIVE');
+  requireActiveStop(s);
+  const previous=s.events.at(-1);
+  if(!previous||!['board','alight','mark_absent'].includes(previous.type)||
+    previous.stopId!==s.activeStopId)throw Error('NO_REVERSIBLE_POINTAGE');
+  const pupil=s.students.find(p=>p.id===previous.studentId);
+  if(!pupil)throw Error('STUDENT_NOT_ON_TRIP');
+  ensure(s,'view_trip',pupil);
+  if(previous.type==='board'){
+   if(!pupil.boarded||pupil.alighted)throw Error('UNDO_NOT_SAFE');
+   pupil.boarded=false;
+  }else if(previous.type==='alight'){
+   if(!pupil.alighted||!pupil.boarded)throw Error('UNDO_NOT_SAFE');
+   pupil.alighted=false;
+  }else{
+   if(!pupil.absent||pupil.boarded)throw Error('UNDO_NOT_SAFE');
+   pupil.absent=false;pupil.absenceReason=null;
+  }
+  return write(s,'pointage_reverted',pupil.id);
+ }
  if(action==='report_incident'){
   if(!INCIDENTS.some(x=>x[1]===incident))throw Error('INVALID_INCIDENT');
   const critical=CRITICAL_INCIDENTS.includes(incident);
