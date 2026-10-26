@@ -171,3 +171,7 @@ root.addEventListener('submit',event=>{
  void command('request_change',{studentId:child.studentId,toStopId:stop,
   recipientId:profile==='parent'?'PA-DEMO':'PB-DEMO'});
 });
+
+// Every browser tab independently acquires its own non-persistent DEMO test token.
+const autoProfile=new URLSearchParams(window.location.search).get('profile');
+if(Object.hasOwn(titles,autoProfile))void join(autoProfile);
