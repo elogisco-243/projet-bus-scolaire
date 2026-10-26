@@ -689,3 +689,57 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  .express-student-info strong{font-size:19px}
 }
 @media(prefers-reduced-motion:reduce){.express-overlay,.express-student{transition:none!important;animation:none!important}}
+
+/* UI-164 — same heading size / motion contract as Chauffeur UI-145 APK (UI-132).
+   Previous overflow:hidden and ellipsis on the STRONG element prevented any
+   horizontal marquee; clipping belongs to parent, not text. */
+.next-stop .next-stop-info{
+ min-width:0;
+ flex:1 1 0;
+ overflow:hidden;
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ justify-content:center;
+ gap:5px;
+}
+.next-stop .next-stop-info .stop-name-scroller{
+ display:block!important;
+ width:max-content!important;
+ max-width:none!important;
+ min-width:0!important;
+ white-space:nowrap!important;
+ overflow:visible!important;
+ text-overflow:clip!important;
+ overflow-wrap:normal!important;
+ margin:0!important;
+ color:#ffe48a!important;
+ font-size:clamp(22px,6vw,29px)!important;
+ font-weight:800!important;
+ line-height:1.15!important;
+ transform:translateX(0);
+}
+@media(max-width:480px){
+ .next-stop .next-stop-info .stop-name-scroller{
+  font-size:clamp(16px,4vw,20px)!important;
+  line-height:1.2!important;
+ }
+ .next-stop .next-stop-info .stop-name-overflow{
+  animation:stop-name-slide var(--stop-name-duration,9s) ease-in-out 1s infinite alternate;
+ }
+}
+@media(min-width:481px){
+ .next-stop .next-stop-info .stop-name-overflow{
+  animation:stop-name-slide var(--stop-name-duration,9s) ease-in-out 1s infinite alternate;
+ }
+}
+@keyframes stop-name-slide{
+ from{transform:translateX(0)}
+ to{transform:translateX(var(--stop-name-offset,0px))}
+}
+@media(prefers-reduced-motion:reduce){
+ .next-stop .next-stop-info .stop-name-overflow{
+  animation:none!important;
+  transform:translateX(0)!important;
+ }
+}
