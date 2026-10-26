@@ -158,7 +158,35 @@ test('UI168/HTTP08: an intervening pupil action forces an explicit fresh Supervi
  const approved=await ok(h,s,'review_change_demo',{requestId,demoPolicyApproved:true});
  assert.equal(approved.students[0].dropoffStopId,'STOP-02');
 });
-test('UI168/HTTP09: CSS and browser app syntax pass node check',()=>{
+test('UI168/HTTP09: Parent can predeclare absence for own child before pickup and crew sees it',async t=>{
+ const h=await openHub();t.after(h.close);
+ const a=await join(h,'accompagnateur'),d=await join(h,'chauffeur'),
+ p=await join(h,'parent2'),other=await join(h,'parent');
+ assert.equal((await act(h,other,'notify_absence',{studentId:'E-02',reason:'family_notified'})).status,403);
+ const updated=await ok(h,p,'notify_absence',{studentId:'E-02',reason:'family_notified'});
+ assert.equal(updated.children[0].absent,true);
+ assert.equal((await state(h,a)).students.find(x=>x.studentId==='E-02').absent,true);
+ await route(h,d,a);
+ await ok(h,a,'board',{studentId:'E-01'});
+ await ok(h,a,'clear_stop');await ok(h,d,'resume');await ok(h,d,'arrive',{stopId:'STOP-02'});
+ assert.equal((await state(h,a)).pendingAtStop,0);
+ assert.equal((await act(h,p,'notify_absence',{studentId:'E-02',reason:'family_notified'})).data.error,'ABSENCE_NOT_ALLOWED');
+});
+test('UI168/HTTP10: Parent can cancel a pending request, leaving destination untouched',async t=>{
+ const h=await openHub();t.after(h.close);
+ const a=await join(h,'accompagnateur'),d=await join(h,'chauffeur'),
+ p=await join(h,'parent'),other=await join(h,'parent2'),su=await join(h,'superviseur');
+ await route(h,d,a);
+ const request=await ok(h,p,'request_change',{studentId:'E-01',toStopId:'STOP-02',recipientId:'PA-DEMO'});
+ const id=request.requests[0].id;
+ assert.equal((await act(h,other,'cancel_change',{requestId:id})).status,403);
+ const cancelled=await ok(h,p,'cancel_change',{requestId:id});
+ assert.equal(cancelled.requests[0].status,'cancelled');
+ assert.equal((await state(h,su)).requests[0].status,'cancelled');
+ assert.equal((await state(h,a)).students[0].dropoffStopId,'STOP-03');
+ assert.equal((await act(h,su,'review_change_demo',{requestId:id,demoPolicyApproved:true})).data.error,'REQUEST_NOT_PENDING');
+});
+test('UI168/HTTP11: CSS and browser app syntax pass node check',()=>{
  for(const relative of ['../mobile-session21/demo-hub.mjs','../mobile-session21/demo-ui.mjs','../mobile-session21/coordination-demo.mjs']){
   const file=fileURLToPath(new URL(relative,import.meta.url));
   const check=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});
