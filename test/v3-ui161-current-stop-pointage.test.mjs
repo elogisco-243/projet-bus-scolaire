@@ -29,8 +29,8 @@ test('UI161/01: planned screen keeps next stop and readiness switch',()=>{
 test('UI161/02: after first arrival large label means ACTUAL depot, not next unvisited stop',()=>{
  const h=create();begin(h);h.click('simulate_arrival');
  const page=h.html();
- assert.match(page,/ARRÊT ACTUEL<\/span><strong>Dépôt/);
- assert.doesNotMatch(page,/ARRÊT ACTUEL<\/span><strong>Arrêt fictif A/);
+ assert.match(page,/ARRÊT ACTUEL<\/span><strong class="stop-name-scroller">Dépôt/);
+ assert.doesNotMatch(page,/ARRÊT ACTUEL<\/span><strong class="stop-name-scroller">Arrêt fictif A/);
  assert.match(page,/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
  assert.match(page,/ÉLÈVES À BORD<\/span><strong>0/);
 });
@@ -46,20 +46,20 @@ test('UI161/03: Arrêt atteint remains clickable and opens pointage, never dupli
  h.click('back_tour');
  page=h.html();
  assert.match(page,/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
- assert.match(page,/ARRÊT ACTUEL<\/span><strong>Dépôt/);
+ assert.match(page,/ARRÊT ACTUEL<\/span><strong class="stop-name-scroller">Dépôt/);
 });
 test('UI161/UI163: after pointage, driver resume is explicit and next stop appears afterwards',()=>{
  const h=create();begin(h);h.click('simulate_arrival');h.click('go_students');h.click('board','E-01');
  let page=h.html();
- assert.match(page,/ARRÊT ACTUEL<\/span><strong>Dépôt/);
+ assert.match(page,/ARRÊT ACTUEL<\/span><strong class="stop-name-scroller">Dépôt/);
  assert.match(page,/Simuler reprise Chauffeur/);
  h.click('simulate_driver_resume');page=h.html();
- assert.match(page,/PROCHAIN ARRÊT<\/span><strong>Arrêt fictif A/);
+ assert.match(page,/PROCHAIN ARRÊT<\/span><strong class="stop-name-scroller">Arrêt fictif A/);
  assert.match(page,/Trajet en cours \(démo\)/);
  assert.doesNotMatch(page,/pointage-direct/);
  assert.match(page,/data-action="simulate_arrival"/);
  h.click('simulate_arrival');page=h.html();
- assert.match(page,/ARRÊT ACTUEL<\/span><strong>Arrêt fictif A/);
+ assert.match(page,/ARRÊT ACTUEL<\/span><strong class="stop-name-scroller">Arrêt fictif A/);
  assert.match(page,/ARRÊTS ATTEINTS<\/span><strong>2\/3/);
 });
 test('UI161/05: readiness switch disappears after departure and status becomes contextual',()=>{
