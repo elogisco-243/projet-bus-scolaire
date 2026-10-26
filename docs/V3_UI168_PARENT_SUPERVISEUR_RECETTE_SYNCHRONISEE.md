@@ -163,6 +163,12 @@ Lancer le script existant avec les options `-NoBrowser -OpenAndroidEmulator`. Il
 
 **Capture reçue et inspectée.** L'écran Accompagnateur Android affiche « Préparation confirmée · Attendez le départ du Chauffeur », le statut « Connecté au serveur local », une tournée encore « Planifiée », « Avant départ », ainsi que « Révision partagée : 1 » et « Action prise en compte par le serveur de démonstration ». L'action de préparation et son retour visuel fonctionnent maintenant sur Android. La synchronisation PC ↔ Android (préparation visible chez Chauffeur, démarrage puis arrivée affichés chez Accompagnateur) n'est pas encore confirmée par l'utilisateur.
 
+### Test 7 — départ partagé PC vers Android confirmé
+
+**Capture Android vérifiée par l'assistant** : dans le navigateur Accompagnateur, l'état de tournée est « En cours », le dernier arrêt « Avant départ », le message « Bus en route · Attendez le prochain arrêt », la connexion au serveur local est active et la révision partagée vaut **2**. La précédente capture montrait « Planifiée », révision **1**, « Préparation confirmée ». Ces observations étayent la propagation du démarrage Chauffeur PC vers la vue Accompagnateur Android.
+
+**Étape non encore validée** : arrivée au Dépôt (la capture montre explicitement « Avant départ »). Le Chauffeur doit cliquer sur « Arrêt atteint : Dépôt » dans son navigateur PC ; l'Accompagnateur Android doit alors voir « Dépôt », une nouvelle révision et le pointage E-01. Ne pas affirmer que l'arrivée est déjà synchronisée.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
