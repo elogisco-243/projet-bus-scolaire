@@ -172,6 +172,7 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
    if(admission.code==='PUPIL_WRONG_STOP')throw Error(action==='alight'?'WRONG_DROPOFF_STOP':'WRONG_PICKUP_STOP');
    throw Error(admission.code);
   }
+  if(action==='alight'&&p.approvedChangeId)throw Error('HANDOVER_CONFIRMATION_REQUIRED');
   if(action==='board'){
    if(p.pickupStopId!==s.activeStopId)throw Error('WRONG_PICKUP_STOP');
    p.boarded=true;
