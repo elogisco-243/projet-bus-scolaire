@@ -169,6 +169,12 @@ Lancer le script existant avec les options `-NoBrowser -OpenAndroidEmulator`. Il
 
 **Étape non encore validée** : arrivée au Dépôt (la capture montre explicitement « Avant départ »). Le Chauffeur doit cliquer sur « Arrêt atteint : Dépôt » dans son navigateur PC ; l'Accompagnateur Android doit alors voir « Dépôt », une nouvelle révision et le pointage E-01. Ne pas affirmer que l'arrivée est déjà synchronisée.
 
+### Test 7 — arrivée au Dépôt répercutée sur Android
+
+**Nouvelle capture confirmée** : après l'action Chauffeur depuis Windows, la vue Accompagnateur sur l'émulateur Android affiche « En cours », dernier arrêt « Dépôt », **1** élève restant à pointer, révision partagée **3** et connexion active. Cela confirme la propagation de l'arrivée Chauffeur PC vers Android. La séquence observable est : préparation Android (révision 1), départ sur PC (révision 2), arrivée Dépôt sur PC (révision 3).
+
+**Suite à vérifier par interaction manuelle** : sur Android, enregistrer la montée E-01 à l'arrêt Dépôt ; observer dans le Chauffeur sur PC l'apparition d'E-01 dans les élèves à bord. Puis donner explicitement le feu vert Accompagnateur et vérifier sur PC l'activation de la reprise. Cette étape complète la vérification des modifications de pointage dans le sens Android vers PC.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
