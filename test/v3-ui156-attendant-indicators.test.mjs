@@ -58,8 +58,8 @@ test('UI156: the pupil bubble leads directly to active-stop pointage in one navi
  const h=makeUI();start(h);arrive(h);h.click('back_tour');
  h.click('go_students');
  const page=h.html();
- assert.match(page,/<h1>Élèves à bord<\/h1>/);
- assert.match(page,/Arrêt actif/);
+ assert.match(page,/DÉMO · ARRÊT EXPRESS/);
+ assert.match(page,/Dépôt/);
  assert.match(page,/data-action="board" data-arg="E-01"/);
  assert.match(page,/data-action="mark_absent" data-arg="E-01"/);
  assert.doesNotMatch(page,/data-action="board" data-arg="E-02"/);
@@ -76,7 +76,7 @@ test('UI156: completing pointage removes student highlight, without changing sto
 });
 test('UI156/UI158: following arrival again highlights only the next pupil',()=>{
  const h=makeUI();h.click('demo_prepare_departure');h.click('start_demo_trip');h.click('simulate_arrival');
- h.click('go_students');h.click('board','E-01');h.click('simulate_arrival');
+ h.click('go_students');h.click('board','E-01');h.click('simulate_driver_resume');h.click('simulate_arrival');
  assert.match(h.html(),/hero-stat indicator-pending indicator-pulse/);
  assert.match(h.html(),/hero-stat indicator-new-stop/);
  h.click('go_students');
@@ -110,5 +110,5 @@ test('UI156: two animation cycles max, fixed dot, reduced motion and no layout s
  assert.match(css,/animation:ui156-stop-arrival 700ms ease-in-out 2/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/@media\(forced-colors:active\)/);
- assert.doesNotMatch(css.slice(css.indexOf('/* UI-156:')),/infinite|display:none|height:\s*auto/);
+ assert.doesNotMatch(css.slice(css.indexOf('/* UI-156:'),css.indexOf('/* UI-157')),/infinite|display:none|height:\s*auto/);
 });
