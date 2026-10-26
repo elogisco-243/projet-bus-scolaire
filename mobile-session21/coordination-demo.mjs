@@ -9,7 +9,7 @@ const ROLES=Object.freeze({
  ready:['attendant'],start:['driver'],arrive:['driver'],
  board:['driver','attendant'],absent:['driver','attendant'],
  clear_stop:['attendant'],resume:['driver'],finish:['driver'],
- request_change:['parent'],review_change_demo:['supervisor'],reject_change_demo:['supervisor'],
+ request_change:['parent'],revalidate_change_demo:['supervisor'],review_change_demo:['supervisor'],reject_change_demo:['supervisor'],
  report_critical:['driver','attendant'],resolve_critical_demo:['supervisor'],
  review_handover_demo:['supervisor'],handover_demo:['driver','attendant']
 });
@@ -118,6 +118,16 @@ export function applyCoordinationDemo(original,command){
   s.requests.push({id:'REQ-DEMO-'+(s.revision+1),studentId:child.id,parentId:cmd.actorId,
    fromStopId:child.dropoffStopId,toStopId:p.toStopId,recipientId:p.recipientId,
    status:'pending',proposedRevision:s.revision+1});break;
+ }
+ case 'revalidate_change_demo':{
+  if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
+  const req=s.requests.find(x=>x.id===p.requestId&&x.status==='pending');
+  if(!req)fail('REQUEST_NOT_PENDING');
+  const child=pupil(s,req.studentId);
+  if(index(s,req.toStopId)<=s.stopIndex||index(s,req.fromStopId)<=s.stopIndex||
+    child.dropoffStopId!==req.fromStopId||child.released)fail('ORIGINAL_OR_NEW_STOP_PASSED');
+  // Fresh independent supervisor review in a new transaction, never automatic approval.
+  req.proposedRevision=s.revision+1;break;
  }
  case 'review_change_demo':{
   if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
