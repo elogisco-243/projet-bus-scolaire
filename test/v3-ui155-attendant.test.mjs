@@ -40,11 +40,11 @@ test('UI155/UI158: each arrival exposes only the pupils for the active stop',()=
  assert.match(h.html(),/data-action="board" data-arg="E-01"/);
  assert.doesNotMatch(h.html(),/data-action="board" data-arg="E-02"/);
  h.click('board','E-01');
- h.click('simulate_arrival');h.click('go_students');
+ h.click('simulate_driver_resume');h.click('simulate_arrival');h.click('go_students');
  assert.match(h.html(),/data-action="board" data-arg="E-02"/);
  assert.doesNotMatch(h.html(),/data-action="board" data-arg="E-01"/);
  h.click('mark_absent','E-02');
- h.click('simulate_arrival');h.click('go_students');
+ h.click('simulate_driver_resume');h.click('simulate_arrival');h.click('go_students');
  assert.match(h.html(),/data-action="alight" data-arg="E-01"/);
  assert.doesNotMatch(h.html(),/data-action="alight" data-arg="E-02"/);
 });
@@ -71,8 +71,8 @@ test('UI155/UI158: final inspection remains mandatory despite direct navigation'
  const h=create();
  h.click('demo_prepare_departure');h.click('start_demo_trip');h.click('simulate_arrival');
  h.click('go_students');h.click('board','E-01');
- h.click('simulate_arrival');h.click('go_students');h.click('mark_absent','E-02');
- h.click('simulate_arrival');h.click('go_students');h.click('alight','E-01');
+ h.click('simulate_driver_resume');h.click('simulate_arrival');h.click('go_students');h.click('mark_absent','E-02');
+ h.click('simulate_driver_resume');h.click('simulate_arrival');h.click('go_students');h.click('alight','E-01');
  h.click('go_closing');
  assert.match(h.html(),/Inspection finale du bus/);
  assert.match(h.html(),/Je confirme le bus vide et clôture \(démo\)/);
