@@ -1,5 +1,5 @@
 # A2S Scola UI-168: DEMO browser sessions for Parent/Supervisor/Driver/Attendant.
-# Loopback only. No production APK, real pupils, Render, database or credentials.
+# Loopback only. No production APK, real pupils, hosted deployment, database or credentials.
 param(
  [switch]$NoBrowser,
  [switch]$OpenAndroidEmulator
