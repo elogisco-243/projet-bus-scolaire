@@ -41,16 +41,19 @@ test('UI161/03: Arrêt atteint remains clickable and opens pointage, never dupli
  assert.match(page,/Arrêt atteint — ouvrir le pointage des élèves/);
  h.click('go_students');
  page=h.html();
- assert.match(page,/Pointage des élèves/);
+ assert.match(page,/Arrêt express/);
  assert.match(page,/data-action="board" data-arg="E-01"/);
  h.click('back_tour');
  page=h.html();
  assert.match(page,/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
  assert.match(page,/ARRÊT ACTUEL<\/span><strong>Dépôt/);
 });
-test('UI161/04: after pointage auto resume, header shows UPCOMING stop and CTA records it',()=>{
+test('UI161/UI163: after pointage, driver resume is explicit and next stop appears afterwards',()=>{
  const h=create();begin(h);h.click('simulate_arrival');h.click('go_students');h.click('board','E-01');
  let page=h.html();
+ assert.match(page,/ARRÊT ACTUEL<\/span><strong>Dépôt/);
+ assert.match(page,/Simuler reprise Chauffeur/);
+ h.click('simulate_driver_resume');page=h.html();
  assert.match(page,/PROCHAIN ARRÊT<\/span><strong>Arrêt fictif A/);
  assert.match(page,/Trajet en cours \(démo\)/);
  assert.doesNotMatch(page,/pointage-direct/);
