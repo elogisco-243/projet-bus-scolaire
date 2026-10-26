@@ -256,3 +256,6 @@ export function runAttendantDemo(state,action,{studentId=null,incident=null,inci
  }
  throw Error('ACTION_DENIED');
 }
+
+// UI-166: isolated ergonomics fixtures; only invoked from the DEMO tester.
+export {makeUsabilityFixture,USABILITY_SIZES} from './usability-fixtures.mjs';
