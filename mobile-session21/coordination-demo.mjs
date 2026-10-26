@@ -9,7 +9,7 @@ const ROLES=Object.freeze({
  ready:['attendant'],start:['driver'],arrive:['driver'],
  board:['driver','attendant'],absent:['driver','attendant'],
  clear_stop:['attendant'],resume:['driver'],finish:['driver'],
- request_change:['parent'],review_change_demo:['supervisor'],
+ request_change:['parent'],review_change_demo:['supervisor'],reject_change_demo:['supervisor'],
  report_critical:['driver','attendant'],resolve_critical_demo:['supervisor'],
  review_handover_demo:['supervisor'],handover_demo:['driver','attendant']
 });
@@ -131,6 +131,13 @@ export function applyCoordinationDemo(original,command){
   if(p.demoPolicyApproved!==true)fail('DEMO_POLICY_NOT_APPROVED');
   req.status='approved_demo';child.dropoffStopId=req.toStopId;break;
  }
+ case 'reject_change_demo':{
+  if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
+  const req=s.requests.find(x=>x.id===p.requestId&&x.status==='pending');
+  if(!req)fail('REQUEST_NOT_PENDING');
+  if(!['policy_refused','authorization_expired','route_not_safe'].includes(p.reason))fail('REJECTION_REASON_REQUIRED');
+  req.status='rejected_demo';req.reason=p.reason;break;
+ }
  case 'report_critical':
   if(s.status!=='in_progress'||!['medical','missing_child','accident'].includes(p.kind))fail('INVALID_INCIDENT');
   s.alerts.push({id:'INC-DEMO-'+(s.revision+1),kind:p.kind,open:true});s.stopClearance=false;break;
@@ -174,7 +181,22 @@ export function viewCoordinationDemo(s,actorId){
   studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,released:x.released})),
   requests:s.requests.filter(x=>x.parentId===actorId).map(x=>({...x}))};
  return {...data,onboard:s.students.filter(x=>x.boarded&&!x.released).map(x=>x.id),
-  waiting:due(s).map(x=>x.id)};
+  waiting:due(s).map(x=>x.id),
+  ...(role==='supervisor'?{
+    requests:s.requests.map(x=>({...x})),
+    alerts:s.alerts.map(x=>({...x})),
+    handovers:s.handovers.map(x=>({...x})),
+    students:s.students.map(x=>({studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,released:x.released,
+      recipientId:x.recipientId})),
+    stops:s.stops.slice()
+  }:{}),
+  ...(role==='driver'||role==='attendant'?{
+    students:s.students.map(x=>({studentId:x.id,pickupStopId:x.pickupStopId,dropoffStopId:x.dropoffStopId,
+      boarded:x.boarded,absent:x.absent,released:x.released,recipientId:x.recipientId})),
+    alerts:s.alerts.map(x=>({...x})),
+    handovers:s.handovers.map(x=>({...x})),
+    stops:s.stops.slice()
+  }:{})};
 }
 // This is the security boundary: no self-declared mobile claims authorize a real mutation.
 export function authorizeOperationalCommand(){
