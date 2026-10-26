@@ -39,12 +39,15 @@ test('UI159: starting disables start and enables yellow ARRÊT ATTEINT',()=>{
  assert.match(actionTag(h,'start_demo_trip'),/\bdisabled\b/);
  assert.doesNotMatch(actionTag(h,'simulate_arrival'),/\bdisabled\b/);
 });
-test('UI159/UI161: at stop Arrêt atteint safely opens pointage, then next arrival re-enables',()=>{
+test('UI159/UI163: at stop pointage can complete but next arrival waits for explicit driver resume',()=>{
  const h=makeUI();h.click('demo_prepare_departure');h.click('start_demo_trip');
  h.click('simulate_arrival');
  assert.doesNotMatch(actionTag(h,'go_students'),/\bdisabled\b/);
  assert.match(h.html(),/class="warn dash-action pointage-direct" data-action="go_students"/);
  h.click('go_students');h.click('board','E-01');
+ assert.match(actionTag(h,'simulate_arrival'),/\bdisabled\b/);
+ assert.match(h.html(),/Simuler reprise Chauffeur/);
+ h.click('simulate_driver_resume');
  assert.doesNotMatch(actionTag(h,'simulate_arrival'),/\bdisabled\b/);
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
 });
