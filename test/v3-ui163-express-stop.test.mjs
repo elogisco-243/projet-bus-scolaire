@@ -71,12 +71,12 @@ test('UI163/05: each child still requires an explicit confirmation, no bulk all-
 test('UI163/06: pointage does not resume or move the bus automatically',()=>{
  const h=create();arrive(h);h.click('board','E-01');
  const page=h.html();
- assert.match(page,/ARRÊT ACTUEL<\/span><strong>Dépôt/);
+ assert.match(page,/ARRÊT ACTUEL<\/span><strong class="stop-name-scroller">Dépôt/);
  assert.match(page,/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
  assert.match(page,/Simuler reprise Chauffeur/);
  assert.match(page,/aucun départ automatique/);
  h.click('simulate_driver_resume');
- assert.match(h.html(),/PROCHAIN ARRÊT<\/span><strong>Arrêt fictif A/);
+ assert.match(h.html(),/PROCHAIN ARRÊT<\/span><strong class="stop-name-scroller">Arrêt fictif A/);
 });
 test('UI163/07: preannounced absence needs no additional action and cannot be boarded',()=>{
  const s=fixture(5,2);
