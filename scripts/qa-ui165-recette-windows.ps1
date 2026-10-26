@@ -113,6 +113,7 @@ $ErrorActionPreference = "Stop"
        Write-Host "Capture Arrêt express : $StopImage" -ForegroundColor Cyan
     }
     Write-Host "ETAPE 2 : terminer la DEMO, atteindre le 3e arret (Terminus atteint)." -ForegroundColor White
+    Write-Host "Pour filmer la police principale, fermez Arrêt express (croix X) sur l ecran du terminus." -ForegroundColor White
     Write-Host "Rappel : reprendre explicitement apres les pointages intermediaires." -ForegroundColor White
     $AtTerminus = Read-Host "Quand Terminus atteint est visible, appuyez sur ENTREE pour capturer et filmer 9 secondes (S pour sauter)"
     $TermImage = $null
@@ -140,6 +141,19 @@ $ErrorActionPreference = "Stop"
           Write-Warning "Enregistrement video indisponible sur cet emulateur."
        }
     }
+    # Prepare a blank human-ergonomics sheet: no observations are invented.
+    $HumanSheet = Join-Path $Folder "Fiche-maniabilite-UI165.csv"
+    if (-not (Test-Path $HumanSheet)) {
+       @(
+         [pscustomobject]@{Scenario="Arret normal 5 eleves fictifs"; NbEleves=5; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+         [pscustomobject]@{Scenario="Arret charge 15 eleves fictifs"; NbEleves=15; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+         [pscustomobject]@{Scenario="Arret charge 30 eleves fictifs"; NbEleves=30; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+         [pscustomobject]@{Scenario="Arret extreme 50 eleves fictifs"; NbEleves=50; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+         [pscustomobject]@{Scenario="Absence anticipee et non presente"; NbEleves=""; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+         [pscustomobject]@{Scenario="Remise exceptionnelle et tuteur non autorise"; NbEleves=""; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+         [pscustomobject]@{Scenario="Alerte critique au pointage"; NbEleves=""; TempsPointageSecondes=""; DefilementNecessaire=""; ErreursPointage=""; AideRequise=""; Commentaires=""}
+       ) | Export-Csv -NoTypeInformation -Encoding UTF8 -Path $HumanSheet
+    }
     $ReportFile = Join-Path $Folder "QA-UI165-Recette.json"
     $Report = [ordered]@{
        Version = "UI-165"
@@ -152,6 +166,7 @@ $ErrorActionPreference = "Stop"
        CaptureArretExpress = $StopImage
        CaptureTerminus = $TermImage
        VideoTerminus = $TermVideo
+       FicheErgonomie = $HumanSheet
        Etat = "TECHNIQUE_TESTEE; ERGONOMIE_HUMAINE_NON_VALIDEE; OPERATIONNEL_BLOQUE"
        RequisPourVerdict = @(
           "Verifier visuellement taille de la police et animation Terminus",
@@ -163,6 +178,7 @@ $ErrorActionPreference = "Stop"
     $Report | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 -Path $ReportFile
     Write-Host "=== FIN DE RECETTE UI-165 ===" -ForegroundColor Green
     Write-Host "Rapport : $ReportFile"
+    Write-Host "Fiche de mesures humaines : $HumanSheet"
     Write-Host "IMPORTANT : compilation, tests et captures ne valent pas validation operationnelle." -ForegroundColor Yellow
 }
 }
