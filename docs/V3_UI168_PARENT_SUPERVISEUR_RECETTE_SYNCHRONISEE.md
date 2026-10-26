@@ -97,9 +97,13 @@ On peut lancer le script avec `-OpenAndroidEmulator` pour utiliser `adb reverse 
 
 Cela confirme l'observation humaine d'une propagation de la décision sur les deux vues d'un même serveur local de démonstration. Cela ne prouve ni la robustesse hors-ligne, ni l'authentification des personnes, ni une synchronisation entre APK autonomes.
 
-**Non encore confirmés par l'utilisateur** : refus de changement d'arrêt ; absence anticipée ; annulation de demande ; incident critique ; contrôle et remise simulée ; reprise réseau ; essais sur appareils distincts.
+### Test 2 — refus du changement d'arrêt
 
-**Prochain essai** : Recette B — réinitialiser la tournée fictive dans Superviseur, relancer préparation et départ, faire demander au Parent E-01 un nouvel arrêt, choisir « Refuser (démo) », et vérifier que le Parent reçoit « Refusée (démo) » tandis que l'Accompagnateur conserve la destination initiale.
+**Validé par l'utilisateur.** Après le scénario où le Superviseur refuse la demande et où la destination initiale de l'enfant doit rester inchangée, l'utilisateur a répondu : « Confirmé ». Il s'agit d'une validation manuelle qualitative du parcours local fictif, sans relevé de captures ni preuve d'authentification opérationnelle.
+
+**Non encore confirmés par l'utilisateur** : absence anticipée ; annulation de demande ; incident critique ; contrôle et remise simulée ; reprise réseau ; essais sur appareils distincts.
+
+**Prochain essai** : Recette D — réinitialiser le jeu fictif ; Parent E-02 annonce son absence avant le départ ; vérifier son état dans Accompagnateur, puis que l'arrêt fictif A ne réclame pas de pointage supplémentaire pour E-02.
 
 ## Ce qui reste avant une synchronisation opérationnelle
 
