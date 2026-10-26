@@ -143,7 +143,22 @@ test('UI168/HTTP07: local demo reset only via supervisor role and explicit confi
  assert.equal((await state(h,d)).revision,0);
  assert.equal((await state(h,d)).status,'planned');
 });
-test('UI168/HTTP08: CSS and browser app syntax pass node check',()=>{
+test('UI168/HTTP08: an intervening pupil action forces an explicit fresh Supervisor review before approval',async t=>{
+ const h=await openHub();t.after(h.close);
+ const d=await join(h,'chauffeur'),a=await join(h,'accompagnateur'),
+ p=await join(h,'parent'),s=await join(h,'superviseur');
+ await route(h,d,a);
+ const req=await ok(h,p,'request_change',{studentId:'E-01',toStopId:'STOP-02',recipientId:'PA-DEMO'});
+ await ok(h,a,'board',{studentId:'E-01'});
+ const requestId=req.requests[0].id;
+ assert.equal((await act(h,s,'review_change_demo',{requestId,demoPolicyApproved:true})).data.error,'REQUEST_NEEDS_FRESH_REVIEW');
+ const reviewed=await ok(h,s,'revalidate_change_demo',{requestId});
+ assert.equal(reviewed.requests[0].status,'pending');
+ assert.equal(reviewed.requests[0].proposedRevision,reviewed.revision);
+ const approved=await ok(h,s,'review_change_demo',{requestId,demoPolicyApproved:true});
+ assert.equal(approved.students[0].dropoffStopId,'STOP-02');
+});
+test('UI168/HTTP09: CSS and browser app syntax pass node check',()=>{
  for(const relative of ['../mobile-session21/demo-hub.mjs','../mobile-session21/demo-ui.mjs','../mobile-session21/coordination-demo.mjs']){
   const file=fileURLToPath(new URL(relative,import.meta.url));
   const check=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});
