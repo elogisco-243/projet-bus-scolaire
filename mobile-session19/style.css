@@ -608,3 +608,84 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
  color:#ffe48a;flex:0 0 51px;
 }
 .safety-status-mark .ui-icon{width:22px;height:22px}
+
+/* UI-163 — Express stop: bounded work queue, no scrolling through a full roster. */
+.content:has(>.express-overlay){position:relative;overflow:hidden}
+.express-overlay{
+ position:absolute;inset:4px 4px 6px;z-index:15;
+ display:flex;flex-direction:column;min-height:0;overflow:hidden;
+ padding:clamp(9px,1.6vh,14px);
+ background:#fff;border:2px solid #d8c9e9;border-radius:17px;
+ box-shadow:0 5px 20px #2d154424;
+}
+.express-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex:0 0 auto}
+.express-header h2{margin:0;font-size:clamp(19px,3vw,24px);color:#2a1151;line-height:1.05}
+.express-eyebrow{display:block;font-size:10px;font-weight:800;color:#6f5488;letter-spacing:.04em}
+.express-header small{display:block;color:#6b567c;font-size:11px;margin-top:2px}
+.express-close{
+ padding:3px 12px;background:#f0e9f9;color:#36115e;
+ font-size:26px;min-width:42px;min-height:42px;line-height:1;font-weight:700;
+}
+.express-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;flex:0 0 auto;margin-top:7px}
+.express-kpis>div{background:#f3edf9;border-radius:9px;padding:6px 4px;min-width:0;text-align:center}
+.express-kpis strong{color:#391264;font-size:22px;display:block;line-height:1.1}
+.express-kpis span{display:block;color:#5d4d6e;font-size:10px;line-height:1.15}
+.express-progress{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 1px 5px;flex:0 0 auto}
+.express-progress strong{font-size:15px;color:#2e1552}
+.express-progress span{font-size:10px;color:#806995;text-align:right}
+.express-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;flex:0 0 auto;margin-bottom:6px}
+.express-chip{
+ padding:7px 2px;min-height:34px;background:#f0eaf6;
+ color:#3e235d;font-size:11px;font-weight:800;border-radius:9px;
+}
+.express-chip.chosen{background:#391366;color:white}
+.express-queue{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:5px;overflow:hidden}
+.express-student{
+ display:flex;align-items:center;gap:7px;flex:0 0 auto;
+ padding:6px 7px;min-height:clamp(55px,8vh,66px);
+ background:#fcfaff;border:1px solid #e9e0f2;border-radius:12px;
+}
+.express-student-info{min-width:0;flex:1}
+.express-student-info strong{display:block;color:#2f174c;font-size:16px}
+.express-student-info small{color:#615377;font-size:11px;line-height:1.2;display:block}
+.express-student button{flex:0 0 auto;border-radius:10px;font-size:12px;font-weight:800;padding:10px 8px;min-height:42px}
+.express-confirm.board{background:#23754e;color:white;min-width:66px}
+.express-confirm.alight{background:#f0b82d;color:#301a0a;min-width:66px}
+.express-absent{background:#f2e9e9;color:#763b3b;font-size:10px!important;min-width:0}
+.express-review{font-size:11px;color:#8a372e;font-weight:750;max-width:130px}
+.express-empty{
+ color:#326643;background:#ecf7ef;padding:13px;border-radius:12px;
+ margin:0;font-size:14px;font-weight:750
+}
+.express-next{font-size:10px;color:#69597c;text-align:center;flex:0 0 auto;margin:2px 0}
+.express-bottom{flex:0 0 auto;margin-top:auto;padding-top:6px;border-top:1px solid #e4ddea;display:flex;flex-direction:column;gap:6px}
+.express-undo{padding:7px 10px;align-self:flex-start;background:#f4ecfa;color:#512a7d;font-weight:800;font-size:11px;min-height:32px}
+.express-note,.express-guard{color:#736282;font-size:11px}
+.express-ready{background:#e7f6ec;color:#165637;border-radius:9px;padding:7px 9px}
+.express-ready strong{display:block;font-size:12px}
+.express-ready small{display:block;font-size:10px;margin-top:3px}
+.express-resume{background:#3a1967;color:white;font-weight:800;font-size:13px;padding:11px}
+@media(max-height:720px){
+ .express-overlay{padding:7px}
+ .express-kpis{margin-top:4px}
+ .express-kpis>div{padding:4px 2px}
+ .express-kpis strong{font-size:18px}
+ .express-progress{padding:4px 0}
+ .express-chip{padding:4px 1px;min-height:29px}
+ .express-student{min-height:48px;padding:3px 5px}
+ .express-student:nth-child(n+4){display:none}
+ .express-student button{min-height:38px;padding:7px 6px}
+ .express-header h2{font-size:18px}
+ .express-close{min-height:34px;min-width:35px}
+ .express-bottom{gap:3px}
+}
+@media(max-height:580px){
+ .express-student:nth-child(n+3){display:none}
+ .express-kpis span{font-size:9px}
+ .express-progress span{display:none}
+}
+@media(min-width:700px){
+ .express-overlay{left:clamp(10px,8vw,90px);right:clamp(10px,8vw,90px)}
+ .express-student-info strong{font-size:19px}
+}
+@media(prefers-reduced-motion:reduce){.express-overlay,.express-student{transition:none!important;animation:none!important}}
