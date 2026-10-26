@@ -18,7 +18,7 @@ function makeUI({width=170,natural=220}={}){
    if(!match)return null;
    const classes=new Set(match[1].split(/\s+/));
    const style=new Map();
-   last={text:match[2],classes,style,scrollWidth:natural,parentElement:{clientWidth:width},
+   last={text:match[2],classes,properties:style,scrollWidth:natural,parentElement:{clientWidth:width},
     classList:{contains:name=>classes.has(name),toggle(name,val){if(val)classes.add(name);else classes.delete(name);}},
     style:{setProperty:(name,value)=>style.set(name,value)}
    };
@@ -35,7 +35,7 @@ function makeUI({width=170,natural=220}={}){
   html:()=>root.innerHTML,
   click:(action,arg='')=>clickHandler({target:{closest:()=>({disabled:false,dataset:{action,arg}})}}),
   text:()=>last?.text,
-  style:()=>last?.style,
+  style:()=>last?.properties,
   classes:()=>last?.classes,
   resized:(nextW,nextNatural=natural)=>{width=nextW;natural=nextNatural;onResize();}
  };
