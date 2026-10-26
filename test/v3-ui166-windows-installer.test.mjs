@@ -18,7 +18,7 @@ test('UI166/PS01: installer never targets Chauffeur or production',()=>{
 test('UI166/PS02: worksheet never fills in unobserved human usability scores',()=>{
  assert.match(source,/Fiche-maniabilite-UI166\.csv/);
  for(const n of [5,15,30,50])assert.match(source,new RegExp('ScenarioEleves='+n));
- for(const metric of ['TempsEcranSecondes','TempsArretTotalSecondes','Defilements','Erreurs'])assert.match(source,new RegExp(metric+'=""'));
+ for(const metric of ['IntervallePointageSecondes','TempsArretTotalSecondes','Defilements','Erreurs'])assert.match(source,new RegExp(metric+'=""'));
  assert.match(source,/aucun resultat utilisateur n est automatiquement valide/);
 });
 test('UI166/PS03: native PowerShell parser reports no syntax error on CI',t=>{
