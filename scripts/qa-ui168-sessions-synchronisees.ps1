@@ -79,13 +79,9 @@ if (-not $NoBrowser) {
  Write-Host "Quatre onglets ouverts dans le navigateur Windows." -ForegroundColor Cyan
 }
 if ($OpenAndroidEmulator) {
- $Adb = "D:\Android\sdk\platform-tools\adb.exe"
- if (-not (Test-Path $Adb)) { throw "ADB absent ; navigateur Windows deja pret" }
- & $Adb -s emulator-5554 reverse "tcp:$Port" "tcp:$Port"
- if ($LASTEXITCODE -ne 0) { throw "ADB reverse echoue. Ne changez pas le serveur." }
- & $Adb -s emulator-5554 shell am start -a android.intent.action.VIEW -d "$Base/?profile=accompagnateur"
- if ($LASTEXITCODE -ne 0) { Write-Warning "Ouverture navigateur Android non confirmee" }
- else { Write-Host "Navigateur Android de l emulateur dirige vers le serveur DEMO local." }
+ $Helper = Join-Path $Project "scripts\ui168-emulator-start.ps1"
+ if (-not (Test-Path $Helper)) { throw "Lanceur AVD UI-168 absent. Executez git pull." }
+ & $Helper -Port $Port
 }
 Write-Host "DEMO UNIQUEMENT : profils choisis librement, sans identite reelle ni badge verifie." -ForegroundColor Yellow
 Write-Host "Les actions des quatre onglets partagent une seule tournee en memoire." -ForegroundColor Yellow
