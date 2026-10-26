@@ -60,6 +60,7 @@ test('UI164/02: original clipping prevented ticker, now parent clips and text mo
  assert.match(mobile,/white-space:nowrap!important/);
  assert.match(mobile,/overflow:visible!important/);
  assert.match(mobile,/@keyframes stop-name-slide/);
+ assert.match(mobile,/@keyframes express-terminal-shift/);
  assert.match(mobile,/prefers-reduced-motion:reduce/);
 });
 test('UI164/03: in-progress first stop still says ARRÊT ACTUEL not Terminus',()=>{
@@ -69,7 +70,7 @@ test('UI164/03: in-progress first stop still says ARRÊT ACTUEL not Terminus',()
 test('UI164/04: terminal arrival displays exact Terminus atteint with original PROCHAIN ARRÊT heading',()=>{
  const h=makeUI();goTerminus(h);
  assert.match(h.html(),/PROCHAIN ARRÊT<\/span><strong class="stop-name-scroller terminus-reached">Terminus atteint<\/strong>/);
- assert.match(h.html(),/TERMINUS ATTEINT · Bus déclaré immobilisé/);
+ assert.match(h.html(),/class="express-terminal-scroll">Terminus atteint<\/span> · Bus déclaré immobilisé/);
  assert.equal(h.text(),'Terminus atteint');
  assert.ok(h.classes().has('stop-name-overflow'));
 });
