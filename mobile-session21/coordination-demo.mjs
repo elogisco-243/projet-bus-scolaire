@@ -9,7 +9,7 @@ const ROLES=Object.freeze({
  ready:['attendant'],start:['driver'],arrive:['driver'],
  board:['driver','attendant'],absent:['driver','attendant'],
  clear_stop:['attendant'],resume:['driver'],finish:['driver'],
- request_change:['parent'],revalidate_change_demo:['supervisor'],review_change_demo:['supervisor'],reject_change_demo:['supervisor'],
+ notify_absence:['parent'],request_change:['parent'],cancel_change:['parent'],revalidate_change_demo:['supervisor'],review_change_demo:['supervisor'],reject_change_demo:['supervisor'],
  report_critical:['driver','attendant'],resolve_critical_demo:['supervisor'],
  review_handover_demo:['supervisor'],handover_demo:['driver','attendant']
 });
@@ -107,10 +107,20 @@ export function applyCoordinationDemo(original,command){
   // No real physical bus inspection can be established by this local demo.
   if(p.demoInspectionAcknowledged!==true)fail('DEMO_INSPECTION_REQUIRED');
   s.status='completed';break;
+ case 'notify_absence':{
+  if(!['planned','in_progress'].includes(s.status))fail('TRIP_NOT_ACTIVE');
+  const child=pupil(s,p.studentId);
+  if(child.parentId!==cmd.actorId)fail('PARENT_NOT_AUTHORIZED');
+  if(child.boarded||child.released||child.absent)fail('ABSENCE_NOT_ALLOWED');
+  if(index(s,child.pickupStopId)<=s.stopIndex)fail('PICKUP_ALREADY_REACHED');
+  if(p.reason!=='family_notified')fail('ABSENCE_REASON_REQUIRED');
+  child.absent=true;break;
+ }
  case 'request_change':{
   if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
   const child=pupil(s,p.studentId);
-  if(child.parentId!==cmd.actorId||child.released)fail('PARENT_NOT_AUTHORIZED');
+  if(child.parentId!==cmd.actorId)fail('PARENT_NOT_AUTHORIZED');
+  if(child.released||child.absent)fail('CHILD_NOT_ELIGIBLE');
   const i=index(s,p.toStopId),old=index(s,child.dropoffStopId);
   if(i<0||i<=s.stopIndex||old<=s.stopIndex||i===old)fail('STOP_UNAVAILABLE');
   if(s.requests.some(x=>x.studentId===child.id&&x.status==='pending'))fail('REQUEST_ALREADY_PENDING');
@@ -118,6 +128,12 @@ export function applyCoordinationDemo(original,command){
   s.requests.push({id:'REQ-DEMO-'+(s.revision+1),studentId:child.id,parentId:cmd.actorId,
    fromStopId:child.dropoffStopId,toStopId:p.toStopId,recipientId:p.recipientId,
    status:'pending',proposedRevision:s.revision+1});break;
+ }
+ case 'cancel_change':{
+  const req=s.requests.find(x=>x.id===p.requestId&&x.status==='pending');
+  if(!req)fail('REQUEST_NOT_PENDING');
+  if(req.parentId!==cmd.actorId)fail('PARENT_NOT_AUTHORIZED');
+  req.status='cancelled';break;
  }
  case 'revalidate_change_demo':{
   if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
@@ -189,7 +205,7 @@ export function viewCoordinationDemo(s,actorId){
   pendingAtStop:due(s).length,criticalAlerts:s.alerts.filter(x=>x.open).length,
   stopClearance:s.stopClearance};
  if(role==='parent')return {...data,children:s.students.filter(x=>x.parentId===actorId).map(x=>({
-  studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,released:x.released})),
+  studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,absent:x.absent,released:x.released})),
   requests:s.requests.filter(x=>x.parentId===actorId).map(x=>({...x}))};
  return {...data,onboard:s.students.filter(x=>x.boarded&&!x.released).map(x=>x.id),
   waiting:due(s).map(x=>x.id),
@@ -197,7 +213,7 @@ export function viewCoordinationDemo(s,actorId){
     requests:s.requests.map(x=>({...x})),
     alerts:s.alerts.map(x=>({...x})),
     handovers:s.handovers.map(x=>({...x})),
-    students:s.students.map(x=>({studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,released:x.released,
+    students:s.students.map(x=>({studentId:x.id,dropoffStopId:x.dropoffStopId,boarded:x.boarded,absent:x.absent,released:x.released,
       recipientId:x.recipientId})),
     stops:s.stops.slice()
   }:{}),
