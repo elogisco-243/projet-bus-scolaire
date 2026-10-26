@@ -47,14 +47,14 @@ function goTerminus(h){
  h.click('simulate_arrival');
 }
 test('UI164/01: title format matches original Chauffeur APK UI-132 precisely on phone',()=>{
- const mobile=css.slice(css.lastIndexOf('/* UI-164'));
+ const mobile=css.slice(css.indexOf('/* UI-164'));
  assert.match(mobile,/font-size:clamp\(16px,4vw,20px\)!important/);
  assert.match(mobile,/color:#ffe48a!important/);
  assert.match(mobile,/font-weight:800!important/);
  assert.match(mobile,/line-height:1\.2!important/);
 });
 test('UI164/02: original clipping prevented ticker, now parent clips and text moves',()=>{
- const mobile=css.slice(css.lastIndexOf('/* UI-164'));
+ const mobile=css.slice(css.indexOf('/* UI-164'));
  assert.match(mobile,/\.next-stop \.next-stop-info\s*\{[^}]*overflow:hidden/);
  assert.match(mobile,/\.stop-name-scroller\s*\{[^}]*width:max-content!important/);
  assert.match(mobile,/white-space:nowrap!important/);
