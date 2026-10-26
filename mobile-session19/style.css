@@ -759,3 +759,16 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){
  .express-terminal-scroll{animation:none!important}
 }
+
+
+/* UI-166: scenario selector exists only under Plus, never crowds Arrêt express. */
+.ux-trial-page h2{font-size:20px;margin:0 0 10px;color:#301357}
+.ux-trial-sizes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.ux-trial-load{min-height:64px;background:#eee5fc;color:#371762;
+ border:1px solid #cdb2e5;font-size:16px;font-weight:900}
+.ux-trial-load:focus-visible{outline:3px solid #f5bd20;outline-offset:2px}
+.ux-trial-result{background:#f5f0fc;border:1px solid #d7c6ed;
+ border-radius:13px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.ux-trial-result strong{color:#2a1151;font-size:14px}
+.ux-trial-result span{font-size:13px;color:#3c2457}
+.ux-trial-result small{font-size:11px;line-height:1.3;color:#73588b}
