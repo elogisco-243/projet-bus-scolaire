@@ -43,6 +43,20 @@ Les cinq accès possibles :
 
 Le script indique le PID du serveur local pour l'arrêter avec `Stop-Process -Id <PID>`. Lorsque le serveur s'arrête, la tournée fictive en mémoire disparaît.
 
+### Correction du lanceur Windows — émulateur non visible
+
+Le journal `Starting: Intent` seul n'atteste pas qu'une fenêtre de l'émulateur est ouverte. Le lanceur `scripts/qa-ui168-sessions-synchronisees.ps1` utilise maintenant `scripts/ui168-emulator-start.ps1` avec `-OpenAndroidEmulator` pour :
+
+- vérifier la présence de `D:\Android\sdk\emulator\emulator.exe` et d'ADB ;
+- détecter `emulator-5554` et démarrer l'AVD `A2S_Scola_Phone_Stable` s'il n'est pas actif ;
+- attendre `sys.boot_completed=1` (maximum 180 secondes) ;
+- tenter de restaurer une fenêtre d'émulateur existante au premier plan ;
+- établir `adb reverse tcp:4177 tcp:4177`, puis ouvrir le navigateur de démonstration.
+
+Si ADB indique `device` mais qu'aucune fenêtre n'apparaît, le lanceur affiche un avertissement : l'émulateur peut être intégré à Android Studio, réduit ou lancé sans fenêtre. Dans ce cas, ouvrir **Android Studio > Device Manager** et afficher l'AVD. Éviter de créer une seconde instance sur le même port.
+
+Cette automatisation ne confirme pas encore un test visuel sur Windows tant que l'utilisateur n'a pas vérifié que la fenêtre et la page s'affichent.
+
 ### Test avec navigateur sur émulateur Android 16
 
 On peut lancer le script avec `-OpenAndroidEmulator` pour utiliser `adb reverse tcp:4177 tcp:4177` et ouvrir le profil **Accompagnateur** dans le navigateur de l'émulateur `emulator-5554`, en parallèle des profils du PC. Il s'agit du **navigateur** Android qui participe à l'essai synchronisé : **ce n'est pas l'APK Chauffeur ni l'APK Accompagnateur Android qui se synchronise déjà**.
