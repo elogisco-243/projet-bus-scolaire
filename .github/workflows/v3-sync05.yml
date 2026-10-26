@@ -1,0 +1,26 @@
+name: Bus V3 - SYNC-05 Mobile Contract (Isolated)
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync05-mobile-contract
+  pull_request:
+    branches:
+      - feature/bus-v3-sync04-secure-writer
+permissions:
+  contents: read
+jobs:
+  mobile-simulator:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check mobile-sync05/transport.mjs
+          node --check mobile-sync05/queue.mjs
+      - name: Simulated devices, offline retry, parent-only read and idempotency
+        run: node --test mobile-sync05/tests/sync05-contract.test.mjs
+      - name: Existing V3 HTTP authorizations and JWT regressions
+        run: node --test test/v3-sync04-write-api.test.js test/v3-sync03-pg-reader.test.js test/v3-sync03-read-api.test.js

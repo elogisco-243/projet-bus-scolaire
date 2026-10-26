@@ -1,0 +1,50 @@
+name: Bus V3 - SYNC-09 Capacitor 8.5.3 Compatibility
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync09-capacitor8-compat
+  pull_request:
+    branches:
+      - feature/bus-v3-sync08-capacitor-test-plugin
+permissions:
+  contents: read
+jobs:
+  compile-compatibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Android SDK 36 and Build Tools
+        run: |
+          SDKMGR=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -n 1)
+          test -x "$SDKMGR"
+          "$SDKMGR" --install "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+      - name: Assert exact versions in standalone compatibility module
+        run: |
+          grep -q "version '8.13.0'" android-sync07/build.gradle
+          grep -q "com.capacitorjs:core:8.5.3" android-sync07/capacitorbridge/build.gradle
+          grep -q 'compileSdk 36' android-sync07/storage/build.gradle
+          grep -q 'minSdk 24' android-sync07/storage/build.gradle
+          grep -q 'compileSdk 36' android-sync07/capacitorbridge/build.gradle
+          grep -q 'minSdk 24' android-sync07/capacitorbridge/build.gradle
+      - name: Compile Capacitor 8.5.3, native SQLCipher and Android instrumented tests
+        run: gradle --no-daemon -p android-sync07 :storage:assembleDebug :capacitorbridge:assembleDebug :storage:assembleDebugAndroidTest :testhost:assembleDebug
+      - name: Assert smoke host separate from UI-145
+        run: |
+          grep -q "applicationId 'cd.eneo360.busscolaire.v3.sync09.test'" android-sync07/testhost/build.gradle
+          grep -q "registerPlugin(ScolaQueuePlugin.class)" android-sync07/testhost/src/main/java/cd/eneo360/busscolaire/v3/MainActivity.java
+          grep -q 'before super.onCreate' android-sync07/testhost/src/main/java/cd/eneo360/busscolaire/v3/MainActivity.java
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS and device simulation regressions
+        run: |
+          node --test mobile-sync08/tests/sync08-registration.test.mjs
+          node --test mobile-sync07/tests/sync07-bridge.test.mjs mobile-sync06/tests/sync06-durable.test.mjs mobile-sync05/tests/sync05-contract.test.mjs
+          node --test test/v3-sync04-write-api.test.js test/v3-sync03-read-api.test.js

@@ -1,0 +1,63 @@
+name: Bus V3 - SYNC-03 PostgreSQL Read Boundary
+on:
+  push:
+    branches:
+      - feature/bus-v3-sync03-pg-reader
+  pull_request:
+    branches:
+      - feature/bus-v3-sync03-read-gateway
+permissions:
+  contents: read
+jobs:
+  pg-reader-regressions:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: sync03_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sync03_disposable"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ci-only-password
+      PGDATABASE: sync03_disposable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check src/v3/sync03-pg-reader.js
+      - name: Signed identity, RLS session and HTTP contract tests
+        run: node --test test/v3-sync03-pg-reader.test.js test/v3-sync03-read-api.test.js
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+      - name: Run disposable PostgreSQL migrations 001-004
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/migrations/001_v3_core.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/002_v3_integrity.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/003_v3_rls.sql
+          psql -v ON_ERROR_STOP=1 -f db/migrations/004_v3_sync02_crew_events.sql
+      - name: Run disposable RLS, authorization and event regression SQL
+        run: |
+          psql -v ON_ERROR_STOP=1 -f db/tests/001_v3_integrity_regression.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/002_v3_rls_regression.sql
+          psql -v ON_ERROR_STOP=1 -f db/tests/003_v3_sync02_regression.sql
+      - name: Seed disposable PostgreSQL for restricted-role HTTP E2E
+        run: psql -v ON_ERROR_STOP=1 -f db/tests/004_v3_sync03_e2e_seed.sql
+      - name: Install node-postgres only in disposable CI environment
+        run: npm install --prefix staging --ignore-scripts --no-audit --no-fund
+      - name: Real PostgreSQL restricted-role signed JWT HTTP E2E
+        run: node --test ci/sync03-pg-e2e.js
