@@ -49,7 +49,7 @@ test('UI157: real Wi-Fi symbol replaces placeholder but DEMO never claims server
 });
 test('UI157: prochain arrêt has same large warm-yellow Chauffeur-type emphasis',()=>{
  const h=create();
- assert.match(h.html(),/PROCHAIN ARRÊT<\/span><strong>Dépôt<\/strong>/);
+ assert.match(h.html(),/PROCHAIN ARRÊT<\/span><strong class="stop-name-scroller">Dépôt<\/strong>/);
  assert.match(css,/\.next-stop strong\s*\{\s*color:#ffe38a!important/);
  assert.match(css,/font-size:clamp\(34px,8\.3vw,54px\)!important/);
  assert.match(css,/\.next-stop \.hero-label/);
