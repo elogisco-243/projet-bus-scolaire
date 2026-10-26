@@ -22,7 +22,7 @@ const create=()=>{
 const begin=h=>{h.click('demo_prepare_departure');h.click('start_demo_trip');};
 test('UI161/01: planned screen keeps next stop and readiness switch',()=>{
  const h=create(),page=h.html();
- assert.match(page,/PROCHAIN ARRÊT<\/span><strong>Dépôt/);
+ assert.match(page,/PROCHAIN ARRÊT<\/span><strong class="stop-name-scroller">Dépôt/);
  assert.match(page,/data-action="demo_prepare_departure"/);
  assert.doesNotMatch(page,/data-action="go_students"[^>]*pointage-direct/);
 });
