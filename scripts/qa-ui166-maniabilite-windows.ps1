@@ -101,13 +101,15 @@ $ErrorActionPreference = "Stop"
 
     $Hash = (Get-FileHash $Apk -Algorithm SHA256).Hash
     Write-Host "SHA256 APK : $Hash"
+    # ASCII-only .ps1 content: Windows PowerShell 5.1 reads no-BOM files with legacy ANSI.
+    # Never reintroduce non-ASCII identifiers into this script.
     $Sheet = Join-Path $Folder "Fiche-maniabilite-UI166.csv"
     if (-not (Test-Path $Sheet)) {
        @(
-         [pscustomobject]@{ScenarioEleves=5; MontéesPrevues=3; DescentesPrevues=1; AbsencesPrevues=1; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
-         [pscustomobject]@{ScenarioEleves=15; MontéesPrevues=7; DescentesPrevues=5; AbsencesPrevues=3; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
-         [pscustomobject]@{ScenarioEleves=30; MontéesPrevues=14; DescentesPrevues=10; AbsencesPrevues=6; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
-         [pscustomobject]@{ScenarioEleves=50; MontéesPrevues=24; DescentesPrevues=16; AbsencesPrevues=10; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=5; MonteesPrevues=3; DescentesPrevues=1; AbsencesPrevues=1; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=15; MonteesPrevues=7; DescentesPrevues=5; AbsencesPrevues=3; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=30; MonteesPrevues=14; DescentesPrevues=10; AbsencesPrevues=6; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=50; MonteesPrevues=24; DescentesPrevues=16; AbsencesPrevues=10; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
        ) | Export-Csv -NoTypeInformation -Encoding UTF8 -Path $Sheet
     }
     Write-Host "=== UI-166 : PRET POUR ESSAIS HUMAINS ===" -ForegroundColor Green
