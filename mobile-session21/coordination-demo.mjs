@@ -4,7 +4,7 @@
  * All role identities and authorizations are fictitious and spoofable.
  * MUST NOT be imported as an operational authorizer.
  */
-const ACTORS=Object.freeze({'DR-DEMO':'driver','AT-DEMO':'attendant','PA-DEMO':'parent','SU-DEMO':'supervisor'});
+const ACTORS=Object.freeze({'DR-DEMO':'driver','AT-DEMO':'attendant','PA-DEMO':'parent','PB-DEMO':'parent','SU-DEMO':'supervisor'});
 const ROLES=Object.freeze({
  ready:['attendant'],start:['driver'],arrive:['driver'],
  board:['driver','attendant'],absent:['driver','attendant'],
@@ -33,7 +33,7 @@ export function newCoordinationDemo(){
   attendantReady:false,stopClearance:false,
   students:[
    {id:'E-01',parentId:'PA-DEMO',pickupStopId:'STOP-01',dropoffStopId:'STOP-03',boarded:false,absent:false,released:false,recipientId:'PA-DEMO'},
-   {id:'E-02',parentId:'PA-DEMO',pickupStopId:'STOP-02',dropoffStopId:'STOP-03',boarded:false,absent:false,released:false,recipientId:'PA-DEMO'}],
+   {id:'E-02',parentId:'PB-DEMO',pickupStopId:'STOP-02',dropoffStopId:'STOP-03',boarded:false,absent:false,released:false,recipientId:'PB-DEMO'}],
   requests:[],handovers:[],alerts:[],events:[],keys:{},delivery:'LOCAL_SIMULATION_ONLY'};
 }
 function authorize(s,cmd){
