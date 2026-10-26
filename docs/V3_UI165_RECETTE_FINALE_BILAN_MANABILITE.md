@@ -84,3 +84,24 @@ Nom des éléments : `Accueil-*.png`, `01-Arret-express.png`, `02-Terminus-attei
 Effectuer la recette assistée et examiner les deux captures ainsi que la vidéo d'animation. **Clôturer le jalon « ergonomie DEMO » uniquement si les écarts visuels sont corrigés et si les tests d'observation humaine sont satisfaisants.** Maintenir le jalon « mise en service » bloqué jusqu'aux intégrations et validations de sécurité.
 
 **Aucun commit n'a été fusionné dans `main` ; Chauffeur v1.7 et production inchangés.**
+
+
+## Complément — revue visuelle des preuves reçues le 26/10/2026
+
+**Sources inspectées** : fichiers fournis directement en conversation après la recette locale, et non captures générées ou accessibles depuis GitHub :
+
+| Preuve | SHA-256 | Observation |
+|---|---|---|
+| `01-Arret-express.png` (320 × 640) | `696688c461befa7b079d08ed90e101bd0472167c2c663af21c2b1b70fe75e35d` | Arrêt express Dépôt affiché ; 1 élève attendu `E-01`, bouton « Monté », « Non présenté » et compteurs visibles ; navigation inférieure non masquée |
+| `02-Terminus-atteint.png` (320 × 640) | `8ec69daf56328566de8d7508192264eb2658d7c656a420ac44660710c79c5e06` | « PROCHAIN ARRÊT / Terminus atteint », 0 élève à bord, 3/3 arrêts, bouton de clôture disponible ; texte non tronqué et composition stable |
+| `03-Terminus-animation.mp4` (9,16 s ; 320 × 640) | `fc93a11a0dc9922367af521c0fa3a0dd3600cf02b3f2df026d9edf157de974fa` | Mouvement horizontal vérifié sur les trames examinées (début, 2 s, 4 s, 6 s et 8 s). L'emprise du texte jaune se déplace d'environ 22 pixels. |
+
+### Verdict par type de preuve
+
+- **Rendu Arrêt express pour un élève sur cet écran** : validé visuellement. Pas de long défilement nécessaire pour ce cas observé. Les tests logiques 5/15/30/50 ne constituent pas une preuve de lisibilité humaine dans ces scénarios.
+- **Présence et lisibilité de « Terminus atteint »** : validées visuellement sur cet écran.
+- **Défilement du titre au terminus** : mouvement effectivement observé sur la vidéo, sans troncature visible.
+- **Parité typographique au pixel près avec l'APK Chauffeur** : valeurs CSS reprises de la référence, mais comparaison côte à côte des deux APK et densités d'écran non documentée dans cette preuve ; validation stricte encore à réaliser.
+- **Ergonomie complète, vitesse mesurée, sécurité opérationnelle, synchronisation entre rôles, autorisation de remise de l'enfant** : non validées. Le message `EN COURS` au terminus est cohérent avec une course pas encore clôturée ; la seule disponibilité du bouton de clôture n'est pas une preuve qu'une clôture a été exécutée.
+
+**Décision de revue** : le jalon **« corrections visuelles UI-164 et capture vidéo du terminus » est accepté** pour la Démo sur l'émulateur 320 × 640. Le jalon « maniabilité validée par opérateurs humains » reste **ouvert**, et la mise en service réelle reste **NO-GO**. L'APK Chauffeur de référence et la production restent inchangés.
