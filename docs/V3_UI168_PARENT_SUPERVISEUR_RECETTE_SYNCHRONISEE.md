@@ -101,9 +101,13 @@ Cela confirme l'observation humaine d'une propagation de la décision sur les de
 
 **Validé par l'utilisateur.** Après le scénario où le Superviseur refuse la demande et où la destination initiale de l'enfant doit rester inchangée, l'utilisateur a répondu : « Confirmé ». Il s'agit d'une validation manuelle qualitative du parcours local fictif, sans relevé de captures ni preuve d'authentification opérationnelle.
 
-**Non encore confirmés par l'utilisateur** : absence anticipée ; annulation de demande ; incident critique ; contrôle et remise simulée ; reprise réseau ; essais sur appareils distincts.
+### Test 3 — absence anticipée Parent E-02
 
-**Prochain essai** : Recette D — réinitialiser le jeu fictif ; Parent E-02 annonce son absence avant le départ ; vérifier son état dans Accompagnateur, puis que l'arrêt fictif A ne réclame pas de pointage supplémentaire pour E-02.
+**Validé par l'utilisateur.** Après le test où Parent E-02 annonce son absence avant départ, puis où l'Accompagnateur vérifie qu'E-02 ne figure plus parmi les élèves restant à pointer à l'arrêt fictif A, l'utilisateur a répondu : « Confirmé ». Cette validation porte sur la simulation multi-session locale, pas sur une application opérationnelle authentifiée.
+
+**Non encore confirmés par l'utilisateur** : annulation de demande ; incident critique ; contrôle et remise simulée ; reprise réseau ; essais sur appareils distincts.
+
+**Prochain essai** : incident critique : à l'arrêt fictif Dépôt, signaler un enfant manquant depuis Chauffeur ; vérifier le blocage du feu vert chez l'Accompagnateur et de la reprise chez le Chauffeur ; faire traiter l'alerte en simulation par le Superviseur ; vérifier qu'un nouveau feu vert explicite est nécessaire.
 
 ## Ce qui reste avant une synchronisation opérationnelle
 
