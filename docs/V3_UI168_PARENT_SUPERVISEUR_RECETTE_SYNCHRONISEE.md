@@ -159,6 +159,10 @@ Lancer le script existant avec les options `-NoBrowser -OpenAndroidEmulator`. Il
 
 **Statut : correction automatisée testée, affichage et clic réels Android encore à confirmer par l'utilisateur.**
 
+### UI-169 — confirmation sur émulateur Android
+
+**Capture reçue et inspectée.** L'écran Accompagnateur Android affiche « Préparation confirmée · Attendez le départ du Chauffeur », le statut « Connecté au serveur local », une tournée encore « Planifiée », « Avant départ », ainsi que « Révision partagée : 1 » et « Action prise en compte par le serveur de démonstration ». L'action de préparation et son retour visuel fonctionnent maintenant sur Android. La synchronisation PC ↔ Android (préparation visible chez Chauffeur, démarrage puis arrivée affichés chez Accompagnateur) n'est pas encore confirmée par l'utilisateur.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
