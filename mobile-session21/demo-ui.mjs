@@ -7,6 +7,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt
 const btn=(label,type,payload={},kind='action',disabled=false)=>'<button type="button" class="'+kind+'" data-type="'+esc(type)+'" data-payload="'+esc(JSON.stringify(payload))+'" '+(disabled?'disabled':'')+'>'+esc(label)+'</button>';
 const stopName=id=>id?({'STOP-01':'Dépôt','STOP-02':'Arrêt fictif A','STOP-03':'Terminus fictif B'}[id]||id):'Avant départ';
 const statusLabel=s=>s==='in_progress'?'En cours':s==='completed'?'Clôturée':'Planifiée';
+const requestLabel=s=>({pending:'En attente',approved_demo:'Approuvée (démo)',rejected_demo:'Refusée (démo)',cancelled:'Annulée'}[s]||s);
 const summary=s=>'<div class="metric-grid">'+
  '<div class="metric"><strong>'+esc(statusLabel(s.status))+'</strong><span>État de tournée</span></div>'+
  '<div class="metric"><strong>'+esc(stopName(s.stopId))+'</strong><span>Dernier arrêt atteint</span></div>'+
@@ -17,10 +18,10 @@ function actorBody(s){
  if(profile==='parent'||profile==='parent2'){
   const people=(s.children||[]).map(p=>item('Élève '+p.studentId,
     'Destination : '+stopName(p.dropoffStopId)+' · '+(p.released?'Remise déclarée (démo)':p.absent?'Absence annoncée':p.boarded?'À bord (démo)':'Non monté'),
-    (!p.absent&&!p.boarded&&s.status!=='completed')?
+    (!p.absent&&!p.boarded&&!p.pickupAlreadyPassed&&s.status!=='completed')?
       btn('Signaler absent (démo)','notify_absence',{studentId:p.studentId,reason:'family_notified'},'action secondary'):'')).join('');
   const requests=(s.requests||[]).map(r=>item('Demande '+r.id,
-    stopName(r.fromStopId)+' → '+stopName(r.toStopId)+' · '+r.status+(r.reason?' · Motif : '+r.reason:''),
+    stopName(r.fromStopId)+' → '+stopName(r.toStopId)+' · '+requestLabel(r.status)+(r.reason?' · Motif : '+r.reason:''),
     r.status==='pending'?btn('Annuler (démo)','cancel_change',{requestId:r.id},'action secondary'):'')).join('');
   const child=s.children?.[0],parentId=profile==='parent'?'PA-DEMO':'PB-DEMO';
   const destinations=['STOP-01','STOP-02','STOP-03'].filter(id=>id!==child?.dropoffStopId);
@@ -34,7 +35,7 @@ function actorBody(s){
    '</section><section class="card"><h2>Mes demandes</h2><div class="list">'+(requests||'<p>Aucune demande</p>')+'</div></section>';
  }
  if(profile==='superviseur'){
-  const requests=(s.requests||[]).map(r=>item('Élève '+r.studentId+' · '+esc(r.status),
+  const requests=(s.requests||[]).map(r=>item('Élève '+r.studentId+' · '+requestLabel(r.status),
    stopName(r.fromStopId)+' → '+stopName(r.toStopId)+' · demande de '+r.parentId,
    r.status==='pending'?
     (r.proposedRevision!==s.revision?
