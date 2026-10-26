@@ -35,3 +35,29 @@ code{background:#f1e9f8;padding:2px 4px;border-radius:5px}
 footer{text-align:center;color:#766585;font-size:12px;padding:20px}
 @media(max-width:560px){main{padding:10px}.mast{padding:13px}.card{padding:14px}.role-grid{grid-template-columns:1fr}.role-button:last-child{grid-column:1}.item{align-items:stretch}.item .actions{width:100%}.item .actions button{flex:1}.actions button{flex-grow:1}}
 @media(prefers-reduced-motion:no-preference){button{transition:background .1s ease}}
+
+/* UI-169: urgent crew action lives above KPI tiles and within the first mobile viewport. */
+.primary-panel{margin:12px 0 8px}
+.primary-panel .primary-action{display:block;width:100%;min-height:56px;font-size:16px;font-weight:850}
+.primary-status,.primary-warning{border-radius:11px;padding:12px 14px;font-size:14px;font-weight:750;line-height:1.4;background:#efe8fa;color:#341458}
+.primary-warning{background:#ffe1de;color:#862b25}
+@media(max-width:560px){
+ .mast{min-height:62px;padding:9px 14px;gap:10px}
+ .brand-mark{width:40px;height:40px;border-radius:9px;font-size:24px}
+ .mast-text strong{font-size:20px}
+ .mast-text small{font-size:11px;margin-top:2px}
+ .demo-ribbon{font-size:11px;line-height:1.2;padding:6px 8px}
+ main{gap:10px}
+ .session-card{padding:13px 14px}
+ .session-card h1{font-size:20px;margin:0 0 7px}
+ .session-card .tag{font-size:11px;padding:4px 8px}
+ .session-card .status{font-size:11px}
+ .session-intro{display:none}
+ .primary-panel{margin:11px 0 7px}
+ .primary-panel .primary-action{min-height:56px}
+ .metric-grid{gap:6px;margin:8px 0 0}
+ .metric{padding:8px;min-height:56px}
+ .metric strong{font-size:17px;line-height:1.2;overflow-wrap:anywhere}
+ .metric span{font-size:11px;line-height:1.25}
+ .item .actions button{min-height:50px}
+}
