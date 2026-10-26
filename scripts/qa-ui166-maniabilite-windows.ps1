@@ -104,16 +104,16 @@ $ErrorActionPreference = "Stop"
     $Sheet = Join-Path $Folder "Fiche-maniabilite-UI166.csv"
     if (-not (Test-Path $Sheet)) {
        @(
-         [pscustomobject]@{ScenarioEleves=5; MontéesPrevues=3; DescentesPrevues=1; AbsencesPrevues=1; TempsEcranSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
-         [pscustomobject]@{ScenarioEleves=15; MontéesPrevues=7; DescentesPrevues=5; AbsencesPrevues=3; TempsEcranSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
-         [pscustomobject]@{ScenarioEleves=30; MontéesPrevues=14; DescentesPrevues=10; AbsencesPrevues=6; TempsEcranSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
-         [pscustomobject]@{ScenarioEleves=50; MontéesPrevues=24; DescentesPrevues=16; AbsencesPrevues=10; TempsEcranSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=5; MontéesPrevues=3; DescentesPrevues=1; AbsencesPrevues=1; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=15; MontéesPrevues=7; DescentesPrevues=5; AbsencesPrevues=3; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=30; MontéesPrevues=14; DescentesPrevues=10; AbsencesPrevues=6; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
+         [pscustomobject]@{ScenarioEleves=50; MontéesPrevues=24; DescentesPrevues=16; AbsencesPrevues=10; IntervallePointageSecondes=""; TempsArretTotalSecondes=""; Defilements=""; Erreurs=""; Observations=""}
        ) | Export-Csv -NoTypeInformation -Encoding UTF8 -Path $Sheet
     }
     Write-Host "=== UI-166 : PRET POUR ESSAIS HUMAINS ===" -ForegroundColor Green
     Write-Host "Sur l emulateur : Plus > Essais de maniabilite (Demo) > choisir 5, 15, 30 ou 50 eleves"
     Write-Host "Chaque bouton ouvre directement l Arret express de demonstration au 2e arret."
-    Write-Host "Apres le dernier pointage, relevez le temps ecran. Notez aussi separement le temps arret total."
+    Write-Host "Apres le dernier pointage, relevez l intervalle entre le premier et le dernier geste. Chronometrez separement le temps total d arret."
     Write-Host "Fiche de saisie : $Sheet"
     Write-Host "IMPORTANT : aucun resultat utilisateur n est automatiquement valide ou envoye."
 
