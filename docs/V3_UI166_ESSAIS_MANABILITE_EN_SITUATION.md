@@ -53,3 +53,14 @@ Il faut observer, au minimum :
 - `scripts/qa-ui166-maniabilite-windows.ps1` : recette Android 16 et fiche vierge de mesures.
 
 Aucune modification de l'application Chauffeur v1.7, de la production ou de la branche `main` n'est prévue pour cette phase.
+
+
+## Retour utilisateur et décision qualitative — 26 octobre 2026
+
+Après l'installation et le lancement réussis du TESTHOST UI-166 sur l'émulateur Android 16, l'utilisateur a confirmé avoir testé **tous les scénarios de 5, 15, 30 et 50 élèves**. À la question de l'appréciation de la rapidité, simplicité et fluidité du pointage, sa réponse explicite est : **« maniable »**.
+
+**Décision : validation ergonomique qualitative de la Démo Accompagnateur acceptée sur la base de ce retour utilisateur.** Il s'agit d'un avis positif après manipulation de l'interface sur l'émulateur, et non d'un test scientifique de productivité ou d'une recette exhaustive sur différents appareils et opérateurs.
+
+**Non communiqués :** durées affichées par l'application, temps d'arrêt total, nombre de corrections, taux d'erreur, relevés de défilement, fiche CSV remplie, essais par plusieurs utilisateurs et captures des scénarios à forte affluence. Ne pas remplacer ces valeurs manquantes par des suppositions.
+
+**Suite recommandée :** maintenir la version Chauffeur v1.7 inchangée ; démarrer un lot distinct de synchronisation opérationnelle, avec authentification des rôles, trajet/élèves partagés, double validation, événements serveur idempotents, autorisations Parent pour les changements d'arrêt, authentification des récupérateurs et protocole de remise physique. Aucun feu vert pour transporter de vrais enfants avant intégration, essais croisés réels et validation des procédures de sécurité.
