@@ -136,6 +136,7 @@ export function applyCoordinationDemo(original,command){
   req.status='cancelled';break;
  }
  case 'revalidate_change_demo':{
+  if(critical(s))fail('CRITICAL_INCIDENT_OPEN');
   if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
   const req=s.requests.find(x=>x.id===p.requestId&&x.status==='pending');
   if(!req)fail('REQUEST_NOT_PENDING');
@@ -146,6 +147,7 @@ export function applyCoordinationDemo(original,command){
   req.proposedRevision=s.revision+1;break;
  }
  case 'review_change_demo':{
+  if(critical(s))fail('CRITICAL_INCIDENT_OPEN');
   if(s.status!=='in_progress')fail('TRIP_NOT_ACTIVE');
   const req=s.requests.find(x=>x.id===p.requestId&&x.status==='pending');
   if(!req)fail('REQUEST_NOT_PENDING');
@@ -174,6 +176,7 @@ export function applyCoordinationDemo(original,command){
   alert.open=false;break;
  }
  case 'review_handover_demo':{
+  if(critical(s))fail('CRITICAL_INCIDENT_OPEN');
   atStop(s);
   const child=pupil(s,p.studentId);expectedStop(s,child,'alight');
   if(!child.boarded||child.released)fail('NOT_ONBOARD');
@@ -184,6 +187,7 @@ export function applyCoordinationDemo(original,command){
    status:'reviewed_demo',reviewRevision:s.revision+1});break;
  }
  case 'handover_demo':{
+  if(critical(s))fail('CRITICAL_INCIDENT_OPEN');
   atStop(s);
   const child=pupil(s,p.studentId);expectedStop(s,child,'alight');
   if(!child.boarded||child.released)fail('NOT_ONBOARD');
