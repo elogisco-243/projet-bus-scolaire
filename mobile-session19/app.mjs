@@ -1,5 +1,6 @@
 import {makeAttendantDemo,runAttendantDemo,attendantSummary,attendantClosingChecklist,INCIDENTS,CRITICAL_INCIDENTS} from './attendant-demo.mjs';
 let state=makeAttendantDemo(),tab='tour',view='dashboard',message='';
+let expressOpen=false,expressFilter='all';
 // UI-156: visual hints remain local to this DEMO; no timer, telemetry or real alert.
 let pointagePulseSeenAt=null, stopPulseWaitingFor=null;
 const root=document.querySelector('#app');
@@ -147,6 +148,61 @@ function tourDashboard(d,started,done){
  button(icon('flag')+'<span>CLÔTURER LA COURSE</span>','go_closing','','light dash-action',!d.canOpenClosing)+
  '</div></section>';
 }
+/** UI-163 — a bounded, first-screen-only pointage queue.
+ * Physical boarding / handover never inferred from a UI tap alone in production. */
+function expressRoster(d){
+ const all=state.students.filter(p=>d.atStop&&
+  (p.pickupStopId===d.activeStopId||
+   (p.dropoffStopId===d.activeStopId&&p.boarded&&!p.alighted))
+ );
+ const departures=all.filter(p=>p.dropoffStopId===d.activeStopId&&p.boarded&&!p.alighted);
+ const boardings=all.filter(p=>p.pickupStopId===d.activeStopId&&!p.boarded&&!p.absent);
+ const anticipated=all.filter(p=>p.pickupStopId===d.activeStopId&&p.absent&&!p.boarded);
+ const waiting=departures.map(p=>({p,kind:'alight'})).concat(boardings.map(p=>({p,kind:'board'})));
+ return {waiting,departures,boardings,anticipated,all};
+}
+function expressPage(d){
+ if(!d.atStop)return '';
+ const r=expressRoster(d);
+ const filter=expressFilter;
+ const display=r.waiting.filter(x=>filter==='all'||(filter==='alight'&&x.kind==='alight')||(filter==='board'&&x.kind==='board'));
+ const visible=display.slice(0,4);
+ const pending=r.waiting.length;
+ const last=state.events.at(-1);
+ const reversible=last&&['board','alight','mark_absent'].includes(last.type)&&last.stopId===d.activeStopId;
+ const filters=[['all','Tous',pending],['alight','Descentes',r.departures.length],['board','Montées',r.boardings.length]];
+ return '<section class="express-overlay" role="dialog" aria-modal="true" aria-label="Arrêt express — pointage des élèves">'+
+  '<div class="express-header"><div><span class="express-eyebrow">DÉMO · ARRÊT EXPRESS</span>'+
+  '<h2>'+escapeHTML(d.activeStopName)+'</h2><small>Bus déclaré immobilisé · arrêt '+d.stopsReached+'/'+d.stopsTotal+'</small></div>'+
+  button('×','express_close','','express-close')+'</div>'+
+  '<div class="express-kpis" role="status" aria-live="polite">'+
+   '<div><strong>'+r.departures.length+'</strong><span>Descentes restantes</span></div>'+
+   '<div><strong>'+r.boardings.length+'</strong><span>Montées restantes</span></div>'+
+   '<div><strong>'+r.anticipated.length+'</strong><span>Absences signalées</span></div></div>'+
+  '<div class="express-progress"><strong>'+pending+' à traiter</strong><span>Les élèves pointés quittent cette liste</span></div>'+
+  '<div class="express-filters" role="group" aria-label="Filtrer les élèves">'+filters.map(([id,label,n])=>
+   button(escapeHTML(label)+' ('+n+')','express_filter',id,'express-chip'+(filter===id?' chosen':''))).join('')+'</div>'+
+  '<div class="express-queue" role="list">'+
+  (visible.length?visible.map(({p,kind})=>
+    '<div class="express-student" role="listitem" data-pupil="'+escapeHTML(p.id)+'">'+
+     '<div class="express-student-info"><strong>'+escapeHTML(p.id)+'</strong>'+
+     '<small>'+(kind==='alight'?'Descente attendue':'Montée attendue')+(p.approvedChangeId?' · Remise spéciale (démo)':'')+'</small></div>'+
+     (kind==='alight'&&p.approvedChangeId?
+       '<span class="express-review" role="note">Vérification du récupérateur nécessaire</span>':
+       button(kind==='alight'?'Descendu':'Monté',kind,p.id,'express-confirm '+(kind==='alight'?'alight':'board')))+
+     (kind==='board'?button('Non présenté','mark_absent',p.id,'express-absent'):'')+
+    '</div>').join(''):
+    '<p class="express-empty">'+(pending===0?'Pointage de cet arrêt terminé.':'Aucun élève dans ce filtre.')+'</p>')+
+  '</div>'+
+  (display.length>4?'<p class="express-next">Après chaque pointage, le suivant apparaît automatiquement · '+(display.length-4)+' autre(s)</p>':'')+
+  '<div class="express-bottom">'+
+    (reversible?button('↶ Corriger le dernier','undo_last_pointage','','express-undo'):'<span class="express-note">Chaque élève est confirmé individuellement</span>')+
+    (pending===0?
+      '<div class="express-ready"><strong>✓ Pointages terminés</strong><small>'+(d.openAlerts?'Alerte ouverte : aucune reprise autorisée':'Le Chauffeur doit confirmer la reprise ; aucun départ automatique')+'</small></div>'+
+      (d.canResume?button('Simuler reprise Chauffeur','simulate_driver_resume','','express-resume'):''):
+      '<span class="express-guard">Reprise bloquée tant que le pointage est incomplet</span>')+
+  '</div></section>';
+}
 function pointagePage(d){
  const here=state.students.filter(p=>d.atStop&&(p.pickupStopId===d.activeStopId||(p.dropoffStopId===d.activeStopId&&p.boarded&&!p.alighted)));
  return '<section class="card pointage-card"><h2>Pointage des élèves</h2>'+
@@ -220,7 +276,7 @@ function render(){
  '<main class="content" aria-label="'+tabLabel[tab]+'">'+
  (tab!=='tour'?'<h1 class="page-title">'+tabLabel[tab]+'</h1>':'')+
  (message?'<div class="error" role="status">'+escapeHTML(message)+'</div>':'')+
- content()+'</main>'+
+ content()+(tab==='tour'&&expressOpen?expressPage(attendantSummary(state)):'')+'</main>'+
  '<nav class="bottom" aria-label="Menus accompagnateur">'+navEntries.map(([id,legacyIcon,label])=>
  '<button type="button" data-tab="'+id+'" class="'+(tab===id?'active':'')+'" '+(tab===id?'aria-current="page"':'')+'>'+
  '<span class="nav-icon">'+icon(navIcon[id])+'</span><span class="nav-label">'+label+'</span></button>').join('')+
@@ -229,25 +285,30 @@ function render(){
 root.addEventListener('click',e=>{
  const target=e.target.closest('button');if(!target||target.disabled)return;
  message='';
- if(target.dataset.tab){tab=target.dataset.tab;view='dashboard';render();return;}
+ if(target.dataset.tab){tab=target.dataset.tab;view='dashboard';expressOpen=false;render();return;}
  const action=target.dataset.action;if(!action)return;
  try{
   if(action==='go_boarding'||action==='go_alerts'||action==='go_team'){
    tab=action==='go_boarding'?'tour':action==='go_alerts'?'alerts':'team';view=action==='go_boarding'?'students':'dashboard';
+   expressOpen=false;
    if(action==='go_team')message='Validation croisée réelle indisponible : équipe fictive uniquement.';
   }else if(action==='go_followup'||action==='go_students'||action==='go_stops'){
-   tab='tour';view=action==='go_followup'?'followup':action==='go_students'?'students':'stops';
+   tab='tour';
+   if(action==='go_students'&&attendantSummary(state).atStop){expressOpen=true;view='dashboard';}
+   else {expressOpen=false;view=action==='go_followup'?'followup':action==='go_students'?'students':'stops';}
+  }else if(action==='express_close'){expressOpen=false;view='dashboard';
+  }else if(action==='express_filter'){expressFilter=target.dataset.arg||'all';expressOpen=true;
   }else if(action==='go_closing'){
    tab='tour';view='closing';
   }else if(action==='go_journal'||action==='go_voice'||action==='go_sync'){
    tab='more';view=action==='go_journal'?'journal':action==='go_voice'?'voice':'sync';
   }
-  else if(action==='back_tour'){tab='tour';view='dashboard';}
-  else if(action==='reset'){state=makeAttendantDemo();tab='tour';view='dashboard';pointagePulseSeenAt=null;stopPulseWaitingFor=null;}
+  else if(action==='back_tour'){tab='tour';view='dashboard';expressOpen=false;}
+  else if(action==='reset'){state=makeAttendantDemo();tab='tour';view='dashboard';expressOpen=false;expressFilter='all';pointagePulseSeenAt=null;stopPulseWaitingFor=null;}
   else if(action==='network')state=runAttendantDemo(state,state.network==='simulated-online'?'simulate_network_loss':'simulate_network_return');
   else if(action==='new_demo_trip'){
    if(state.trip.status!=='completed')throw Error('TRIP_NOT_COMPLETED');
-   state=makeAttendantDemo();tab='tour';view='dashboard';pointagePulseSeenAt=null;stopPulseWaitingFor=null;
+   state=makeAttendantDemo();tab='tour';view='dashboard';expressOpen=false;expressFilter='all';pointagePulseSeenAt=null;stopPulseWaitingFor=null;
   }
   else{
    const actual=action==='incident'?'report_incident':action;
@@ -256,34 +317,17 @@ root.addEventListener('click',e=>{
     action==='mark_absent'?{studentId:target.dataset.arg,reason:'non_present'}:
     {studentId:target.dataset.arg};
    state=runAttendantDemo(state,actual,args);
-   if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'||action==='demo_confirm_empty_and_finish'){tab='tour';view='dashboard';}
+   if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'||action==='demo_confirm_empty_and_finish'){tab='tour';view='dashboard';if(action!=='start_demo_trip')expressOpen=false;}
    if(action==='simulate_arrival'){
     const arrived=attendantSummary(state);
     stopPulseWaitingFor=arrived.activeStopId;
-    // In DEMO only: an intermediate stop without scheduled pupils can continue
-    // after the synthetic standstill; closing/critical incidents remain guarded.
-    if(arrived.pendingAtStop===0&&arrived.canResume){
-     state=runAttendantDemo(state,'simulate_driver_resume');
-    }
+    expressOpen=true;expressFilter='all';tab='tour';view='dashboard';
+   }
+   if(action==='board'||action==='alight'||action==='mark_absent'||action==='undo_last_pointage'){
+    // One explicit gesture per child. Never start the vehicle automatically.
     tab='tour';view='dashboard';
    }
-   if(action==='resolve_incident'){
-    const safe=attendantSummary(state);
-    // A critical incident blocks resume until explicitly resolved.
-    // Only the simulated trip (never a real vehicle) resumes after resolution.
-    if(safe.canResume){
-     state=runAttendantDemo(state,'simulate_driver_resume');
-     tab='tour';view='dashboard';
-    }
-   }
-   if(action==='board'||action==='alight'||action==='mark_absent'){
-    const latest=attendantSummary(state);
-    if(latest.atStop&&latest.pendingAtStop===0){
-     // Only DEMO resumes automatically, after all pointages and safety blockers are cleared.
-     if(latest.canResume)state=runAttendantDemo(state,'simulate_driver_resume');
-     tab='tour';view='dashboard';
-    }
-   }
+   if(action==='simulate_driver_resume')expressOpen=false;
   }
  }catch(err){message='Action refusée : '+(friendlyErrors[err.message]||err.message);}
  render();
