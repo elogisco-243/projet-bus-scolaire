@@ -176,7 +176,7 @@ function expressPage(d){
  const filters=[['all','Tous',pending],['alight','Descentes',r.departures.length],['board','Montées',r.boardings.length]];
  return '<section class="express-overlay" role="region" aria-label="Arrêt express — pointage des élèves">'+
   '<div class="express-header"><div><span class="express-eyebrow">DÉMO · ARRÊT EXPRESS</span>'+
-  '<h2>'+escapeHTML(d.activeStopName)+'</h2><small>'+(d.stopsReached===d.stopsTotal?'TERMINUS ATTEINT · ':'')+'Bus déclaré immobilisé · arrêt '+d.stopsReached+'/'+d.stopsTotal+'</small></div>'+
+  '<h2>'+escapeHTML(d.activeStopName)+'</h2><small>'+(d.stopsReached===d.stopsTotal?'<span class="express-terminal-scroll">Terminus atteint</span> · ':'')+'Bus déclaré immobilisé · arrêt '+d.stopsReached+'/'+d.stopsTotal+'</small></div>'+
   button('×','express_close','','express-close')+'</div>'+
   '<div class="express-kpis" role="status" aria-live="polite">'+
    '<div><strong>'+r.departures.length+'</strong><span>Descentes restantes</span></div>'+
