@@ -88,6 +88,19 @@ On peut lancer le script avec `-OpenAndroidEmulator` pour utiliser `adb reverse 
 
 **Limite importante :** une absence anticipée est déclarée par une identité parentale *fictive*. En production, elle ne devra être prise en compte qu'après une authentification Parent côté serveur et une validation de l'affectation parent-enfant.
 
+
+## Résultats de recette transmis par l'utilisateur — 26 octobre 2026
+
+### Test 1 — demande Parent approuvée par Superviseur
+
+**Validé par l'utilisateur.** Confirmation reçue : « Test UI-168 réussi : le changement d'arrêt approuvé par le Superviseur est visible dans Parent et Accompagnateur. »
+
+Cela confirme l'observation humaine d'une propagation de la décision sur les deux vues d'un même serveur local de démonstration. Cela ne prouve ni la robustesse hors-ligne, ni l'authentification des personnes, ni une synchronisation entre APK autonomes.
+
+**Non encore confirmés par l'utilisateur** : refus de changement d'arrêt ; absence anticipée ; annulation de demande ; incident critique ; contrôle et remise simulée ; reprise réseau ; essais sur appareils distincts.
+
+**Prochain essai** : Recette B — réinitialiser la tournée fictive dans Superviseur, relancer préparation et départ, faire demander au Parent E-01 un nouvel arrêt, choisir « Refuser (démo) », et vérifier que le Parent reçoit « Refusée (démo) » tandis que l'Accompagnateur conserve la destination initiale.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
