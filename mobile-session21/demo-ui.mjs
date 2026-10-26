@@ -14,6 +14,25 @@ const summary=s=>'<div class="metric-grid">'+
  '<div class="metric"><strong>'+s.pendingAtStop+'</strong><span>Pointages restants à cet arrêt</span></div>'+
  '<div class="metric"><strong>'+s.revision+'</strong><span>Révision partagée</span></div></div>';
 const item=(name,help,actions='')=>'<div class="item"><div><strong>'+esc(name)+'</strong><div class="help">'+esc(help)+'</div></div><div class="actions">'+actions+'</div></div>';
+// UI-169: first-screen attendant action, before KPIs on narrow Android screens.
+function attendantPrimary(s){
+ if(profile!=='accompagnateur')return '';
+ let content='';
+ if(s.status==='planned'){
+  content=s.attendantReady?
+   '<div class="primary-status">Préparation confirmée · Attendez le départ du Chauffeur.</div>':
+   btn('Confirmer la préparation (démo)','ready',{},'action primary-action');
+ }else if(s.status==='in_progress'){
+  if(!s.parked)content='<div class="primary-status">Bus en route · Attendez le prochain arrêt.</div>';
+  else if(s.criticalAlerts>0)content='<div class="primary-warning">Incident critique ouvert · Départ bloqué.</div>';
+  else if(s.pendingAtStop>0)content='<div class="primary-status">Pointage à terminer : '+s.pendingAtStop+' élève(s). Les actions de pointage sont disponibles ci-dessous.</div>';
+  else if(s.stopClearance)content='<div class="primary-status">Feu vert transmis · Le Chauffeur peut poursuivre.</div>';
+  else content=btn('Arrêt prêt à quitter (démo)','clear_stop',{},'action primary-action');
+ }else{
+  content='<div class="primary-status">Tournée terminée.</div>';
+ }
+ return '<div class="primary-panel" aria-label="Action principale Accompagnateur">'+content+'</div>';
+}
 function actorBody(s){
  if(profile==='parent'||profile==='parent2'){
   const people=(s.children||[]).map(p=>item('Élève '+p.studentId,
@@ -87,21 +106,20 @@ function actorBody(s){
    btn('Monté','board',{studentId:p.studentId})+
    btn('Non présenté','absent',{studentId:p.studentId,reason:'not_present'},'action secondary'));
  }).join('');
- return '<section class="card"><h2>Accompagnateur</h2><div class="actions">'+
- (s.status==='planned'?btn('Confirmer la préparation (démo)','ready',{},'action',s.attendantReady):'')+
- (s.parked&&s.status==='in_progress'?btn('Arrêt prêt à quitter (démo)','clear_stop',{},'action',s.pendingAtStop>0||s.criticalAlerts>0||s.stopClearance):'')+
+ return '<section class="card"><h2>Sécurité de la tournée</h2><div class="actions">'+
  btn('Signaler enfant manquant (démo)','report_critical',{kind:'missing_child'},'action danger',s.status!=='in_progress')+
- '</div></section><section class="card"><h2>Pointage de l’arrêt</h2>'+
+ '</div></section><section class="card" id="pointage"><h2>Pointage de l’arrêt</h2>'+
  '<div class="list">'+(taskRows||'<p>Aucun pointage restant</p>')+'</div></section>';
 }
 function redraw(){
  if(!token||!snapshot)return;
  const s=snapshot;
  const y=window.scrollY;
- root.innerHTML='<section class="card"><div class="role-top"><div><h1>Session '+esc(titles[profile])+'</h1>'+
+ root.innerHTML='<section class="card session-card"><div class="role-top"><div><h1>Session '+esc(titles[profile])+'</h1>'+
   '<span class="tag">Simulation partagée</span></div><span class="status">'+
   (connected?'● Connecté au serveur local':'● Connexion perdue')+'</span></div>'+
-  '<p class="muted">Tous les profils consultent la même tournée fictive. Identités non authentifiées.</p>'+
+  (connected?attendantPrimary(s):'<div class="primary-warning">Connexion indisponible · Actions suspendues.</div>')+
+  '<p class="muted session-intro">Tous les profils consultent la même tournée fictive. Identités non authentifiées.</p>'+
   summary(s)+'</section>'+
   (notice?'<div class="'+(notice.startsWith('Erreur')?'error':'success')+'" role="status">'+esc(notice)+'</div>':'')+
   (!connected?'<div class="error">Serveur local inaccessible. Actions suspendues.</div>':'')+
