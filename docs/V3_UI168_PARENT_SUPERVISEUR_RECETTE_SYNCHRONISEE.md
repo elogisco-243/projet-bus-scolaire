@@ -76,6 +76,18 @@ On peut lancer le script avec `-OpenAndroidEmulator` pour utiliser `adb reverse 
 4. Modifier la tournée dans un onglet alors qu'un autre possède une ancienne révision : ce dernier reçoit un conflit et doit recharger les informations.
 5. Ouvrir le Parent E-02 : aucun détail de l'enfant E-01 ne doit apparaître.
 
+
+## Recette D — absence anticipée et annulation Parent
+
+1. Faire réinitialiser la Démo par le Superviseur pour obtenir une tournée nouvelle.
+2. Depuis **Parent E-02**, utiliser « Signaler absent (démo) » **avant que la tournée atteigne l'arrêt de montée E-02**.
+3. Ouvrir la session Accompagnateur : l'enfant apparaît avec le statut d'absence signalée, et il n'est pas ajouté aux élèves à pointer à l'arrêt de montée.
+4. Vérifier que Parent E-01 ne peut pas signaler l'absence de E-02. Vérifier aussi que la déclaration n'est plus possible après le passage à l'arrêt ou après la montée de l'enfant.
+5. Recommencer une tournée fictive ; Parent E-01 demande un changement vers l'arrêt A, puis clique sur « Annuler (démo) » avant la décision du Superviseur.
+6. Vérifier que le Parent voit **Annulée**, le Superviseur voit la demande annulée et que l'Accompagnateur conserve la destination initiale.
+
+**Limite importante :** une absence anticipée est déclarée par une identité parentale *fictive*. En production, elle ne devra être prise en compte qu'après une authentification Parent côté serveur et une validation de l'affectation parent-enfant.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
