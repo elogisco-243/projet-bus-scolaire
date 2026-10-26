@@ -1,5 +1,8 @@
-import {makeAttendantDemo,runAttendantDemo,attendantSummary,attendantClosingChecklist,INCIDENTS,CRITICAL_INCIDENTS} from './attendant-demo.mjs';
+import {makeAttendantDemo,runAttendantDemo,attendantSummary,attendantClosingChecklist,INCIDENTS,CRITICAL_INCIDENTS,makeUsabilityFixture,USABILITY_SIZES} from './attendant-demo.mjs';
 let state=makeAttendantDemo(),tab='tour',view='dashboard',message='';
+// UI-166: ephemeral UX measurement between first and last successful pointage.
+// NOT dwell time at the stop and never transmitted to a real backend.
+let usabilityMeter=null;
 let expressOpen=false,expressFilter='all';
 // UI-156: visual hints remain local to this DEMO; no timer, telemetry or real alert.
 let pointagePulseSeenAt=null, stopPulseWaitingFor=null;
@@ -201,7 +204,9 @@ function expressPage(d){
   '<div class="express-bottom">'+
     (reversible?button('↶ Corriger le dernier','undo_last_pointage','','express-undo'):'<span class="express-note">Chaque élève est confirmé individuellement</span>')+
     (pending===0?
-      '<div class="express-ready"><strong>✓ Pointages terminés</strong><small>'+(d.openAlerts?'Alerte ouverte : aucune reprise autorisée':'Le Chauffeur doit confirmer la reprise ; aucun départ automatique')+'</small></div>'+
+      '<div class="express-ready"><strong>✓ Pointages terminés</strong><small>'+(d.openAlerts?'Alerte ouverte : aucune reprise autorisée':'Le Chauffeur doit confirmer la reprise ; aucun départ automatique')+'</small>'+
+ (usabilityMeter&&usabilityMeter.finishedAt!==null?'<small>Essai UX : '+Math.max(0,Math.round((usabilityMeter.finishedAt-usabilityMeter.startedAt)/1000))+' s entre le premier et le dernier pointage · '+usabilityMeter.corrections+' correction(s)</small>':'')+
+ '</div>'+
       (d.canResume?button('Simuler reprise Chauffeur','simulate_driver_resume','','express-resume'):''):
       '<span class="express-guard">Reprise bloquée tant que le pointage est incomplet</span>')+
   '</div></section>';
@@ -246,7 +251,26 @@ function teamPage(d,done){
  '<section class="card"><h2>Session</h2><div class="line"><span>Environnement</span><strong>DÉMO</strong></div><p class="hint">Aucune synchronisation distante, même si le réseau simulé est connecté.</p>'+
  button('Simuler coupure / retour réseau','network','','light full')+button('Réinitialiser la simulation','reset','','light full')+'</section>';
 }
+function usabilitySummary(){
+ if(!usabilityMeter)return '';
+ const pending=attendantSummary(state).pendingAtStop;
+ const observed=usabilityMeter.finishedAt!==null&&usabilityMeter.startedAt!==null;
+ const duration=observed?Math.max(0,Math.round((usabilityMeter.finishedAt-usabilityMeter.startedAt)/1000)):null;
+ return '<div class="ux-trial-result" role="status"><strong>Essai local : '+usabilityMeter.size+' élèves fictifs</strong>'+
+ '<span>'+pending+' pointage(s) restant(s) · '+usabilityMeter.taps+' geste(s) de saisie · '+usabilityMeter.corrections+' correction(s)</span>'+
+ (observed?'<span>Intervalle entre le premier et le dernier pointage : '+duration+' s</span>':
+ '<span>Mesure à compléter par le dernier pointage</span>')+
+ '<small>Ce compteur ne mesure ni la prise en charge physique ni le temps d’arrêt réel.</small></div>';
+}
 function morePage(d){
+ if(view==='usability')return '<section class="card ux-trial-page"><h2>Essais de maniabilité · Démo</h2>'+
+ '<p class="hint">Choisissez le nombre d’élèves fictifs. Le scénario s’ouvre directement à l’arrêt A avec des descentes, des montées et des absences préalablement signalées.</p>'+
+ '<p class="hint"><strong>Attention :</strong> charger un scénario remplace la tournée fictive actuelle. Aucun historique n’est envoyé.</p>'+
+ '<div class="ux-trial-sizes">'+USABILITY_SIZES.map(n=>
+ button(n+' élèves','load_usability',String(n),'light ux-trial-load')).join('')+'</div>'+
+ usabilitySummary()+
+ '<p class="hint">Chronométrez aussi la durée totale de l’arrêt avec un observateur. Le temps calculé ici va uniquement du premier au dernier pointage.</p>'+
+ button('Retour aux outils','go_more','','light full')+'</section>';
  if(view==='journal')return tourSubpage(d);
  if(view==='voice')return '<section class="card sub-page">'+back()+'<h1>Annonces vocales</h1><p class="hint">Synthèse vocale indisponible dans cette démonstration isolée. Aucune annonce n’est envoyée.</p>'+button('Écouter le prochain arrêt (indisponible)','noop','','light full',true)+'</section>';
  if(view==='sync')return '<section class="card sub-page">'+back()+'<h1>Connexion et synchronisation</h1><p class="hint">DEMO — Sans serveur réel. La connexion Wi-Fi affichée sur Ma tournée est exclusivement simulée.</p>'+
@@ -257,7 +281,8 @@ function morePage(d){
  return '<section class="card more-tools"><h1>Outils</h1>'+
  button(icon('book')+' Journal des tournées','go_journal','','light full')+
  button(icon('speaker')+' Annonces vocales','go_voice','','light full')+
- button(icon('refresh')+' Connexion et synchronisation','go_sync','','light full')+'</section>';
+ button(icon('refresh')+' Connexion et synchronisation','go_sync','','light full')+
+ button(icon('clock')+' Essais de maniabilité (Démo)','go_usability','','light full')+'</section>';
 }
 function content(){
  const d=attendantSummary(state),started=d.status==='in_progress',done=d.status==='completed';
@@ -333,15 +358,23 @@ root.addEventListener('click',e=>{
   }else if(action==='express_filter'){expressFilter=target.dataset.arg||'all';expressOpen=true;
   }else if(action==='go_closing'){
    expressOpen=false;tab='tour';view='closing';
+  }else if(action==='go_usability'){tab='more';view='usability';expressOpen=false;
+  }else if(action==='go_more'){tab='more';view='dashboard';expressOpen=false;
+  }else if(action==='load_usability'){
+   const count=Number(target.dataset.arg);
+   state=makeUsabilityFixture(count);
+   usabilityMeter={size:count,startedAt:null,finishedAt:null,taps:0,corrections:0};
+   expressOpen=true;expressFilter='all';tab='tour';view='dashboard';
+   pointagePulseSeenAt=null;stopPulseWaitingFor=null;
   }else if(action==='go_journal'||action==='go_voice'||action==='go_sync'){
    tab='more';view=action==='go_journal'?'journal':action==='go_voice'?'voice':'sync';
   }
   else if(action==='back_tour'){tab='tour';view='dashboard';expressOpen=false;}
-  else if(action==='reset'){state=makeAttendantDemo();tab='tour';view='dashboard';expressOpen=false;expressFilter='all';pointagePulseSeenAt=null;stopPulseWaitingFor=null;}
+  else if(action==='reset'){state=makeAttendantDemo();usabilityMeter=null;tab='tour';view='dashboard';expressOpen=false;expressFilter='all';pointagePulseSeenAt=null;stopPulseWaitingFor=null;}
   else if(action==='network')state=runAttendantDemo(state,state.network==='simulated-online'?'simulate_network_loss':'simulate_network_return');
   else if(action==='new_demo_trip'){
    if(state.trip.status!=='completed')throw Error('TRIP_NOT_COMPLETED');
-   state=makeAttendantDemo();tab='tour';view='dashboard';expressOpen=false;expressFilter='all';pointagePulseSeenAt=null;stopPulseWaitingFor=null;
+   state=makeAttendantDemo();usabilityMeter=null;tab='tour';view='dashboard';expressOpen=false;expressFilter='all';pointagePulseSeenAt=null;stopPulseWaitingFor=null;
   }
   else{
    const actual=action==='incident'?'report_incident':action;
@@ -350,6 +383,13 @@ root.addEventListener('click',e=>{
     action==='mark_absent'?{studentId:target.dataset.arg,reason:'non_present'}:
     {studentId:target.dataset.arg};
    state=runAttendantDemo(state,actual,args);
+   if(usabilityMeter&&['board','alight','mark_absent','undo_last_pointage'].includes(action)){
+    const now=Date.now();
+    if(usabilityMeter.startedAt===null)usabilityMeter.startedAt=now;
+    usabilityMeter.taps+=1;
+    if(action==='undo_last_pointage')usabilityMeter.corrections+=1;
+    usabilityMeter.finishedAt=attendantSummary(state).pendingAtStop===0?now:null;
+   }
    if(action==='start_demo_trip'||action==='simulate_driver_resume'||action==='finish_demo_trip'||action==='demo_confirm_empty_and_finish'){tab='tour';view='dashboard';if(action!=='start_demo_trip')expressOpen=false;}
    if(action==='simulate_arrival'){
     const arrived=attendantSummary(state);
