@@ -143,6 +143,10 @@ Cela confirme l'observation humaine d'une propagation de la décision sur les de
 
 Lancer le script existant avec les options `-NoBrowser -OpenAndroidEmulator`. Il redirige le port TCP 4177 de l'émulateur Android vers le serveur de démonstration du PC. Vérifier que la préparation Accompagnateur réalisée dans le navigateur de l'émulateur apparaît chez le Chauffeur dans le navigateur Windows. Ce n'est pas la synchronisation de l'APK Android opérationnelle.
 
+### Test 7 — affichage dans l'émulateur confirmé
+
+**Observation confirmée par l'utilisateur :** « L'écran Accompagnateur apparaît correctement sur l'émulateur Android. » Le service local, la redirection ADB et le navigateur Android sont donc accessibles pour poursuivre le test. **La propagation PC ↔ Android n'est pas encore confirmée** et reste la prochaine vérification manuelle.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
