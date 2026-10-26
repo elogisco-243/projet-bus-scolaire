@@ -743,3 +743,19 @@ button:focus-visible{outline:3px solid #e3aa19;outline-offset:2px}
   transform:translateX(0)!important;
  }
 }
+
+/* UI-164: terminal status remains legible while Arrêt express covers dashboard. */
+.express-terminal-scroll{
+ display:inline-block;
+ color:#6533a0;
+ font-weight:900;
+ white-space:nowrap;
+ animation:express-terminal-shift 7s ease-in-out 1s infinite alternate;
+}
+@keyframes express-terminal-shift{
+ from{transform:translateX(0)}
+ to{transform:translateX(12px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .express-terminal-scroll{animation:none!important}
+}
