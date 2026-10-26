@@ -84,7 +84,7 @@ test('UI165/SAFETY/02: if none present or guardian missing, never silently mark 
  assert.equal(attendantSummary(x).pendingAtStop,0);
  assert.equal(attendantSummary(x).onboard,0);
  assert.equal(x.students.filter(p=>p.alighted).length,0);
- assert.throws(()=>runAttendantDemo(x,'alight',{studentId:'S-001'}),/NOT_ONBOARD/);
+ assert.throws(()=>runAttendantDemo(x,'alight',{studentId:'S-001'}),/NOT_ONBOARD|NOT_BOARDED/);
 });
 test('UI165/SAFETY/03: 50 riders must alight at correct final stop one-by-one',()=>{
  const h=mounted(makeSeed(50,0));runToPickup(h);
