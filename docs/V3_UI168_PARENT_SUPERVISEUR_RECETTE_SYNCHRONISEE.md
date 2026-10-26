@@ -119,6 +119,16 @@ Cela confirme l'observation humaine d'une propagation de la décision sur les de
 
 **Prochain essai — test 6 : annulation Parent.** Réinitialiser la tournée fictive, préparer et démarrer la tournée, atteindre le Dépôt ; Parent E-01 demande le changement vers l'arrêt fictif A puis annule sa demande avant toute décision. Vérifier le statut « Annulée » chez le Parent et le Superviseur, et la destination d'origine inchangée chez l'Accompagnateur. Le Superviseur ne doit plus pouvoir approuver cette demande.
 
+### Test 6 — annulation confirmée
+
+**Confirmé par l'utilisateur.** Une demande Parent en attente a été annulée ; son statut est synchronisé et la destination initiale est conservée.
+
+**Recette manuelle UI-168 : 6 scénarios confirmés sur 6 testés**, uniquement sur le serveur local de démonstration. Les essais entre le PC et le navigateur Android restent à réaliser.
+
+### Test 7 — session du navigateur Android reliée au PC
+
+Lancer le script existant avec les options `-NoBrowser -OpenAndroidEmulator`. Il redirige le port TCP 4177 de l'émulateur Android vers le serveur de démonstration du PC. Vérifier que la préparation Accompagnateur réalisée dans le navigateur de l'émulateur apparaît chez le Chauffeur dans le navigateur Windows. Ce n'est pas la synchronisation de l'APK Android opérationnelle.
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
