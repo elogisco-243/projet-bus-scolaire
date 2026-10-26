@@ -120,10 +120,13 @@ function indicatorAttention(d){
 }
 function tourDashboard(d,started,done){
  const attention=indicatorAttention(d);
+ const atTerminus=d.stopsTotal>0&&d.stopsReached===d.stopsTotal&&d.status!=='planned';
+ const stopName=atTerminus?'Terminus atteint':d.atStop?d.activeStopName:d.nextStop;
+ const stopLabel=atTerminus?'PROCHAIN ARRÊT':d.atStop?'ARRÊT ACTUEL':'PROCHAIN ARRÊT';
  return '<section class="tour-dashboard" aria-label="Tableau de bord Accompagnateur"'+(expressOpen?' inert aria-hidden="true"':'')+'><section class="card tour-hero">'+
  '<div class="tour-heading"><h2>MA TOURNÉE</h2><div class="tour-heading-right"><span class="trip-state '+(started?'state-running':done?'state-complete':'state-preparing')+'">'+
  (started?'● EN COURS':done?'✓ TERMINÉE':'À PRÉPARER')+'</span><span class="network-icon '+(d.network==='simulated-online'?'wifi-online':'wifi-offline')+'" role="img" aria-label="'+(d.network==='simulated-online'?'Wi-Fi simulé actif — sans serveur réel':'Wi-Fi simulé inactif — sans serveur réel')+'" title="Wi-Fi simulé, aucune connexion serveur">'+icon(d.network==='simulated-online'?'wifi':'wifi-off')+'</span></div></div>'+
- '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">'+(d.atStop?'ARRÊT ACTUEL':'PROCHAIN ARRÊT')+'</span><strong>'+escapeHTML(d.atStop?d.activeStopName:d.nextStop)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
+ '<div class="next-stop"><div class="next-stop-info"><span class="hero-label">'+stopLabel+'</span><strong class="stop-name-scroller'+(atTerminus?' terminus-reached':'')+'">'+escapeHTML(stopName)+'</strong></div><span class="sound-icon" title="Annonces vocales non disponibles">'+icon('speaker')+'</span></div>'+
  activeAlertBanner()+
  '<div class="hero-stats">'+
  '<button type="button" class="hero-stat'+(attention.pointagePending?' indicator-pending':'')+(attention.pointagePulse?' indicator-pulse':'')+'" data-action="go_students" aria-label="Élèves à bord : '+d.onboard+(attention.pointagePending?' ; '+d.pendingAtStop+' pointage(s) attendu(s) à l’arrêt actif':'')+'"><span class="hero-label">'+icon('team')+' ÉLÈVES À BORD</span><strong>'+d.onboard+'</strong><span class="stat-chevron">›</span></button>'+
@@ -173,7 +176,7 @@ function expressPage(d){
  const filters=[['all','Tous',pending],['alight','Descentes',r.departures.length],['board','Montées',r.boardings.length]];
  return '<section class="express-overlay" role="region" aria-label="Arrêt express — pointage des élèves">'+
   '<div class="express-header"><div><span class="express-eyebrow">DÉMO · ARRÊT EXPRESS</span>'+
-  '<h2>'+escapeHTML(d.activeStopName)+'</h2><small>Bus déclaré immobilisé · arrêt '+d.stopsReached+'/'+d.stopsTotal+'</small></div>'+
+  '<h2>'+escapeHTML(d.activeStopName)+'</h2><small>'+(d.stopsReached===d.stopsTotal?'TERMINUS ATTEINT · ':'')+'Bus déclaré immobilisé · arrêt '+d.stopsReached+'/'+d.stopsTotal+'</small></div>'+
   button('×','express_close','','express-close')+'</div>'+
   '<div class="express-kpis" role="status" aria-live="polite">'+
    '<div><strong>'+r.departures.length+'</strong><span>Descentes restantes</span></div>'+
@@ -266,6 +269,34 @@ function content(){
 }
 const navEntries=[['tour','▣','Ma tournée'],['alerts','⚠','Alertes'],['team','♧','Équipe'],['more','•••','Plus']];
 const navIcon={tour:'nav-bus',alerts:'alert',team:'team',more:'more'};
+/* UI-164: mirrors chauffeur APK UI-132 measured text-width-driven marquee.
+ * Terminus gets a gentle always-visible movement even if it fits; motion
+ * is disabled by the OS accessibility setting via CSS.
+ */
+function updateStopNameMarquee(){
+ if(typeof root.querySelector!=='function')return;
+ const el=root.querySelector('.next-stop-info .stop-name-scroller');
+ if(!el||!el.parentElement||!el.style||!el.classList)return;
+ const available=Number(el.parentElement.clientWidth)||0;
+ const natural=Number(el.scrollWidth)||0;
+ if(available<=0||natural<=0)return;
+ const distance=Math.max(0,Math.ceil(natural-available));
+ const terminal=el.classList.contains('terminus-reached');
+ const overflow=distance>2;
+ el.classList.toggle('stop-name-overflow',overflow||terminal);
+ if(overflow){
+  el.style.setProperty('--stop-name-offset',String(-(distance+3))+'px');
+  el.style.setProperty('--stop-name-duration',String(Math.max(7,Math.min(18,5+distance/18)))+'s');
+ }else if(terminal){
+  // Don't clip a short terminal label merely to make it move.
+  el.style.setProperty('--stop-name-offset',String(Math.min(24,Math.max(0,available-natural-3)))+'px');
+  el.style.setProperty('--stop-name-duration','7s');
+ }
+}
+function scheduleStopNameMarquee(){
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(updateStopNameMarquee);
+ else updateStopNameMarquee();
+}
 function render(){
  const tabLabel={tour:'Ma tournée',alerts:'Alertes',team:'Équipe',more:'Plus'};
  root.innerHTML='<div class="app"><header class="head"><div class="brand"><div class="brand-left">'+
@@ -281,6 +312,7 @@ function render(){
  '<button type="button" data-tab="'+id+'" class="'+(tab===id?'active':'')+'" '+(tab===id?'aria-current="page"':'')+'>'+
  '<span class="nav-icon">'+icon(navIcon[id])+'</span><span class="nav-label">'+label+'</span></button>').join('')+
  '</nav></div>';
+ scheduleStopNameMarquee();
 }
 root.addEventListener('click',e=>{
  const target=e.target.closest('button');if(!target||target.disabled)return;
@@ -332,4 +364,8 @@ root.addEventListener('click',e=>{
   }
  }catch(err){message='Action refusée : '+(friendlyErrors[err.message]||err.message);}
  render();
-});render();
+});
+if(typeof window!=='undefined'&&typeof window.addEventListener==='function'){
+ window.addEventListener('resize',scheduleStopNameMarquee);
+}
+render();
