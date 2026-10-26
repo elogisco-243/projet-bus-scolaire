@@ -16,9 +16,12 @@ const item=(name,help,actions='')=>'<div class="item"><div><strong>'+esc(name)+'
 function actorBody(s){
  if(profile==='parent'||profile==='parent2'){
   const people=(s.children||[]).map(p=>item('Élève '+p.studentId,
-    'Destination : '+stopName(p.dropoffStopId)+' · '+(p.released?'Remise déclarée (démo)':p.boarded?'À bord (démo)':'Non monté'))).join('');
+    'Destination : '+stopName(p.dropoffStopId)+' · '+(p.released?'Remise déclarée (démo)':p.absent?'Absence annoncée':p.boarded?'À bord (démo)':'Non monté'),
+    (!p.absent&&!p.boarded&&s.status!=='completed')?
+      btn('Signaler absent (démo)','notify_absence',{studentId:p.studentId,reason:'family_notified'},'action secondary'):'')).join('');
   const requests=(s.requests||[]).map(r=>item('Demande '+r.id,
-    stopName(r.fromStopId)+' → '+stopName(r.toStopId)+' · '+r.status+(r.reason?' · Motif : '+r.reason:''))).join('');
+    stopName(r.fromStopId)+' → '+stopName(r.toStopId)+' · '+r.status+(r.reason?' · Motif : '+r.reason:''),
+    r.status==='pending'?btn('Annuler (démo)','cancel_change',{requestId:r.id},'action secondary'):'')).join('');
   const child=s.children?.[0],parentId=profile==='parent'?'PA-DEMO':'PB-DEMO';
   const destinations=['STOP-01','STOP-02','STOP-03'].filter(id=>id!==child?.dropoffStopId);
   return '<section class="card"><h2>Mes enfants fictifs</h2><div class="list">'+(people||'<p>Aucun élève</p>')+'</div></section>'+
@@ -26,7 +29,7 @@ function actorBody(s){
    '<p class="notice">Une demande reste en attente. Seule la décision séparée du Superviseur peut modifier le trajet fictif.</p>'+
    (child?'<form id="stop-request"><label for="newstop">Nouvel arrêt</label><select id="newstop" name="stop">'+
     destinations.map(id=>'<option value="'+esc(id)+'">'+esc(stopName(id))+'</option>').join('')+
-    '</select><button class="action" type="submit" '+(s.status!=='in_progress'?'disabled':'')+'>Envoyer la demande (démo)</button></form>'+
+    '</select><button class="action" type="submit" '+(s.status!=='in_progress'||child.absent||child.released?'disabled':'')+'>Envoyer la demande (démo)</button></form>'+
     '<p class="muted">Destinataire simulé : '+esc(parentId)+'. Aucune demande n’est transmise à un établissement.</p>':'')+
    '</section><section class="card"><h2>Mes demandes</h2><div class="list">'+(requests||'<p>Aucune demande</p>')+'</div></section>';
  }
