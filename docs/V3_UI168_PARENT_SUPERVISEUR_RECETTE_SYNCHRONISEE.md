@@ -147,6 +147,18 @@ Lancer le script existant avec les options `-NoBrowser -OpenAndroidEmulator`. Il
 
 **Observation confirmée par l'utilisateur :** « L'écran Accompagnateur apparaît correctement sur l'émulateur Android. » Le service local, la redirection ADB et le navigateur Android sont donc accessibles pour poursuivre le test. **La propagation PC ↔ Android n'est pas encore confirmée** et reste la prochaine vérification manuelle.
 
+## UI-169 — action principale Accompagnateur sur écran Android
+
+**Anomalie observée** : une capture de navigateur Android sur l'AVD montre seulement la carte de titre, la connexion et les quatre indicateurs, sans bouton disponible dans la hauteur visible. Les commandes Accompagnateur étaient présentées après la carte d'indicateurs.
+
+**Correction mise en branche de test** : l'action Accompagnateur est placée dans le premier bloc, avant les indicateurs ; le bandeau, l'en-tête et les tuiles sont compactés sur smartphone. Pour une tournée planifiée, « Confirmer la préparation (démo) » devient visible immédiatement. Ensuite l'état « Préparation confirmée » remplace le bouton. À l'arrêt, l'écran distingue pointage restant, alerte critique, feu vert à donner et feu vert déjà transmis. Les commandes de sécurité et de pointage restent accessibles plus bas.
+
+**Vérification CI** : trois nouveaux tests UI-169 exécutent la vraie interface JavaScript avec un serveur HTTP local fictif et vérifient l'ordre d'affichage, le clic de préparation, l'activation du feu vert après le pointage et les règles CSS mobiles. Au moment de l'ajout : 426 tests, 413 réussis, zéro échec, 13 TODO.
+
+**Recette humaine à faire** : dans le dépôt Windows sur la branche de test, effectuer `git pull --ff-only`, puis rafraîchir l'onglet du navigateur Android (ou rouvrir `http://127.0.0.1:4177/?profile=accompagnateur`). Si la tournée est déjà commencée, le Superviseur la réinitialise sur le PC. Vérifier la visibilité et l'action du bouton sur le premier écran, sans défilement. Ne pas redémarrer le serveur si l'on souhaite conserver la tournée fictive déjà en mémoire.
+
+**Statut : correction automatisée testée, affichage et clic réels Android encore à confirmer par l'utilisateur.**
+
 ## Ce qui reste avant une synchronisation opérationnelle
 
 - Identité réelle vérifiée, contrats Chauffeur / Accompagnateur / Parent / Superviseur et droits attribués **côté serveur**.
