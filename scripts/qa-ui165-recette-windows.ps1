@@ -103,8 +103,7 @@ $ErrorActionPreference = "Stop"
     Write-Host "ETAPE 1 : activer Pret au depart, Demarrer la course, Arrêt atteint." -ForegroundColor White
     $AtStop = Read-Host "Quand Arrêt express est ouvert, appuyez sur ENTREE pour capturer (S pour sauter)"
     $StopImage = $null
-    if ($AtStop -notmatch '^[Ss]
-) {
+    if ($AtStop -ne 'S' -and $AtStop -ne 's') {
        $StopImage = Join-Path $Folder "01-Arret-express.png"
        & $Adb -s $Serial shell screencap -p /sdcard/a2s_qa165_arret.png
        if ($LASTEXITCODE -ne 0) { throw "Capture Arrêt express echouee" }
@@ -118,8 +117,7 @@ $ErrorActionPreference = "Stop"
     $AtTerminus = Read-Host "Quand Terminus atteint est visible, appuyez sur ENTREE pour capturer et filmer 9 secondes (S pour sauter)"
     $TermImage = $null
     $TermVideo = $null
-    if ($AtTerminus -notmatch '^[Ss]
-) {
+    if ($AtTerminus -ne 'S' -and $AtTerminus -ne 's') {
        $TermImage = Join-Path $Folder "02-Terminus-atteint.png"
        & $Adb -s $Serial shell screencap -p /sdcard/a2s_qa165_terminus.png
        if ($LASTEXITCODE -ne 0) { throw "Capture Terminus echouee" }
@@ -180,5 +178,4 @@ $ErrorActionPreference = "Stop"
     Write-Host "Rapport : $ReportFile"
     Write-Host "Fiche de mesures humaines : $HumanSheet"
     Write-Host "IMPORTANT : compilation, tests et captures ne valent pas validation operationnelle." -ForegroundColor Yellow
-}
 }
