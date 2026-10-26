@@ -105,9 +105,15 @@ Cela confirme l'observation humaine d'une propagation de la décision sur les de
 
 **Validé par l'utilisateur.** Après le test où Parent E-02 annonce son absence avant départ, puis où l'Accompagnateur vérifie qu'E-02 ne figure plus parmi les élèves restant à pointer à l'arrêt fictif A, l'utilisateur a répondu : « Confirmé ». Cette validation porte sur la simulation multi-session locale, pas sur une application opérationnelle authentifiée.
 
-**Non encore confirmés par l'utilisateur** : annulation de demande ; incident critique ; contrôle et remise simulée ; reprise réseau ; essais sur appareils distincts.
+### Test 4 — incident critique et reprise bloquée
 
-**Prochain essai** : incident critique : à l'arrêt fictif Dépôt, signaler un enfant manquant depuis Chauffeur ; vérifier le blocage du feu vert chez l'Accompagnateur et de la reprise chez le Chauffeur ; faire traiter l'alerte en simulation par le Superviseur ; vérifier qu'un nouveau feu vert explicite est nécessaire.
+**Validé par l'utilisateur.** Après avoir reçu le scénario de démonstration « enfant manquant » à l'arrêt fictif Dépôt, le blocage du feu vert Accompagnateur et de la reprise Chauffeur, la résolution simulée par le Superviseur et le renouvellement explicite du feu vert, l'utilisateur a répondu « Confirmé ». La confirmation concerne exclusivement le comportement de la tournée fictive sur le serveur local.
+
+**Bilan provisoire : 4 scénarios manuels validés sur 4 proposés successivement** (approbation, refus, absence Parent, incident critique).
+
+**Non encore confirmés par l'utilisateur** : annulation d'une demande en attente ; revue et remise simulée ; reprise réseau ; essais sur appareils distincts.
+
+**Prochain essai — test 5, remise simulée encadrée :** après réinitialisation, Parent E-01 demande l'arrêt fictif A ; Superviseur approuve avant le pointage ; l'Accompagnateur fait monter E-01 au Dépôt, puis le Chauffeur atteint A. La tentative de remise avant revue Superviseur doit être refusée. Le Superviseur réalise une revue fictive du destinataire ; l'Accompagnateur enregistre ensuite la remise simulée. Le Parent doit voir la remise déclarée. Aucune identité ou aucun badge réel n'est vérifié.
 
 ## Ce qui reste avant une synchronisation opérationnelle
 
