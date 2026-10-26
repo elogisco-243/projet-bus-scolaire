@@ -32,7 +32,7 @@ const ready=h=>{h.click('demo_prepare_departure');h.click('start_demo_trip');};
 const arrive=h=>{ready(h);h.click('simulate_arrival');};
 test('UI163/01: Arrêt express appears immediately after arrival (not after long page scroll)',()=>{
  const h=create();arrive(h);
- assert.match(h.html(),/role="dialog" aria-modal="true" aria-label="Arrêt express/);
+ assert.match(h.html(),/role="region" aria-label="Arrêt express/);
  assert.match(h.html(),/DÉMO · ARRÊT EXPRESS/);
  assert.match(h.html(),/Dépôt/);
  assert.match(h.html(),/data-pupil="E-01"/);
