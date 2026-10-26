@@ -21,7 +21,14 @@ test('UI166/PS02: worksheet never fills in unobserved human usability scores',()
  for(const metric of ['IntervallePointageSecondes','TempsArretTotalSecondes','Defilements','Erreurs'])assert.match(source,new RegExp(metric+'=""'));
  assert.match(source,/aucun resultat utilisateur n est automatiquement valide/);
 });
-test('UI166/PS03: native PowerShell parser reports no syntax error on CI',t=>{
+test('UI166/PS03: Windows PowerShell 5.1 can parse the BOM-less file as ANSI',()=>{
+ // Guard the encoding regression that caused MissingEqualsInHashLiteral on Windows.
+ assert.equal(Buffer.byteLength(source,'utf8'),source.length,'PS script must stay ASCII-only');
+ assert.doesNotMatch(source,/MontéesPrevues|MontÃ©esPrevues/);
+ assert.equal((source.match(/MonteesPrevues=/g)||[]).length,4);
+ assert.equal((source.match(/\[pscustomobject\]@\{/g)||[]).length,4);
+});
+test('UI166/PS04: native PowerShell parser reports no syntax error on CI',t=>{
  const which=spawnSync('pwsh',['-NoProfile','-NonInteractive','-Command','$PSVersionTable.PSVersion.Major'],{encoding:'utf8'});
  if(which.error?.code==='ENOENT'){
   t.diagnostic('pwsh not installed on runner. Windows user command will parse natively before execution.');
