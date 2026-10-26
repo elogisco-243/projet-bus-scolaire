@@ -161,7 +161,7 @@ test('PAIR/19: one tap on student bubble points and returns without extra menu',
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
  assert.doesNotMatch(h.html(),/Pointage des élèves<\/h2>/);
 });
-test('PAIR/20: UI DEMO auto-skips intermediate stop with zero assigned pupils and preserves events',()=>{
+test('PAIR/20: empty stop needs explicit driver resume, even with no pupil to point',()=>{
  const seeded=makeAttendantDemo();
  seeded.students[0].pickupStopId='STOP-02';
  seeded.students[1].pickupStopId='STOP-02';
@@ -169,10 +169,12 @@ test('PAIR/20: UI DEMO auto-skips intermediate stop with zero assigned pupils an
  h.click('simulate_arrival');
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>1\/3/);
  assert.doesNotMatch(h.html(),/indicator-pending/);
+ assert.equal(h.clickIfEnabled('simulate_arrival'),false);
+ assert.equal(h.clickIfEnabled('simulate_driver_resume'),true);
  assert.equal(h.clickIfEnabled('simulate_arrival'),true);
  assert.match(h.html(),/ARRÊTS ATTEINTS<\/span><strong>2\/3/);
 });
-test('PAIR/21: resolving critical alert with pointage complete automatically unblocks DEMO route',()=>{
+test('PAIR/21: critical alert resolution unblocks only an explicit driver resume',()=>{
  const h=makeUI();h.click('demo_prepare_departure');h.click('start_demo_trip');
  h.click('simulate_arrival');
  h.click('incident','medical');h.click('go_students');h.click('board','E-01');
@@ -184,6 +186,8 @@ test('PAIR/21: resolving critical alert with pointage complete automatically unb
  h.click('resolve_incident',m[1]);
  assert.doesNotMatch(h.html(),/ALERTE ACTIVE/);
  h.click('tour','',true);
+ assert.equal(h.clickIfEnabled('simulate_arrival'),false);
+ h.click('simulate_driver_resume');
  assert.equal(h.clickIfEnabled('simulate_arrival'),true);
 });
 test('PAIR/22: cannot close until all stops, pupils and empty bus explicit confirmation',()=>{
