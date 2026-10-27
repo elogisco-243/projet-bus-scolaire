@@ -1,4 +1,5 @@
 import {makeAttendantDemo,runAttendantDemo,attendantSummary,attendantClosingChecklist,INCIDENTS,CRITICAL_INCIDENTS,makeUsabilityFixture,USABILITY_SIZES} from './attendant-demo.mjs';
+import {inspectAttendantGesture} from './action-boundary.mjs';
 let state=makeAttendantDemo(),tab='tour',view='dashboard',message='';
 // UI-166: ephemeral UX measurement between first and last successful pointage.
 // NOT dwell time at the stop and never transmitted to a real backend.
@@ -383,6 +384,11 @@ root.addEventListener('click',e=>{
     action==='resolve_incident'?{incidentId:target.dataset.arg}:
     action==='mark_absent'?{studentId:target.dataset.arg,reason:'non_present'}:
     {studentId:target.dataset.arg};
+   // UI-178: classify this full-screen gesture before the unchanged local DEMO reducer.
+   // This is not a server authorization and never dispatches an operational command.
+   const inspection=inspectAttendantGesture({mode:state.mode,action,
+     studentId:args.studentId||null});
+   if(inspection.code==='OPERATIONAL_DISPATCH_DISABLED')throw Error(inspection.code);
    state=runAttendantDemo(state,actual,args);
    if(usabilityMeter&&['board','alight','mark_absent','undo_last_pointage'].includes(action)){
     const now=Date.now();
