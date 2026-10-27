@@ -1,0 +1,29 @@
+name: Render security verification (staging)
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+      - name: Confirm runtime
+        run: node --version && npm --version
+      - name: Verify committed lockfile exists
+        run: test -f staging/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: staging
+      - name: Security audit
+        run: npm audit --audit-level=high
+        working-directory: staging
+      - name: Application checks
+        run: node --check staging/pg-preflight.js && node --check staging/server.js
+      - name: Preserve lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-package-lock
+          path: staging/package-lock.json
