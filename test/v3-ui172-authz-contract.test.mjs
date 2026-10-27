@@ -7,7 +7,7 @@ const make=(role,extra={})=>({id:'USER-1',source:'trusted_gateway',active:true,r
  organizationId:'SCHOOL-A',assignedTripIds:['TRIP-1'],authorizedStudentIds:['STUDENT-1'],...extra});
 const check=(principal,action,resource=trip,verifiedContext=context)=>auth({principal,action,resource,verifiedContext});
 test('UI172/AUTH01: no trusted verification means deny, even if the role looks valid',()=>{
- assert.equal(check(make('driver'),'trip.start',trip,undefined).ok,false);
+ assert.equal(check(make('driver'),'trip.start',trip,null).ok,false);
  assert.equal(check(make('driver'),'trip.start',trip,{serverVerified:false}).ok,false);
  assert.equal(check(make('driver',{source:'demo'}),'trip.start').ok,false);
 });
