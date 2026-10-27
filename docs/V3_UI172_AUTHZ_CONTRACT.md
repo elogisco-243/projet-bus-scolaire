@@ -1,0 +1,11 @@
+# A2S Scola — UI-172, premier contrat de sécurité (non déployé)
+- Branche isolée : `feature/bus-v3-ui172-authz-contract`.
+- Pas de changement UI-170, du serveur Démo, ni du mode Opérationnel.
+- Nouveau module `mobile-session22/operational-policy.mjs`, appelé uniquement par un futur serveur de confiance. **Un client mobile ne doit jamais fournir lui-même `verifiedContext` ou `principal`.**
+- Autorisations minimales par rôle : Chauffeur, Accompagnateur, Parent et Superviseur.
+- Cloisonnement par organisation, affectation de tournée et filiation Parent–enfant ; revue indépendante des demandes.
+- Valeur par défaut : refus. Aucun token, compte, badge ou identité réelle n'est actuellement vérifié par ce module.
+- Les indicateurs de prérequis ne sont pas des preuves de sécurité : un audit du déploiement reste requis.
+- Exécution locale : `node --test test/v3-ui172-authz-contract.test.mjs`.
+- La Démo UI-168/170 demeure inchangée et isolée ; ne pas importer de principal auto-déclaré dans l'API opérationnelle.
+- Reste à développer : fournisseur d'identité, validation serveur des jetons, TLS, audit immuable, stockage durable, permissions institutionnelles, politique hors-ligne et tests multi-appareils.
