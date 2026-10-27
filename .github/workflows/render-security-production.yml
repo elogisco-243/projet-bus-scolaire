@@ -1,0 +1,30 @@
+name: Render security verification (production)
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+      - name: Confirm runtime
+        run: node --version && npm --version
+      - name: Generate lockfile without changing tracked files
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+        working-directory: .
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+        working-directory: .
+      - name: Security audit
+        run: npm audit --audit-level=high
+        working-directory: .
+      - name: Application checks
+        run: npm run check && npm test
+      - name: Preserve lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-package-lock
+          path: package-lock.json
