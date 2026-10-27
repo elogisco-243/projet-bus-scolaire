@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "Read-only infrastructure readiness probe for Bus scolaire V3 staging",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": "22.23.4"
+  },
   "dependencies": {
     "pg": "^8.13.1"
   }
