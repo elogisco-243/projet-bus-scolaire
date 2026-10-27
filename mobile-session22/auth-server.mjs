@@ -8,9 +8,9 @@ import {randomBytes,randomUUID,scryptSync,timingSafeEqual} from 'node:crypto';
 import {authorizeOperationalAction} from './operational-policy.mjs';
 
 const hash=(password,salt)=>scryptSync(password,salt,32);
-export function createAuthService({accounts=[],allowLocalHttpForTests=false,ttlMs=900000,now=()=>Date.now()}={}){
+export function createAuthService({accounts=[],allowLocalHttpForTests=false,ttlMs=900000,now=()=>Date.now(),maxFailures=5,lockoutMs=300000}={}){
   if(!allowLocalHttpForTests)throw Error('TLS_GATEWAY_REQUIRED');
-  const users=new Map(),sessions=new Map(),audit=[];
+  const users=new Map(),sessions=new Map(),audit=[],failures=new Map();
   for(const account of accounts){
     if(!account?.id||!account?.password||!account?.organizationId||!account?.role||!account?.login)throw Error('INVALID_ACCOUNT');
     if(users.has(account.login))throw Error('DUPLICATE_LOGIN');
@@ -47,13 +47,18 @@ export function createAuthService({accounts=[],allowLocalHttpForTests=false,ttlM
       if(req.method==='POST'&&path==='/login'){
         const body=await json(req);
         if(typeof body.login!=='string'||typeof body.password!=='string')return deny(res,'INVALID_CREDENTIALS',401);
+        const attempt=failures.get(body.login);
+        if(attempt?.lockedUntil>now()){record('LOGIN',body.login,'RATE_LIMITED');return deny(res,'LOGIN_RATE_LIMITED',429);}
         const user=users.get(body.login);
         // Work factor for both nonexistent and existing usernames; no username enumeration.
         const salt=user?.salt||Buffer.alloc(16,7);
         const computed=hash(body.password,salt);
         if(!user||!timingSafeEqual(computed,user.passwordHash)||!user.active){
+          const count=(attempt?.count||0)+1;
+          failures.set(body.login,{count,lockedUntil:count>=maxFailures?now()+lockoutMs:0});
           record('LOGIN',body.login,'DENIED');return deny(res,'INVALID_CREDENTIALS',401);
         }
+        failures.delete(body.login);
         const token=randomBytes(32).toString('hex');
         sessions.set(token,{user,expiresAt:now()+ttlMs});
         record('LOGIN',user.id,'SUCCESS');
